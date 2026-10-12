@@ -1,0 +1,27 @@
+/* Shared look for every page: the palette in a dark and a light version, and the styling of every standard control (buttons, fields,
+   selects, checkboxes, file pickers, scrollbars, focus rings, text selection). Pages add only their own layout on top. */
+:root { color-scheme:dark; --bg:#0a0a0a; --bar:#111; --panel:#161616; --ctl:#1f1f1f; --ctl2:#2b2b2b; --line:#333; --ink:#f2f2f2; --dim:#9a9a9a; --accent:#f2f2f2; --err:#ff8a94;
+  --p0:#2f8cff; --p0d:#0f3fa8; --p1:#ff4658; --p1d:#a3122a; --ok:#39d98a; --gold:#ffd23f; --bd:#0c0d10; --bd2:#17191e; --bd-line:#c9ced8; --bd-pt:#101216; }
+:root[data-theme=light] { color-scheme:light; --bg:#f1f1f1; --bar:#fff; --panel:#fff; --ctl:#f3f3f3; --ctl2:#e4e4e4; --line:#cfcfcf; --ink:#111; --dim:#666; --accent:#111; --err:#c62828;
+  --bd:#dedad1; --bd2:#f3f0e9; --bd-line:#3c4048; --bd-pt:#fbfaf6; }
+* { box-sizing:border-box; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
+[hidden] { display:none !important; }
+body { margin:0; color:var(--ink); background:var(--bg); font:14px/1.45 "Segoe UI",system-ui,Roboto,sans-serif; }
+a { color:var(--ink); }
+::selection { background:var(--ink); color:var(--bg); }
+:focus-visible { outline:2px solid var(--dim); outline-offset:2px; }
+button, select, input, textarea { font:inherit; color:var(--ink); background:var(--ctl); border:1px solid var(--line); border-radius:10px; padding:7px 14px; }
+input::placeholder, textarea::placeholder { color:var(--dim); opacity:1; }
+select option { background:var(--ctl); color:var(--ink); }
+button { cursor:pointer; text-align:left; font-weight:600; transition:background .12s,border-color .12s,transform .05s; }
+button:hover:not(:disabled) { background:var(--ctl2); border-color:var(--dim); } button:active:not(:disabled) { transform:translateY(1px); } button:disabled { opacity:.4; cursor:default; }
+button.primary { background:var(--ink); border-color:var(--ink); color:var(--bg); } button.primary:hover:not(:disabled) { background:var(--ink); border-color:var(--ink); opacity:.85; }
+.iconbtn { display:inline-flex; align-items:center; justify-content:center; padding:5px 8px; line-height:0; color:var(--ink); cursor:pointer; text-decoration:none; }
+input[type=checkbox], input[type=radio] { accent-color:var(--ink); width:15px; height:15px; padding:0; vertical-align:-2px; }
+input[type=file] { padding:5px; max-width:100%; }
+input[type=file]::file-selector-button { font:inherit; font-weight:600; color:var(--bg); background:var(--ink); border:0; border-radius:8px; padding:6px 12px; margin-right:10px; cursor:pointer; }
+/* older WebKit (Safari) has no scrollbar-color, so it gets the same look this way */
+@supports not (scrollbar-color:auto) {
+  ::-webkit-scrollbar { width:10px; height:10px; } ::-webkit-scrollbar-track, ::-webkit-scrollbar-corner { background:transparent; }
+  ::-webkit-scrollbar-thumb { background:var(--line); border-radius:99px; border:2px solid transparent; background-clip:padding-box; } ::-webkit-scrollbar-thumb:hover { background-color:var(--dim); }
+}

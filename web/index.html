@@ -5,26 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <title>Figure Duel</title>
+<link rel="stylesheet" href="theme.css">
+<script src="theme.js"></script>
+<script src="sound.js"></script>
 <style>
-  :root { --bg:#0a0a0a; --bar:#111; --panel:#161616; --ctl:#1f1f1f; --ctl2:#2b2b2b; --line:#333; --ink:#f2f2f2; --dim:#9a9a9a; --accent:#f2f2f2; --err:#ff8a94; --p0:#2f8cff; --p0d:#0f3fa8; --p1:#ff4658; --p1d:#a3122a; --ok:#39d98a; --gold:#ffd23f; --bd:#0c0d10; --bd2:#17191e; --bd-line:#c9ced8; --bd-pt:#101216; --bd-glow:26%; }
-  :root[data-theme=light] { --bg:#f1f1f1; --bar:#fff; --panel:#fff; --ctl:#f3f3f3; --ctl2:#e4e4e4; --line:#cfcfcf; --ink:#111; --dim:#666; --accent:#111; --err:#c62828; --bd:#dedad1; --bd2:#f3f0e9; --bd-line:#3c4048; --bd-pt:#fbfaf6; --bd-glow:34%; }
-  * { box-sizing:border-box; } [hidden] { display:none !important; }
-  body { height:100dvh; display:flex; flex-direction:column; margin:0; color:var(--ink); font:14px/1.45 "Segoe UI",system-ui,Roboto,sans-serif;
-    background:var(--bg); }
-  .top { display:flex; align-items:center; background:var(--bar); border-bottom:1px solid var(--line); } .top button { margin:3px 8px; padding:3px 12px; } .top .ticker { flex:1; min-width:0; border-bottom:0; }
-  header { display:flex; align-items:center; gap:14px; padding:10px 20px; background:linear-gradient(90deg,var(--p0d),#141a36 42%,#141a36 58%,var(--p1d)); border-bottom:2px solid #000; }
-  header h1 { font:900 20px/1 "Segoe UI",system-ui,sans-serif; font-style:italic; margin:0; letter-spacing:.08em; text-shadow:0 2px 0 rgba(0,0,0,.45); } header .sp { flex:1; } header .note { color:#c9d4ff; }
+  body { height:100dvh; display:flex; flex-direction:column; }
+  .top { display:flex; align-items:center; background:var(--bar); border-bottom:1px solid var(--line); } .top button { margin:3px 3px; } .top .ticker { flex:1; min-width:0; border-bottom:0; }
   .ticker { overflow:hidden; white-space:nowrap; background:var(--bar); color:var(--accent); font-size:12px; padding:5px 0; border-bottom:1px solid var(--line); }
   .ticker span { display:inline-block; padding-left:100%; animation:tick 70s linear infinite; } .ticker:hover span { animation-play-state:paused; }
   @keyframes tick { to { transform:translateX(-100%); } }
   @media (prefers-reduced-motion:reduce) { .ticker { white-space:normal; padding:6px 16px; } .ticker span { animation:none; padding-left:0; } }
-  button, select, input { font:inherit; color:var(--ink); background:var(--ctl); border:1px solid var(--line); border-radius:10px; padding:7px 14px; }
-  select option { background:var(--ctl); }
-  button { cursor:pointer; text-align:left; font-weight:600; transition:background .12s,border-color .12s,transform .05s; } button:hover:not(:disabled) { background:var(--ctl2); border-color:var(--dim); } button:active:not(:disabled) { transform:translateY(1px); } button:disabled { opacity:.4; cursor:default; }
-  button.primary { background:var(--ink); border-color:var(--ink); color:var(--bg); } button.primary:hover:not(:disabled) { background:var(--ink); border-color:var(--ink); opacity:.85; }
-  header button { background:rgba(0,0,0,.35); border-color:rgba(255,255,255,.35); }
   main { display:grid; gap:18px; padding:18px; max-width:1260px; width:100%; margin:0 auto; flex:1; min-height:0; overflow:auto; align-content:start; }
-  #game { grid-template-columns:minmax(320px, calc((100dvh - 215px) * .6)) minmax(280px,420px); grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:10px 18px; padding:10px 18px; overflow:hidden; }
+  #game { grid-template-columns:minmax(320px, calc((100dvh - 215px) * .517)) minmax(280px,420px); grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:10px 18px; padding:10px 18px; overflow:hidden; }
   #sideBtn, #sideHome { display:none; }
   @media (max-width:860px) { #game, #setup, #home { grid-template-columns:1fr !important; }
     #sideBtn { display:block; position:fixed; right:0; top:50%; z-index:4; padding:14px 6px; border-radius:10px 0 0 10px; writing-mode:vertical-rl; }
@@ -36,10 +28,10 @@
   .panel { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,.18); }
   .panel h2 { font:800 12px/1 "Segoe UI",system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:var(--accent); margin:0 0 10px; }
   /* HUD and table are one card */
-  .arena { gap:0 !important; border:2px solid #000; border-radius:18px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.5); outline:1px solid var(--line); }
+  .arena { gap:0 !important; border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.5); outline:1px solid var(--line); }
   .arena .hud, .arena .table { border:0 !important; border-radius:0 !important; box-shadow:none !important; }
   /* HUD: you in blue on the left, the opponent in red on the right */
-  .hud { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:14px; overflow:hidden; border:2px solid #000; box-shadow:0 6px 18px rgba(0,0,0,.45); background:var(--bar); }
+  .hud { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:14px; overflow:hidden; border:1px solid var(--line); box-shadow:0 6px 18px rgba(0,0,0,.45); background:var(--bar); }
   .hud .pl { display:flex; flex-wrap:wrap; align-items:center; gap:3px 8px; min-width:0; padding:8px 12px; position:relative; opacity:.62; transition:opacity .15s; }
   .hud #hudBottom { background:linear-gradient(180deg,#4aa0ff,var(--p0d)); clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%); margin-right:-7px; }
   .hud #hudTop { background:linear-gradient(180deg,#ff6b7a,var(--p1d)); clip-path:polygon(14px 0,100% 0,100% 100%,0 100%); margin-left:-7px; justify-content:flex-end; }
@@ -50,19 +42,20 @@
   .clock { padding:1px 10px; border-radius:999px; background:rgba(0,0,0,.45); border:2px solid rgba(255,255,255,.35); font-variant-numeric:tabular-nums; font-weight:800; color:#fff; } .clock.on { border-color:var(--gold); color:var(--gold); }
   .banner { grid-column:1 / -1; grid-row:2; text-align:center; color:var(--dim); font-size:12px; font-weight:600; padding:5px 8px; background:var(--bar); } .banner b { color:var(--ink); }
   /* the table: red end at the top, blue end at the bottom */
-  .table { flex:1; min-height:0; display:flex; padding:0; border-radius:18px; border:2px solid #000; box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px color-mix(in srgb, var(--bd-line) 10%, transparent);
-    /* glow of each side's colour, a fine grain, a faint weave, then the slate itself */
-    background:radial-gradient(ellipse at 50% -8%, color-mix(in srgb, var(--p1) var(--bd-glow), transparent), transparent 52%), radial-gradient(ellipse at 50% 108%, color-mix(in srgb, var(--p0) var(--bd-glow), transparent), transparent 52%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), repeating-linear-gradient(45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), repeating-linear-gradient(-45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), linear-gradient(180deg,var(--bd2),var(--bd)); }
+  .table { flex:1; min-height:0; display:flex; padding:0; border-radius:18px; border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px color-mix(in srgb, var(--bd-line) 10%, transparent);
+    /* a fine grain, a faint weave, then the slate itself */
+    background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), repeating-linear-gradient(45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), repeating-linear-gradient(-45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), linear-gradient(180deg,var(--bd2),var(--bd)); }
   #board3d { flex:1; min-width:0; min-height:0; } #board3d canvas { display:block; }
-  .top a { color:var(--ink); font-weight:600; text-decoration:none; padding:3px 12px; border:1px solid var(--line); border-radius:10px; background:var(--ctl); }
+  .top a { margin:3px 3px; border:1px solid var(--line); border-radius:10px; background:var(--ctl); } .top a:hover { background:var(--ctl2); border-color:var(--dim); } .top .iconbtn:last-child { margin-right:8px; }
   svg#board { width:100%; height:100%; display:block; user-select:none; }
-  .edge { stroke:var(--bd-line); stroke-width:4; stroke-linecap:round; opacity:.5; }
-  .pt { fill:var(--bd-pt); stroke:var(--bd-line); stroke-width:2; } .pt.goal0 { stroke:var(--p0); stroke-width:5; fill:color-mix(in srgb, var(--p0) 30%, var(--bd-pt)); } .pt.goal1 { stroke:var(--p1); stroke-width:5; fill:color-mix(in srgb, var(--p1) 30%, var(--bd-pt)); }
-  .pt.entry { stroke-dasharray:4 3; } .pt.mv { fill:var(--gold); stroke:#fff; cursor:pointer; }
-  .slot { fill:color-mix(in srgb, var(--bd) 55%, transparent); stroke:color-mix(in srgb, var(--bd-line) 45%, transparent); stroke-dasharray:3 4; } .lbl { fill:var(--bd-line); font-size:10px; font-weight:700; letter-spacing:.14em; opacity:.8; }
-  .tok { cursor:pointer; } .tok:has(image) .nm { display:none; } .tok:has(image) .bg { fill:transparent; } .tok:has(image) .ring { stroke-width:3; } .pics { display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .row img { width:32px; height:32px; margin:-6px 0; } .tok text { pointer-events:none; text-anchor:middle; font-weight:800; }
-  .tok .ring { fill:none; stroke-width:5; } .tok.sel .ring { stroke:#fff; } .tok.atk .halo { stroke:var(--gold); }
-  .tok .halo { fill:none; stroke:transparent; stroke-width:3; stroke-dasharray:5 4; } .tok.dim { opacity:.55; }
+  /* the flat board uses the 3D table's shapes: thin routes, dots, rings, team-coloured goal discs */
+  .edge { stroke:var(--bd-line); stroke-width:3.2; stroke-linecap:round; }
+  .dot, .arrowmark { fill:var(--bd-line); } .ringmark { fill:none; stroke:var(--bd-line); stroke-width:3.2; } .goal.g0 { fill:#1565c0; } .goal.g1 { fill:#b71c1c; }
+  .dot.mv, .goal.mv { fill:var(--gold); } .hit { fill:transparent; } .hit.mv { cursor:pointer; }
+  .tok { cursor:pointer; } .tok:has(image) .nm { display:none; } .tok:has(image) .bg { fill:var(--bd-pt); } .tok text { pointer-events:none; text-anchor:middle; font-weight:800; }
+  .tok .ring { fill:none; stroke-width:3.4; } .tok .aura { fill:none; stroke-width:4.2; } .tok .mpb { fill:#05070f; stroke-width:1.6; }
+  .tok .halo { fill:none; stroke:transparent; stroke-width:2.6; } .tok.sel .halo { stroke:var(--gold); } .tok.atk .halo { stroke:#e2494e; } .tok.dim { opacity:.55; }
+  .pics { display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .row img { width:32px; height:32px; margin:-6px 0; }
   .bar { display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
   .chip { display:inline-block; padding:0 8px; border-radius:999px; font-size:11px; font-weight:700; background:var(--ctl2); color:var(--ink); margin-right:4px; } .chip.w { background:var(--ink); color:var(--bg); }
   .atkrow { display:grid; grid-template-columns:14px 1fr auto; gap:6px; padding:5px 0; border-top:1px solid var(--line); align-items:start; }
@@ -71,6 +64,10 @@
   #list, #plist { height:300px; overflow:auto; } .row { display:flex; gap:8px; padding:6px 8px; border-radius:8px; cursor:pointer; align-items:center; }
   .row:hover { background:var(--ctl2); } .row .n { flex:1; } .team .row { background:var(--ctl); margin-bottom:4px; border:1px solid var(--line); }
   .chip.rar1 { background:#8a8f98; color:#fff; } .chip.rar2 { background:#2e9e5b; color:#fff; } .chip.rar3 { background:#2f7fe0; color:#fff; } .chip.rar4 { background:#d9a514; color:#111; } .chip.rar5 { background:#c0392b; color:#fff; }   /* rarity: C, UC, R, EX, UX */
+  .tok image, .card img, .row img, .dot img { filter:drop-shadow(0 2px 2px rgba(0,0,0,.4)); }   /* a soft shadow under every figure picture */
+  .paths { display:none; }
+  @media (min-width:861px) { .paths { display:flex; gap:4px; margin:0 6px; } .top .paths a { margin:0; padding:4px 10px; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; }
+    .top .paths a.on { background:var(--ink); border-color:var(--ink); color:var(--bg); } .top #viewLink { display:none; } }
   /* deck builder: figures, plates and the team as cards */
   #setup { grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr); }
   .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(116px,1fr)); gap:10px; overflow:auto; padding:2px; align-content:start; }
@@ -101,16 +98,35 @@
   @media (max-width:860px) { .teamcards.cards.six { grid-template-columns:repeat(3,minmax(0,1fr)); } }
   #acts { display:grid; gap:6px; max-height:34dvh; overflow:auto; } #acts button { width:100%; padding:10px 14px; }
   #acts:empty:before { content:"Nothing to choose right now."; color:var(--dim); font-size:12px; }
-  #modal { position:fixed; inset:0; background:rgba(3,5,12,.8); display:grid; place-items:center; padding:16px; z-index:5; }
-  #modal .box { background:var(--panel); border:2px solid #000; outline:1px solid var(--line); border-radius:16px; padding:20px; width:min(700px,100%); max-height:92vh; overflow:auto; box-shadow:0 20px 60px rgba(0,0,0,.6); }
-  .vs { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; text-align:center; } .wheelwrap { position:relative; width:170px; margin:8px auto; }
-  .wheelwrap:before { content:""; position:absolute; left:50%; top:-6px; margin-left:-8px; border:8px solid transparent; border-top:14px solid var(--ink); z-index:1; }
-  .spin { transition:transform 1.5s cubic-bezier(.15,.8,.25,1); } .res { min-height:40px; font-weight:700; }
+  #modal { position:fixed; inset:0; background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(3px); display:grid; place-items:center; padding:16px; z-index:5; }
+  #modal .box { background:var(--panel); border:1px solid var(--line); outline:1px solid var(--line); border-radius:16px; padding:20px; width:min(700px,100%); max-height:92vh; overflow:auto; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  /* battle screen: a dark stage with two disks that touch at the gem. --w / --h are the stage, --d a disk's diameter; the disk centres sit
+     on a line leaning 24 degrees (sin .407, cos .914) through the stage's middle, one radius either side of it. */
+  .arena { position:relative; } #battle { position:absolute; inset:0; z-index:6; container-type:size; background:#15171b; }
+  .stage { --w:100cqw; --h:100cqh; --d:min(calc(var(--w) * 1.42), calc(var(--h) * .98)); position:relative; width:var(--w); height:var(--h); overflow:hidden;
+    background:radial-gradient(ellipse at 50% 50%, #3a3f47, #15171b 70%); }
+  .bdisk { position:absolute; width:var(--d); height:var(--d); filter:drop-shadow(0 8px 14px rgba(0,0,0,.55)); } .bdisk svg { width:100%; height:100%; }
+  .bdisk.up { left:calc(var(--w) / 2 + var(--d) * .2035 - var(--d) / 2); top:calc(var(--h) / 2 - var(--d) * .457 - var(--d) / 2); }
+  .bdisk.dn { left:calc(var(--w) / 2 - var(--d) * .2035 - var(--d) / 2); top:calc(var(--h) / 2 + var(--d) * .457 - var(--d) / 2); }
+  .stage.solo .bdisk.dn { left:calc(var(--w) / 2 - var(--d) / 2); top:calc(var(--h) / 2 + 6px); } .stage.solo .gem, .stage.solo .flare { top:calc(50% + 6px); }
+  .spin { width:100%; height:100%; transition:transform 1.7s cubic-bezier(.12,.75,.2,1); }
+  .gem { position:absolute; left:50%; top:50%; width:32px; height:44px; transform:translate(-50%,-50%) rotate(24deg); z-index:3; clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+    background:linear-gradient(90deg, rgba(255,255,255,.28) 0 50%, rgba(0,0,0,.18) 50%), linear-gradient(180deg, #ff7b6b 0 50%, #c2140f 50%); background-color:#f0241c; filter:drop-shadow(0 2px 4px rgba(0,0,0,.7)) drop-shadow(0 0 8px rgba(255,170,60,.55)); }
+  .flare { position:absolute; left:50%; top:50%; width:170%; height:30px; transform:translate(-50%,-50%) rotate(24deg) scaleX(0); z-index:2; opacity:0; pointer-events:none;
+    background:radial-gradient(ellipse at center, rgba(255,250,200,1), rgba(255,190,60,.6) 28%, rgba(255,120,20,0) 68%); }
+  .flare.on { animation:flare 1s ease-out forwards; } @keyframes flare { 0% { opacity:0; transform:translate(-50%,-50%) rotate(24deg) scaleX(0); } 22% { opacity:1; transform:translate(-50%,-50%) rotate(24deg) scaleX(1); } 100% { opacity:.6; transform:translate(-50%,-50%) rotate(24deg) scale(.75,.4); } }
+  .sparks { position:absolute; left:50%; top:50%; z-index:2; pointer-events:none; } .sparks i { position:absolute; left:0; top:0; width:var(--l); height:2px; border-radius:2px; opacity:0; transform-origin:0 50%; background:linear-gradient(90deg, rgba(255,160,40,0), #ffb347 55%, #fff3c4); }
+  .sparks.on i { animation:spark .75s var(--t) ease-out forwards; } @keyframes spark { 0% { opacity:0; transform:rotate(var(--a)) translateX(10px) scaleX(.2); } 18% { opacity:1; } 100% { opacity:0; transform:rotate(var(--a)) translateX(var(--far)) scaleX(1); } }
+  .cap { position:absolute; z-index:4; display:flex; flex-direction:column; gap:1px; max-width:46%; color:var(--c); text-shadow:0 2px 3px #000, 0 0 10px #000; font-weight:800; line-height:1.15; }
+  .cap.up { left:12px; top:10px; text-align:left; } .cap.dn { right:12px; bottom:10px; text-align:right; } .cap.dn .val { order:-1; } .cap b { font-size:17px; } .cap .val { font-size:34px; font-weight:900; line-height:1; }
+  .cap .out { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#fff; opacity:.9; }
+  .skip { position:absolute; right:10px; top:10px; z-index:5; padding:3px 12px; font-size:12px; background:rgba(0,0,0,.55); color:#fff; border-color:rgba(255,255,255,.4); } .skip:hover:not(:disabled) { background:rgba(0,0,0,.8); border-color:#fff; }
+  .verdict { position:absolute; left:12px; bottom:10px; z-index:4; max-width:48%; color:#fff; font:900 16px/1.25 "Segoe UI",system-ui,sans-serif; text-shadow:0 2px 3px #000, 0 0 10px #000; }
   .note { color:var(--dim); font-size:12px; } .err { color:var(--err); }
 </style>
 </head>
 <body>
-<div class="top"><div class="ticker" id="ticker"><span></span></div><button id="themeBtn"></button><a id="viewLink"></a><button id="newBtn">Home</button></div>
+<div class="top"><div class="ticker" id="ticker"><span></span></div><nav class="paths" id="paths" aria-label="Pages"></nav><button id="soundBtn" class="iconbtn"></button><button id="themeBtn" class="iconbtn"></button><a id="viewLink" class="iconbtn"></a><button id="newBtn" class="iconbtn" title="Home" aria-label="Home"></button></div>
 
 <main id="home" style="grid-template-columns:1fr 1fr"></main>
 
@@ -145,7 +161,7 @@
       <div id="status" class="banner"></div>
       <div class="pl right" id="hudTop"><span class="clock" id="c1"></span><span class="z" id="z1"></span><span class="who" id="n1"></span><span class="dot" id="d1"></span></div>
     </div>
-    <div class="table"><svg id="board" viewBox="0 0 420 700" preserveAspectRatio="xMidYMid meet"></svg><div id="board3d" hidden></div></div>
+    <div class="table"><svg id="board" viewBox="0 -56 420 812" preserveAspectRatio="xMidYMid meet"></svg><div id="board3d" hidden></div></div>
   </section>
   <button id="sideBtn" onclick="document.querySelector('.side').classList.toggle('open')">Menu</button>
   <section class="side">
@@ -182,7 +198,7 @@ const PLATE_MAX = 6, COST_MAX = 8; // original deck limits (Monaco.DeckCost.Uppe
 const T = D.tree, depthOf = g => T[g] ? T[g][1] : 0, EVO_SLOTS = 3, LEVEL_MAX = 10, BOOST_MAX = 10, SAME_SPECIES_MAX = 3;
 const isUnder = (g, anc) => { for (let x = g; T[x]; x = T[x][0]) if (x === anc) return true; return false; };
 const rootOf = g => { let x = g; while (T[x] && T[x][0] !== -1 && T[T[x][0]]) x = T[x][0]; return x; };
-const isMega = f => f.g >= 10000 && T[f.g] && !T[f.g][2];
+const isMega = f => /^(Shiny )?Mega /.test(f.n);   // by name: group numbers of 10000 and up are also used by Alolan, Shiny and other non-Mega figures
 const mutualForm = f => f.fr.length > 0 && f.fr.length === f.to.length && f.fr.every(g => f.to.includes(g));   // GetMutualRelationshipForm
 const FORM_GROUPS = new Set(D.figures.filter(f => f.fmx > 0).map(f => f.g));
 // ItemListManager.RemoveFormChangeItems: a form of another figure is not offered as a figure of its own
@@ -212,7 +228,7 @@ function newSlot(id, auto) {
   const tag = (base.n.match(/^(Shiny|Alolan) /) || [''])[0];
   if (auto) for (let k = 1; k <= EVO_SLOTS; k++) {
     const c = candidates(slot, k).filter(f => !isMega(f));
-    const f = c.find(o => tag && o.n.startsWith(tag)) || c.sort((a, b) => b.r - a.r || a.id - b.id)[0];
+    const kind = o => (o.n.match(/^(Shiny|Alolan) /) || [''])[0], best = c.sort((a, b) => b.r - a.r || a.id - b.id), f = best.find(o => kind(o) === tag) || best[0];
     if (f) { slot.st[k] = f.id; slot.mod[k] = blankMod(f); }
   }
   return slot;
@@ -246,25 +262,48 @@ const slotText = slot => slot.st.map((id, k) => id == null ? null : figText(id, 
 // ---------- saved teams ----------
 // Six figures (with their attachments, levels and boosts) and the plates, kept on this device under a name. The list starts with a few themed teams.
 const TEAMS_KEY = 'figureduel.teams.v1';
+// Starter teams, built from a community figure tier list (r/pokemonduel, May 2019). Only the first is a deck a player there said they ran;
+// the others are put together from the list's top tiers and its groupings. A figure is "Name", optionally "RARITY:Name" where two figures share
+// a name, and "+Name" for each thing attached to it beyond its automatic evolutions: a Mega, a form, or an evolution the automatic pick skips.
 const STARTER_TEAMS = [
-  ['Dragons', ['Rayquaza', 'Latias', 'Latios', 'Dialga', 'Palkia', 'Reshiram'], ['Draco Power', 'Dragon Fang', 'Hurdle Jump', 'Goal Block', 'Double Chance']],
-  ['Ghosts', ['Mimikyu', 'Gengar', 'Sableye', 'Chandelure', 'Lunala', 'Marshadow'], ['Spooky Power', 'Phantom Energy', 'Goal Block', 'Max Revive', 'Scoop Up']],
-  ['Electric rush', ['Tapu Koko', 'Zapdos', 'Raikou', 'Pikachu', 'Zekrom', 'Magearna'], ['Zap Power', 'Electro Energy', 'Hurdle Jump', 'X Attack', 'Double Chance', 'Swap Spot']],
-  ['Water control', ['Manaphy', 'Kyogre', 'Suicune', 'Greninja', 'Vaporeon', 'Empoleon'], ['Splash Power', 'Mystic Water', 'Goal Block', 'Max Revive', 'Full Heal']],
-  ['Ultra Beasts', ['Buzzwole', 'Pheromosa', 'Kartana', 'Nihilego', 'Necrozma', 'Solgaleo'], ['Cosmo Energy', 'Hurdle Jump', 'Goal Block', 'Max Revive', 'X Attack']],
-  ['Legendary wall', ['Lugia', 'Ho-Oh', 'Registeel', 'Regirock', 'Regice', 'Regigigas'], ['Goal Block', 'Max Revive', 'Focus Band', 'Full Heal', 'Pokémon Switch']],
+  ['Tier list: generalist', ['Arceus', 'Celebi', 'Onix', 'Rhydon', 'Dawn Wings Necrozma+Ultra Necrozma', 'Amaura'], ['Ultra Burst', 'Metal Coat', 'Restorer', 'Hurdle Jump', 'Goal Block', 'Double Chance']],
+  ['Tier list: S tier', ['Dawn Wings Necrozma+Ultra Necrozma', 'Arceus', 'Tapu Fini', 'Stakataka', 'Celebi', 'Aegislash Shield Forme+Aegislash Blade Forme'], ['Ultra Burst', 'Hurdle Jump', 'Goal Block', 'Max Revive', 'Double Chance']],
+  ['Tier list: S tier Megas', ['Rayquaza+Mega Rayquaza', 'Ralts+Mega Gardevoir', 'Abra+Mega Alakazam', 'Swablu+Mega Altaria', 'Onix+Mega Steelix', 'Celebi'], ['Meteoric Teachings', 'Gardevoirite', 'Alakazite', 'Altarianite', 'Steelixite', 'Goal Block']],
+  ['Tier list: water', ['Kyogre+Primal Kyogre', 'Manaphy', 'Tapu Fini', 'Keldeo Ordinary Form+Keldeo Resolute Form', 'Swampert', 'Greninja'], ['Blue Orb', 'Mystic Water', 'Splash Power', 'Goal Block', 'Hurdle Jump']],
+  ['Tier list: fossils', ['Amaura', 'Tyrunt', 'EX:Aerodactyl', 'R:Aerodactyl', 'Stakataka', 'Celebi'], ['Restorer', 'Hurdle Jump', 'Goal Block', 'Max Revive', 'Double Chance']],
+  ['Tier list: Regi group', ['Regigigas', 'Regirock', 'Registeel', 'Regice', 'Arceus', 'Celebi'], ['Goal Block', 'Max Revive', 'Hurdle Jump', 'Full Heal', 'Double Chance']],
+  ['Tier list: ice', ['Alolan Vulpix', 'R:Aerodactyl', 'Kyurem', 'Amaura', 'Froslass', 'Celebi'], ['Never-Melt Ice', 'Restorer', 'Hurdle Jump', 'Goal Block', 'Max Revive']],
 ];
-function starterTeams() {   // names -> ids; evolutions are attached the same way "attach evolutions automatically" does
+function starterSlot(spec) {   // one figure of a starter team, or null when this game's data cannot build it
+  const [head, ...extra] = spec.split('+'), [, rar, name] = /^(?:(UX|EX|R|UC|C):)?(.+)$/.exec(head), base = BASES.find(f => f.n === name && (!rar || RAR[f.r] === rar));
+  if (!base) return null;
+  const slot = newSlot(base.id, true);
+  for (const n of extra) {
+    let done = slot.st.concat(slot.forms).some(id => id != null && byId.get(id).n === n);   // already there through the automatic evolutions
+    for (let k = 1; k <= EVO_SLOTS && !done; k++) { const f = slot.st[k] == null && candidates(slot, k).find(x => x.n === n); if (f) { slot.st[k] = f.id; slot.mod[k] = blankMod(f); done = true; } }
+    if (!done) { const f = formCandidates(slot).find(x => x.n === n), j = slot.forms.indexOf(null); if (f && j >= 0) { slot.forms[j] = f.id; slot.fmod[j] = blankMod(f); done = true; } }
+    if (!done) return null;
+  }
+  return slot;
+}
+function starterTeams() {   // a team with anything missing is left out rather than offered half-built
   const keep = team, out = [];
   for (const [name, figs, plates] of STARTER_TEAMS) {
-    const fs = figs.map(n => BASES.find(f => f.n === n)), ps = plates.map(n => D.plates.find(p => p.n === n));
-    if (fs.includes(undefined) || ps.includes(undefined) || cost(ps.map(p => p.id)) > COST_MAX) continue;
-    team = []; for (const f of fs) team.push(newSlot(f.id, true)); out.push({ name, team, plates: ps.map(p => p.id) });
+    const ps = plates.map(n => D.plates.find(p => p.n === n)); team = [];
+    for (const spec of figs) { const sl = starterSlot(spec); if (sl) team.push(sl); }
+    if (team.length === 6 && !ps.includes(undefined) && ps.length <= PLATE_MAX && cost(ps.map(p => p.id)) <= COST_MAX) out.push({ name, team, plates: ps.map(p => p.id) });
   }
   team = keep; return out;
 }
 let savedTeams = null;
-function loadSaved() { try { savedTeams = JSON.parse(localStorage.getItem(TEAMS_KEY)); } catch (e) {} if (!Array.isArray(savedTeams)) { savedTeams = starterTeams(); storeSaved(); } }
+const SEED_KEY = 'figureduel.teams.seed', SEED = '2';   // raised when the starter teams change, so an existing list gains the new ones once
+function loadSaved() {
+  let seeded = null; try { savedTeams = JSON.parse(localStorage.getItem(TEAMS_KEY)); seeded = localStorage.getItem(SEED_KEY); } catch (e) {}
+  if (!Array.isArray(savedTeams)) savedTeams = starterTeams();
+  else if (seeded !== SEED) savedTeams = starterTeams().filter(t => !savedTeams.some(o => o.name === t.name)).concat(savedTeams);   // the player's own teams, and anything they kept, stay
+  else return;
+  storeSaved(); try { localStorage.setItem(SEED_KEY, SEED); } catch (e) {}
+}
 function storeSaved() { try { localStorage.setItem(TEAMS_KEY, JSON.stringify(savedTeams)); } catch (e) {} }
 function drawSaved(msg) {
   if (!savedTeams) loadSaved();
@@ -309,7 +348,7 @@ function editSlot(si) {
       if (!f) return pl.opts && !pl.opts.length ? '' : `<div class="panel"><div class="bar"><span class="note">${pl.label}</span>${head}</div></div>`;
       return `<div class="panel"><div class="bar"><span class="note">${pl.label}</span>${head}<span style="flex:1"></span>Level <select data-lv="${pl.key}">${Array.from({ length: lvMax() }, (_, x) => `<option ${m.lv === x + 1 ? 'selected' : ''}>${x + 1}</option>`).join('')}</select>
           <span class="note">wheel points ${sum(m.ext)}/${Math.min(m.lv, EXP_LEVEL_MAX) - 1}${m.lv > EXP_LEVEL_MAX ? ` · Carmonite +${sum(m.inc)}/${m.lv - EXP_LEVEL_MAX} −${sum(m.dec)}/${m.lv - EXP_LEVEL_MAX}` : ''} · chain ${sum(m.boost)}/${boostMax()}</span></div>
-        <div style="display:flex;gap:12px;align-items:flex-start">${wheelSvg(rows.filter(r => r.range > 0).map(r => ({ id: r.id, range: r.range, speed_or_damage: r.val })), 110)}<div style="flex:1">
+        <div style="display:flex;gap:12px;align-items:flex-start">${wheelSvg(rows.filter(r => r.range > 0).map(r => ({ id: r.id, range: r.range, speed_or_damage: r.val })), 180)}<div style="flex:1">
         ${rows.map(r => { const c = colourOf(r.id), dmg = (c === 1 || c === 3) && f.w[r.i][2] > 0; return `<div class="atkrow" style="grid-template-columns:14px 1fr auto auto"><span class="sw" style="background:${SEG_COL[c]}"></span><span>${esc((D.skills[r.id] || ['Attack'])[0])}</span>
           <span>${c ? `<button data-e="${pl.key}:${r.i}:-1">−</button> ` : ''}size ${r.range}${c ? ` <button data-e="${pl.key}:${r.i}:1">+</button>` : ''}${m.lv > EXP_LEVEL_MAX ? ` <button title="Carmonite: grow this segment" data-ci="${pl.key}:${r.i}">▲${m.inc[r.i] || ''}</button><button title="Carmonite: shrink this segment (must be larger than 4)" data-cd="${pl.key}:${r.i}">▼${m.dec[r.i] || ''}</button>` : ''}</span>
           <span>${dmg ? `<button data-b="${pl.key}:${r.i}:-1">−</button> ${r.val} <button data-b="${pl.key}:${r.i}:1">+</button>` : c === 2 ? '★'.repeat(r.val) : ''}</span></div>`; }).join('')}</div></div></div>`;
@@ -413,7 +452,7 @@ function showHome() {
   forgetGame();
   if (net) { try { net.peer.destroy(); } catch (e) {} net = null; }
   clearInterval(timer); clearInterval(homeTick); gameId++; ownedMode = false;
-  $('game').hidden = $('setup').hidden = $('modal').hidden = true; $('home').hidden = false;
+  $('game').hidden = $('setup').hidden = $('modal').hidden = true; $('home').hidden = false; if ($('battle')) $('battle').hidden = true;
   if (!profile) newProfile();
   drawHome(); homeTick = setInterval(() => { if (!$('home').hidden) drawHome(); }, 1000);
 }
@@ -627,7 +666,7 @@ function startClock() {
   clearInterval(timer);
   timer = setInterval(() => { // 300 s chess clock per player (Monaco.ChessClock.TimeLimit); the engine itself has no clock
     const side = st && st.selective_side;
-    if (over || missionDuel() || !P_COL[side] || !$('modal').hidden || (busy && ctrl[side] !== 'ai')) return;   // a player is not charged while effects play or the engine works
+    if (over || missionDuel() || !P_COL[side] || !$('modal').hidden || ($('battle') && !$('battle').hidden) || (busy && ctrl[side] !== 'ai')) return;   // a player is not charged while effects play or the engine works
     if (--clock[side] <= 0) { over = { winner: other(side), reason: 'timeout' }; log(`<b>${label(over.winner)} wins</b> (timeout)`); render(); } else drawClock();
   }, 1000);
 }
@@ -636,7 +675,13 @@ function startClock() {
 // A duel is its record (decks, seed, moves), so it is kept on this device under its seed and the seed is put in the address (#g=seed).
 // Reloading, or switching between the flat and the 3D table, picks the same duel up again. Online duels are not kept: the connection would be gone.
 const GAME_KEY = 'figureduel.game.';
-const viewHref = () => { $('viewLink').href = (VIEW3D ? './' : '3d/') + location.hash; };
+// Every page of the site, as links in the top bar on wide screens (narrow screens keep the single 2D / 3D switch). The two game views carry
+// the running duel's address along, so switching between them keeps the duel.
+const viewHref = () => {
+  const PAGES = [[VIEW3D ? '2D' : '3D', VIEW3D ? '2d/' : './', false, VIEW3D ? 'Switch to the flat board' : 'Switch to the 3D table'], ['Storybook', 'storybook/', false, '']];   // one switch that names the other view; built here because VIEW3D is declared further down the script
+  $('viewLink').href = (VIEW3D ? '2d/' : './') + location.hash;
+  $('paths').innerHTML = PAGES.map(([name, path, here, tip]) => `<a href="${path}${path === 'storybook/' ? '' : location.hash}"${here ? ' class="on" aria-current="page"' : ''}${tip ? ` title="${tip}"` : ''}>${name}</a>`).join('');
+};
 function saveGame() {
   if (net || !rec) return;
   try { for (const k of Object.keys(localStorage)) if (k.startsWith(GAME_KEY) && k !== GAME_KEY + rec.seed) localStorage.removeItem(k);
@@ -665,7 +710,11 @@ async function sync(played) {
   try {
     const [fx, s, lm, ss] = await Promise.all([played ? api('output_effects') : null, api('status'), api('legal_moves'), api('selective_side')]);
     if (id !== gameId) return;
+    const before = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.marker || {}).circle])), mpBefore = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.effect && c.effect.mp) || 0]));
     st = s.status; legal = lm.legal_moves || [];
+    if (played) for (const kind of new Set(st.pokemon_conditions.filter(c => { const now = (c.marker || {}).circle; return now && now !== 'normal' && now !== before.get(c.pokemon_index); }).map(c => c.marker.circle)))
+      statusSfx(kind);
+    if (played) for (const dir of new Set(st.pokemon_conditions.map(c => Math.sign(((c.effect && c.effect.mp) || 0) - (mpBefore.get(c.pokemon_index) || 0))).filter(Boolean))) mpSfx(dir);
     states[rec.all_moves.length] = { b: !!ss.beginning_of_turn, s: ss.selective_side };   // RewindableRecord.AddState
     if (ss.game_set && !over) over = { winner: ss.winner, reason: ss.reason }; saveGame();
     if (net && net.host) net.conn.send({ t: 'state', st, legal, fx: fx ? fx.effect_moves || [] : [], over: ss.game_set ? { winner: ss.winner, reason: ss.reason } : null });
@@ -674,7 +723,8 @@ async function sync(played) {
     const side = st.selective_side;
     if (!over && ss.game_set) over = { winner: ss.winner, reason: ss.reason };
     busy = false; render();
-    if (over) return;
+    if (over) { if (!over.sung) { over.sung = 1; sfx(ctrl[me] === 'human' && over.winner && over.winner !== me ? 'lose' : 'win'); } return; }
+    if (ctrl[side] === 'human' && sync.last !== side) sfx('turn'); sync.last = side;
     if (side === 'both') return play(pickRandom(legal));                 // system move (a spin): the original client samples it too
     if (ctrl[side] === 'ai') { busy = true; render(); const g = await api('go', ai); if (id === gameId) return play(g.move); }
   } catch (e) { busy = false; $('status').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
@@ -682,6 +732,7 @@ async function sync(played) {
 function play(move) {
   if (over) return;
   if (net && !net.host) { net.conn.send({ t: 'move', i: legal.indexOf(move) }); legal = []; busy = true; sel = null; routeChoice = null; return render(); }
+  if (move.value.type === 'mp_move') animateMove(move);
   rec.all_moves.push(move); rec.seeds.push(rec.seed); sel = null; routeChoice = null;
   return sync(true);
 }
@@ -756,28 +807,36 @@ function describe(v) {
 }
 const QUIET = new Set(['add_z_gauge', 'battled_after_field_in', 'battle_info', 'declare_spin', 'base_damage_notice', 'declare_battle', 'mp_move', 'spin', 'battle_result']);
 
-// ---------- theme ----------
-const THEME_KEY = 'figureduel.theme';
-const sysLight = matchMedia('(prefers-color-scheme: light)'); let themeMode = 'auto';   // auto follows the device's light / dark setting
-function setTheme(mode) {
-  themeMode = mode; document.documentElement.dataset.theme = mode === 'auto' ? (sysLight.matches ? 'light' : 'dark') : mode;
-  $('themeBtn').textContent = 'Theme: ' + mode[0].toUpperCase() + mode.slice(1); try { localStorage.setItem(THEME_KEY, mode); } catch (e) {}
+// ---------- sound ----------
+// (the sound effects live in sound.js, shared with the storybook)
+$('newBtn').innerHTML = icon('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>');
+
+// A move along a route is shown as hops from point to point (STEP_MS each), with a landing sound per point. It starts the moment the move is
+// made; the figure is drawn at the end of its route from then on, so it does not snap back while the engine works out the new state.
+const STEP_MS = 170; let moveAnim = null, moveSeq = 0;
+function animateMove(move) {
+  const r = move.value.route, c = st && st.pokemon_conditions.find(x => x.index === r[0]); if (!c || r.length < 2) return;
+  moveAnim = { fig: c.pokemon_index, route: r, id: ++moveSeq, t0: performance.now(), dur: (r.length - 1) * STEP_MS };
+  for (let k = 1; k < r.length; k++) setTimeout(() => sfx('step'), k * STEP_MS);
 }
-{ let t = 'auto'; try { t = localStorage.getItem(THEME_KEY) || t; } catch (e) {} setTheme(['auto', 'light', 'dark'].includes(t) ? t : 'auto'); }
-sysLight.addEventListener('change', () => { if (themeMode === 'auto') setTheme('auto'); });
-$('themeBtn').onclick = () => setTheme({ auto: 'light', light: 'dark', dark: 'auto' }[themeMode]);
+
+// ---------- theme ----------
+// (the theme itself lives in theme.js, shared with the storybook)
 
 // ---------- board ----------
-const VIEW3D = /\/3d\/(index\.html)?$/.test(location.pathname), U = ([x, y]) => [(x - 210) / 54.2, (y - 350) / 54.2];   // /3d/ shows the same duel on a WebGL table (board3d.js)
-$('viewLink').textContent = VIEW3D ? '2D' : '3D'; $('viewLink').href = VIEW3D ? './' : '3d/';
+// the colour of each status condition's ring, the same on the flat board and the 3D table
+const STATUS_COL = { poison: '#a855f7', bad_poison: '#6b21a8', burn: '#ff7a1a', paralyze: '#fde047', sleep: '#94a3b8', freeze: '#67e8f9', melt: '#67e8f9', panic: '#f472b6', curse: '#7c3aed' };
+const VIEW3D = !/\/2d\/(index\.html)?$/.test(location.pathname), U = ([x, y]) => [(x - 210) / 54.2, (y - 350) / 54.2];   // the duel is shown on a WebGL table (board3d.js); /2d/ shows the same duel on the flat board
+$('viewLink').innerHTML = icon(VIEW3D ? '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/>' : '<path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/>'); $('viewLink').title = VIEW3D ? 'Switch to the flat board' : 'Switch to the 3D table'; $('viewLink').setAttribute('aria-label', $('viewLink').title); $('viewLink').href = VIEW3D ? '2d/' : './';
 if (VIEW3D) { $('board').style.display = 'none'; $('board3d').hidden = false; import(new URL('board3d.js', document.baseURI)).catch(x => { $('board3d').innerHTML = `<p class="err" style="padding:16px">3D view failed to load: ${esc(x.message)}</p>`; }); }
 function xy(p, away) { // engine point ids: 0-27 field, 28-33 / 34-39 benches, 40-41 / 42-43 P.C., above that = out of play
   if (p < 28) { const q = flip ? 27 - p : p; return [42 + XY[q][0] * 56, 186 + XY[q][1] * 82]; }
   if (p < 44) { const k = flip ? -54.2 : 54.2; return [210 - SPOT[p][0] * k, 350 + SPOT[p][1] * k]; }
-  return [404, away];
+  return [away, (p < 50) !== flip ? 730 : -30];   // out of play (ids 44-49 / 50-55): a row past the bench, `away` being how far along it
 }
 function render() {
   if (!st) return;
+  if (moveAnim && !busy && performance.now() > moveAnim.t0 + moveAnim.dur) moveAnim = null;
   P_COL.black = flip ? 'var(--p1)' : 'var(--p0)'; P_COL.white = flip ? 'var(--p0)' : 'var(--p1)';
   if (over && leagueGame && !leagueGame.done) finishLeague();
   const side = st.selective_side, mine = !busy && !over && ctrl[side] === 'human';
@@ -791,29 +850,43 @@ function render() {
   render.routes = routes; render.targets = targets;
   let h = EDGES.map(([a, b]) => { const [x1, y1] = xy(a), [x2, y2] = xy(b); return `<line class="edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; }).join('');
   for (let p = 0; p < 28; p++) {
-    const [x, y] = xy(p), cls = ['pt', p === (flip ? 3 : 24) ? 'goal0' : p === (flip ? 24 : 3) ? 'goal1' : '', [0, 6, 21, 27].includes(p) ? 'entry' : '', routes.has(p) ? 'mv' : ''].join(' ');
-    h += `<circle class="${cls}" data-pt="${p}" cx="${x}" cy="${y}" r="${p === 3 || p === 24 ? 26 : 23}"/>`;
-    if (p === 3 || p === 24) h += `<text class="lbl" x="${x}" y="${y + ((p === 3) !== flip ? -31 : 39)}" text-anchor="middle">GOAL</text>`;
+    const [x, y] = xy(p), goal = p === (flip ? 3 : 24) ? 0 : p === (flip ? 24 : 3) ? 1 : null, mv = routes.has(p) ? ' mv' : '';
+    if (goal != null) h += `<circle class="goal g${goal}${mv}" cx="${x}" cy="${y}" r="20"/><circle class="ringmark" cx="${x}" cy="${y}" r="23.3"/>`;
+    else h += ([0, 6, 21, 27].includes(flip ? 27 - p : p) ? `<circle class="ringmark" cx="${x}" cy="${y}" r="16.3"/>` : '') + `<circle class="dot${mv}" cx="${x}" cy="${y}" r="${mv ? 11.5 : 7.3}"/>`;
+    h += `<circle class="hit${mv}" data-pt="${p}" cx="${x}" cy="${y}" r="22"/>`;   // the click target, larger than the dot
   }
-  for (let p = 28; p < 44; p++) { const [x, y] = xy(p); h += p < 40 ? `<circle class="slot" cx="${x}" cy="${y}" r="26"/>` : `<rect class="slot" x="${x - 26}" y="${y - 26}" width="52" height="52" rx="8"/>`; }
+  for (let p = 28; p < 44; p++) { const [x, y] = xy(p); h += `<circle class="ringmark" cx="${x}" cy="${y}" r="23.3"/>`;
+    if (p >= 40) {   // P.C. spots: a blunt arrow on the ring, the outer spot pointing at the inner one and the inner one at the bench spot below it
+      const [tx, ty] = xy({ 40: 33, 41: 40, 42: 39, 43: 42 }[p]), len = Math.hypot(tx - x, ty - y) || 1, ux = (tx - x) / len, uy = (ty - y) / len, at = (r, w) => `${x + ux * r - uy * w},${y + uy * r + ux * w}`;
+      const stem = p === 41 || p === 43 ? 14.6 : 0;   // the outer spot's arrow has a stem between ring and arrowhead
+      if (stem) h += `<line class="edge" x1="${x + ux * 23.3}" y1="${y + uy * 23.3}" x2="${x + ux * (23.3 + stem)}" y2="${y + uy * (23.3 + stem)}"/>`;
+      h += `<polygon class="arrowmark" points="${at(23.3 + stem, -7.2)} ${at(23.3 + stem, 7.2)} ${at(30.5 + stem, 0)}"/>`;
+    } }
   const z = c => { const g = (st.z_gauge_conditions || []).find(x => x.color === c); return g ? ' · Z ' + g.z_gauge : ''; };
   const low = flip ? 'white' : 'black', high = other(low);
-  h += `<text class="lbl" x="408" y="16" text-anchor="end">BENCH</text><text class="lbl" x="20" y="60">P.C.</text><text class="lbl" x="12" y="692">BENCH</text><text class="lbl" x="400" y="648" text-anchor="end">P.C.</text>`;
   for (const [c, k] of [[low, 0], [high, 1]]) {   // HUD bars: who, Z gauge, clock; the side to act is outlined
     $('n' + k).textContent = label(c); $('d' + k).style.background = P_COL[c]; $('z' + k).textContent = z(c).replace(' · ', '');
     $(k ? 'hudTop' : 'hudBottom').classList.toggle('turn', !over && st.selective_side === c);
   }
-  const away = { [low]: 590, [high]: 110 }, toks = [];
+  const away = { [low]: 434, [high]: -14 }, toks = [];   // the next free place in each side's row of excluded figures (bottom row fills from the right, top row from the left)
   for (const c of st.pokemon_conditions) {
     const i = c.pokemon_index, f = figOf(i), col = colorOf(i), p = pk(i) || {}, b = badges(c);
-    const [x, y] = xy(c.index, c.index >= 44 ? (away[col] += col === low ? -44 : 44) : 0), mp = (p.mp || 0) + ((c.effect && c.effect.mp) || 0);
-    toks.push({ i, x: U([x, y])[0], z: U([x, y])[1], team: col === low ? 0 : 1, img: sprite(f), name: f.n, mp: c.index < 40 ? String(mp) : '', badge: b.join(' · '), status: c.marker && c.marker.circle && c.marker.circle !== 'normal' ? c.marker.circle : '', wait: c.wait > 0, mpd: (c.effect && c.effect.mp) || 0, sel: i === sel, atk: targets.has(i), dim: c.index >= 40 });
-    h += `<g class="tok ${i === sel ? 'sel' : ''} ${targets.has(i) ? 'atk' : ''} ${c.index >= 40 ? 'dim' : ''}" data-fig="${i}" transform="translate(${x},${y}) scale(1.3)"><circle class="halo" r="26"/><circle class="bg" r="19" fill="${TYPE_COL[f.t[0]] || '#888'}"/><circle class="ring" r="19" stroke="${P_COL[col]}"/>
-      <text class="nm" y="4" font-size="8.5" fill="#10141a">${esc(f.n.replace(/^(Alolan|Shiny|Mega) /, '').slice(0, 7))}</text><text class="nm" y="-9" font-size="7.5" fill="#10141a">${c.index < 40 ? 'MP' + mp : ''}</text>
-      ${sprite(f) ? `<image href="${sprite(f)}" x="-24" y="-27" width="48" height="48" style="pointer-events:none" onerror="this.remove()"/><text y="18" x="15" font-size="8" fill="#fff" stroke="#000" stroke-width="2.5" paint-order="stroke">${c.index < 40 ? mp : ''}</text>` : ''}
-      ${b.length ? `<rect x="-24" y="12" width="48" height="12" rx="6" fill="#10141a"/><text y="21" font-size="7.5" fill="#ffd88a">${esc(b[0].slice(0, 11))}${b.length > 1 ? '+' : ''}</text>` : ''}</g>`;
+    const hop = moveAnim && moveAnim.fig === i ? moveAnim : null, [x, y] = hop ? xy(hop.route[hop.route.length - 1]) : xy(c.index, c.index >= 44 ? (away[col] += col === low ? -44 : 44) : 0), mp = (p.mp || 0) + ((c.effect && c.effect.mp) || 0);
+    toks.push({ i, moveId: hop ? hop.id : null, path: hop ? hop.route.map(q => U(xy(q))) : null, x: U([x, y])[0], z: U([x, y])[1], team: col === low ? 0 : 1, img: sprite(f), name: f.n, mp: c.index < 40 ? String(mp) : '', badge: b.join(' · '), status: c.marker && c.marker.circle && c.marker.circle !== 'normal' ? c.marker.circle : '', wait: c.wait > 0, mpd: (c.effect && c.effect.mp) || 0, sel: i === sel, atk: targets.has(i), dim: c.index >= 40 });
+    const mpd = (c.effect && c.effect.mp) || 0, circle = (c.marker || {}).circle, aura = circle && circle !== 'normal' ? (STATUS_COL[circle] || '#ffffff') : b.length ? '#cbd5e1' : '';
+    h += `<g class="tok ${i === sel ? 'sel' : ''} ${targets.has(i) ? 'atk' : ''} ${c.index >= 40 ? 'dim' : ''}" data-fig="${i}" transform="translate(${x},${y}) scale(${c.index >= 44 ? .85 : 1.3})"><circle class="halo" r="27.5"/>${aura ? `<circle class="aura" r="23" stroke="${aura}"/>` : ''}
+      <circle class="bg" r="19" fill="${TYPE_COL[f.t[0]] || '#888'}"/><circle class="ring" r="19" stroke="${col === low ? '#1565c0' : '#b71c1c'}"/>
+      <text class="nm" y="4" font-size="8.5" fill="#10141a">${esc(f.n.replace(/^(Alolan|Shiny|Mega) /, '').slice(0, 7))}</text>
+      ${sprite(f) ? `<image href="${sprite(f)}" x="-24" y="-27" width="48" height="48" style="pointer-events:none" onerror="this.remove()"/>` : ''}
+      ${c.index < 40 ? `<circle class="mpb" cx="15" cy="15" r="6.6" stroke="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}"/><text x="15" y="18" font-size="8.6" fill="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}">${mp}</text>` : ''}
+      ${b.length ? `<rect x="-24" y="23" width="48" height="11" rx="5.5" fill="#10141a"/><text y="31.3" font-size="7.2" fill="#ffd88a">${esc(b[0].slice(0, 11))}${b.length > 1 ? '+' : ''}</text>` : ''}</g>`;
   }
   $('board').innerHTML = h;
+  if (moveAnim && performance.now() < moveAnim.t0 + moveAnim.dur) {   // flat board: hop along the route, picking up where the animation was if the board was redrawn meanwhile
+    const el = $('board').querySelector(`[data-fig="${moveAnim.fig}"]`), pts = moveAnim.route.map(q => xy(q)), n = pts.length - 1, kf = [];
+    pts.forEach(([px, py], k) => { kf.push({ transform: `translate(${px}px,${py}px) scale(1.3)`, offset: k / n }); if (k < n) kf.push({ transform: `translate(${(px + pts[k + 1][0]) / 2}px,${(py + pts[k + 1][1]) / 2 - 14}px) scale(1.6)`, offset: (k + .5) / n }); });
+    if (el && el.animate) el.animate(kf, { duration: moveAnim.dur }).currentTime = performance.now() - moveAnim.t0;
+  }
   if (VIEW3D) {
     const pts = []; for (let p = 0; p < 28; p++) { const [x, z] = U(xy(p)); pts.push({ k: flip ? 27 - p : p, p, x, z, goal: p === (flip ? 3 : 24) ? 0 : p === (flip ? 24 : 3) ? 1 : null, mv: routes.has(p) }); }
     const slots = []; for (let p = 28; p < 44; p++) slots.push(U(xy(p)));
@@ -834,31 +907,75 @@ function drawClock() {
     $(el).className = 'clock' + (!over && st && st.selective_side === c ? ' on' : '');
   }
 }
+// A figure's wheel, drawn as a data disk the way the original shows it: a thick black rim, flat wedges with a sunburst of fine stripes and
+// thin black dividers, a black ring for a hub, the attack's name spaced out along the rim and its damage (or stars) large beneath it.
+// All lettering stands with its feet on the rim and its head towards the hub, so a wedge reads upright when it is at the bottom of the disk.
+// Small wheels (under 130 px) leave the names out.
+const DISK_COL = ['#e2494e', '#efefef', '#9a5fd0', '#e8cb4d', '#4fb9e9'];   // Miss, white, purple, gold, blue
+let wheelSeq = 0;
 function wheelSvg(skills, size) {
-  let a = 0, h = '';
-  for (const s of skills) {
-    const col = (D.skills[s.id] || [0, 0, 0])[2], a2 = a + s.range / 96 * 2 * Math.PI, pt = t => [50 + 48 * Math.sin(t), 50 - 48 * Math.cos(t)], [x1, y1] = pt(a), [x2, y2] = pt(a2);
-    h += s.range >= 96 ? `<circle cx="50" cy="50" r="48" fill="${SEG_COL[col]}"/>` : `<path d="M50 50L${x1} ${y1}A48 48 0 ${s.range > 48 ? 1 : 0} 1 ${x2} ${y2}Z" fill="${SEG_COL[col]}" stroke="#10141a" stroke-width=".8"/>`;
-    if (s.range >= 8) h += `<text x="${50 + 30 * Math.sin((a + a2) / 2)}" y="${53 - 30 * Math.cos((a + a2) / 2)}" font-size="8" text-anchor="middle" fill="${col === 1 || col === 3 ? '#10141a' : '#fff'}">${power(s)}</text>`;
+  const id = 'wh' + (++wheelSeq), names = size >= 130, R = 88, ang = t => t / 96 * 2 * Math.PI, pt = (t, r) => [100 + r * Math.sin(ang(t)), 100 - r * Math.cos(ang(t))];
+  let a = 0, wedges = '', text = '', defs = '', rays = '';
+  for (let k = 0; k < 96; k += 2) { const [x1, y1] = pt(k, R), [x2, y2] = pt(k + 1, R); rays += `M100 100L${x1} ${y1}A${R} ${R} 0 0 1 ${x2} ${y2}Z`; }
+  skills.filter(x => x.range > 0).forEach((x, n) => {
+    const sk = D.skills[x.id] || ['', '', 0], col = sk[2], a2 = a + x.range, mid = (a + a2) / 2, ink = col === 2 ? '#fff' : '#111', big = x.range > 48 ? 1 : 0;
+    const [x1, y1] = pt(a, R), [x2, y2] = pt(a2, R);
+    wedges += x.range >= 96 ? `<circle cx="100" cy="100" r="${R}" fill="${DISK_COL[col]}"/>` : `<path d="M100 100L${x1} ${y1}A${R} ${R} 0 ${big} 1 ${x2} ${y2}Z" fill="${DISK_COL[col]}" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/>`;
+    const val = col === 2 ? '★'.repeat(Math.min(x.speed_or_damage || 0, 5)) : col === 1 || col === 3 ? String(x.speed_or_damage || 0) : '';
+    if (names && x.range >= 4) {   // the name runs anticlockwise just inside the rim, which is what stands it feet-out; a thin wedge gets small lettering
+      const fs = x.range >= 12 ? 9.5 : x.range >= 8 ? 7.5 : 5, gap = x.range >= 16 ? 2.4 : x.range >= 12 ? 1.6 : .6, room = Math.floor(x.range * 5.1 / (fs * .62 + gap)), name = sk[0].length > room ? sk[0].slice(0, Math.max(1, room - 1)) + '…' : sk[0];
+      const [p1x, p1y] = pt(a2 - .5, 79), [p2x, p2y] = pt(a + .5, 79);
+      defs += `<path id="${id}p${n}" d="M${p1x} ${p1y}A79 79 0 ${big} 0 ${p2x} ${p2y}"/>`;
+      text += `<text font-size="${fs}" font-weight="500" letter-spacing="${gap}" fill="${ink}"><textPath href="#${id}p${n}" startOffset="50%" text-anchor="middle">${esc(name)}</textPath></text>`;
+    }
+    if (val && x.range >= 8) {
+      const [vx, vy] = pt(mid, names ? 52 : 56), deg = mid / 96 * 360 + 180, fs = col === 2 ? (names ? 12 : 15) : Math.min(names ? 26 : 26, 9 + x.range * .55);
+      text += `<text x="${vx}" y="${vy}" font-size="${fs}" font-weight="800" fill="${ink}" text-anchor="middle" dominant-baseline="central" transform="rotate(${deg} ${vx} ${vy})">${val}</text>`;
+    }
     a = a2;
-  }
-  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">${h}</svg>`;
+  });
+  return `<svg viewBox="0 0 200 200" width="${size}" height="${size}" style="display:block"><defs>${defs}<linearGradient id="${id}s" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/></linearGradient></defs>
+    <circle cx="100" cy="100" r="99" fill="#0b0b0c"/>${wedges}<path d="${rays}" fill="#000" opacity=".085"/>${text}
+    <circle cx="100" cy="100" r="93.5" fill="none" stroke="#0b0b0c" stroke-width="11"/><circle cx="100" cy="100" r="96.5" fill="none" stroke="url(#${id}s)" stroke-width="2.2"/><circle cx="100" cy="100" r="88.6" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width=".9"/>
+    <circle cx="100" cy="100" r="11.5" fill="#1a1a1c" stroke="#0b0b0c" stroke-width="5.5"/><circle cx="100" cy="100" r="13.6" fill="none" stroke="url(#${id}s)" stroke-width="1.6"/></svg>`;
 }
 const power = s => { const col = (D.skills[s.id] || [0, 0, 0])[2]; return col === 2 ? '★'.repeat(Math.min(s.speed_or_damage || 0, 5)) : col === 1 || col === 3 ? (s.speed_or_damage || 0) : ''; };
+// What each state badge means, for its tooltip, in the same order badges() lists them. The engine reports a figure's state but not what
+// caused it, so for a damage change the tooltip names what in this duel could be the source instead of claiming one.
+const COND_RULE = { poison: 'Its attacks deal 20 less damage.', bad_poison: 'Its attacks deal 40 less damage.', burn: 'Its attacks deal 10 less damage, and its smallest attack counts as a Miss.',
+  paralyze: 'Its smallest attack counts as a Miss.', sleep: 'It cannot move or battle, and it loses any battle it is drawn into. It wakes when one of its own side moves next to it.',
+  freeze: 'It cannot move, and every attack it spins counts as a Miss. It thaws when one of its own side moves next to it.', panic: 'When it spins, the result shifts to the next attack round the wheel.' };
+function badgeTips(c) {
+  const m = c.marker || {}, out = [];
+  if (m.circle && m.circle !== 'normal') out.push(`Special condition: ${condName(m.circle)}. ${COND_RULE[m.circle] || 'Set by an attack, ability or plate.'} A figure has one special condition at a time; it is cleared by evolving, by being sent to the bench or P.C., or by a plate that heals it.`);
+  if (c.wait > 0) out.push(`Wait ${c.wait}: this figure cannot move or attack for ${c.wait} more of its owner's turns. Figures get Wait when they come back from the P.C. and from some attacks and abilities.`);
+  if (m.triangle && m.triangle !== 'empty') out.push(`Marker: ${condName(m.triangle)}. Put on this figure by an attack, ability or plate${m.triangle_remain > 0 ? `; ${m.triangle_remain} turn${m.triangle_remain === 1 ? '' : 's'} left` : ''}.`);
+  if (c.effect && c.effect.damage_plus) {
+    const d = c.effect.damage_plus, side = colorOf(c.pokemon_index), why = [];
+    if (c.evolution_ring > 0) why.push(`it has evolved ${c.evolution_ring} time${c.evolution_ring === 1 ? '' : 's'} in this duel (each evolution adds +10 damage and ★+1)`);
+    for (const o of st.pokemon_conditions) {   // abilities in play on its own side that talk about raising or lowering damage
+      const ab = D.abilities[(pk(o.pokemon_index) || {}).pokepower];
+      if (ab && o.index < 28 && colorOf(o.pokemon_index) === side && /damage/i.test(ab[1]) && /[+-]\s?\d|increase|more damage|less damage/i.test(ab[1])) why.push(`the ability ${ab[0]} of ${figOf(o.pokemon_index).n}${o === c ? ' (its own)' : ''}`);
+    }
+    out.push(`${d > 0 ? '+' : ''}${d} damage: the engine is ${d > 0 ? 'adding' : 'taking'} ${Math.abs(d)} ${d > 0 ? 'to' : 'from'} this figure's White and Gold attack damage right now. The engine reports the total, not the cause. ` +
+      (why.length ? 'In this duel it could come from: ' + why.join('; ') + '. A plate used this turn can also do it.' : 'Nothing on the board explains it by itself, so it most likely comes from a plate or a lasting attack effect.'));
+  }
+  return out;
+}
 function drawCard(c) {
   if (!c) { $('card').innerHTML = '<span class="note">Select a figure.</span>'; return; }
   const i = c.pokemon_index, p = pk(i), f = figOf(i), ab = D.abilities[p.pokepower];
   $('card').innerHTML = `<div style="display:flex;gap:12px;align-items:center">${wheelSvg(p.skills, 96)}<div>
       <div style="font-size:16px">${nameOf(i)} <span class="chip rar${f.r}">${RAR[f.r] || ''}</span></div>
       <div class="note">MP ${p.mp}${c.effect && c.effect.mp ? ' (' + (c.effect.mp > 0 ? '+' : '') + c.effect.mp + ')' : ''} · ${typeNames(f)} · ${place(c.index)}</div>
-      <div>${badges(c).map(b => `<span class="chip w">${esc(b)}</span>`).join('')}</div></div></div>
+      <div>${badges(c).map((b, k) => `<span class="chip w" title="${esc(badgeTips(c)[k] || '')}" style="cursor:help">${esc(b)}</span>`).join('')}</div></div></div>
     ${ab ? `<div style="margin:8px 0">Ability: <b>${esc(ab[0])}</b><div class="desc">${esc(ab[1])}</div></div>` : ''}
     ${p.skills.map(s => { const k = D.skills[s.id] || ['Attack ' + s.id, '', 0]; return `<div class="atkrow"><span class="sw" style="background:${SEG_COL[k[2]]}"></span><span>${esc(k[0])}</span><span>${power(s)} <span class="note">${s.range}</span></span>${k[2] && k[1] ? `<span class="desc">${esc(k[1])}</span>` : ''}</div>`; }).join('')}`;
 }
 
 // ---------- input: every action is one of the engine's legal moves ----------
 window.boardPick = (fig, pt) => {   // a figure index and / or a field point, from either board
-  if (fig != null) { if (render.targets && render.targets.has(fig)) return play(render.targets.get(fig)); sel = fig; routeChoice = null; return render(); }
+  if (fig != null) { if (render.targets && render.targets.has(fig)) return play(render.targets.get(fig)); sel = fig; routeChoice = null; sfx('select'); return render(); }
   if (pt != null && render.routes && render.routes.has(pt)) { const r = render.routes.get(pt); if (r.length === 1) return play(r[0]); routeChoice = r; render(); }
 };
 $('board').onclick = e => { const g = e.target.closest('[data-fig]'), pt = e.target.closest('[data-pt]'); boardPick(g ? +g.dataset.fig : null, pt ? +pt.dataset.pt : null); };
@@ -870,21 +987,39 @@ $('acts').onclick = e => {
 // ---------- playing back the engine's effect list ----------
 function log(html) { logLines.push(html); $('log').innerHTML = logLines.slice(-120).map(l => `<div>${l}</div>`).join(''); $('log').scrollTop = 1e6; }
 function modal(html) { $('box').innerHTML = html; $('modal').hidden = false; return new Promise(res => { $('box').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { $('modal').hidden = true; res(b.dataset.v); } }; }); }
+// The battle screen. It covers the whole arena (HUD and board), with no dialog around it, and is laid out as the original lays it out: two large disks on a dark stage, the opponent's above and to the right and
+// yours below and to the left, touching at one point where a red gem marks what each wheel landed on. The wheels spin and stop with the
+// position the engine drew at the gem; each side's attack and value then appear in its corner, with the outcome under the stage.
+const LEAN = 24;   // degrees the line through the two disk centres leans from the vertical
 async function showSpin(e, result) {
-  const spins = e.value.spins || [], RES = { win: 'wins', win_with_effect: 'wins', lose: 'loses', lose_with_effect: 'loses', draw: 'draw', draw_with_effect: 'draw', no_judgement: '' };
-  const done = modal(`<div class="vs">${spins.map((sp, k) => `<div><div>${nameOf(sp.pokemon)}</div><div class="wheelwrap"><div class="spin" id="w${k}">${wheelSvg((pk(sp.pokemon) || { skills: [] }).skills, 170)}</div></div><div class="res" id="r${k}"></div></div>`).join('')}</div>
-    <div style="text-align:center"><button class="primary" data-v="ok" id="okb" disabled>Continue</button></div>`);
-  await sleep(50);
-  spins.forEach((sp, k) => { const r = sp.results[sp.results.length - 1]; $('w' + k).style.transform = `rotate(${1440 - (r.num + .5) / 96 * 360}deg)`; });
-  await sleep(1650);
+  const spins = e.value.spins || [], WON = { win: 1, win_with_effect: 1, lose: -1, lose_with_effect: -1, draw: 0, draw_with_effect: 0 }, TEXT = { 1: 'wins', '-1': 'loses', 0: 'draw' };
+  const skillsOf = sp => (pk(sp.pokemon) || { skills: [] }).skills, last = sp => sp.results[sp.results.length - 1];
+  // with two wheels, the one that is not yours goes on top; a lone wheel sits below the gem
+  const top = spins.length === 2 ? (colorOf(spins[0].pokemon) === (ctrl[me] === 'human' ? me : 'black') ? 1 : 0) : -1, where = k => k === top ? 'up' : 'dn';   // not 'top': that class is the page's top bar
+  let ov = $('battle'), shut = false;
+  if (!ov) { ov = document.createElement('div'); ov.id = 'battle'; document.querySelector('.arena').appendChild(ov); }
+  const done = new Promise(res => { ov.onclick = ev => { if (ev.target.closest('[data-v]')) { shut = true; res(); } }; });
+  ov.hidden = false; ov.innerHTML = (`<div class="stage${spins.length === 1 ? ' solo' : ''}">${spins.map((sp, k) => `<div class="bdisk ${where(k)}"><div class="spin" id="w${k}">${wheelSvg(skillsOf(sp), 440)}</div></div>
+      <div class="cap ${where(k)}" id="r${k}" style="--c:${P_COL[colorOf(sp.pokemon)]}"><b>${esc(figOf(sp.pokemon).n)}</b></div>`).join('')}
+      <div class="flare" id="flare"></div><div class="sparks" id="sparks">${Array.from({ length: 14 }, (_, k) => `<i style="--a:${(k % 2 ? 204 : 24) + ((k * 37) % 44) - 22}deg;--l:${26 + (k * 53) % 60}px;--far:${70 + (k * 29) % 120}px;--t:${(k % 5) * .05}s"></i>`).join('')}</div><div class="gem"></div><button class="skip" data-v="ok" id="okb">Skip</button><div class="verdict" id="verdict"></div></div>`);
+  await sleep(60); sfx('spin');
+  spins.forEach((sp, k) => { $('w' + k).style.transform = `rotate(${1440 + (k === top ? 180 + LEAN : LEAN) - (last(sp).num + .5) / 96 * 360}deg)`; });
+  await Promise.race([sleep(1750), done.then(() => 0)]);
+  if (!shut) { $('flare').classList.add('on'); $('sparks').classList.add('on'); sfx('hit'); }
+  let winner = null, drawn = false;
   spins.forEach((sp, k) => {
-    const side = result && [result.value.attack, result.value.defence].find(x => x && x.pokemon === sp.pokemon), r = sp.results[sp.results.length - 1];
-    $('r' + k).innerHTML = (side ? `${fmt('skill', side.skill)} ${side.speed_or_damage || ''}<div>${RES[side.result] || esc(side.result)}</div>` : `spin ${r.num}`) +
-      (sp.results.some(x => x.displace) ? '<div class="note">shifted (confused)</div>' : '') + (sp.results.length > 1 ? `<div class="note">${sp.results.length} spins</div>` : '');
+    const r = last(sp), side = result && [result.value.attack, result.value.defence].find(x => x && x.pokemon === sp.pokemon);
+    let at = 0;
+    const landed = skillsOf(sp).filter(x => x.range > 0).find(x => (at += x.range) > r.num) || {}, sk = D.skills[side ? side.skill : landed.id] || ['', '', 0];
+    const value = side ? side.speed_or_damage : landed.speed_or_damage, shown = sk[2] === 2 ? '★'.repeat(Math.min(value || 0, 5)) : sk[2] === 1 || sk[2] === 3 ? (value || 0) : '', won = side ? WON[side.result] : undefined;
+    if ($('r' + k)) $('r' + k).innerHTML = `<b>${esc(sk[0] || 'spin ' + r.num)}</b>${shown !== '' ? `<span class="val">${shown}</span>` : ''}` +
+      (won !== undefined ? `<span class="out">${TEXT[won]}</span>` : '') + (sp.results.some(x => x.displace) ? '<span class="out">shifted (confused)</span>' : '') + (sp.results.length > 1 ? `<span class="out">${sp.results.length} spins</span>` : '');
+    if (won === 1) winner = sp; else if (won === 0) drawn = true;
   });
-  $('okb').disabled = false;
-  if (ctrl.black === 'human' || ctrl.white === 'human') await Promise.race([done, sleep(6000)]); else await sleep(600);
-  $('modal').hidden = true;
+  if ($('verdict')) $('verdict').innerHTML = winner ? `${nameOf(winner.pokemon)} wins the battle` : drawn ? 'Draw' : '';
+  if ($('okb')) $('okb').textContent = 'Continue';
+  if (!shut) { if (ctrl.black === 'human' || ctrl.white === 'human') await Promise.race([done, sleep(6000)]); else await sleep(600); }
+  ov.hidden = true; ov.innerHTML = '';
 }
 async function playEffects(list) {
   for (let k = 0; k < list.length; k++) {
