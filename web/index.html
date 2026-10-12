@@ -16,7 +16,8 @@
   @keyframes tick { to { transform:translateX(-100%); } }
   @media (prefers-reduced-motion:reduce) { .ticker { white-space:normal; padding:6px 16px; } .ticker span { animation:none; padding-left:0; } }
   main { display:grid; gap:18px; padding:18px; max-width:1260px; width:100%; margin:0 auto; flex:1; min-height:0; overflow:auto; align-content:start; }
-  #game { grid-template-columns:minmax(320px, calc((100dvh - 215px) * .517)) minmax(280px,420px); grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:10px 18px; padding:10px 18px; overflow:hidden; }
+  #game { grid-template-columns:minmax(280px, calc((100dvh - 140px) * var(--board-ar, .517))) minmax(280px,420px);   /* the board column is as wide as the table's shape allows at this height: 140px is the bars above it, --board-ar the table's width / height */
+    grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:10px 18px; padding:10px 18px; overflow:hidden; }
   #sideBtn, #sideHome { display:none; } #camBar { margin-bottom:14px; } #camBar:empty { display:none; } #camBar button { flex:1; }
   @media (max-width:860px) { #game, #setup, #home { grid-template-columns:1fr !important; }
     #sideBtn { display:inline-flex; position:fixed; right:8px; top:89px; z-index:4; width:36px; height:36px; padding:0; border:0; border-radius:0; }   /* top right of the board, under the score bar; it stays put over the open menu and closes it */
@@ -595,7 +596,7 @@ function drawHome() {
   const figs = Object.keys(profile.items).map(Number).filter(id => byId.has(id)).sort((a, b) => byId.get(b).r - byId.get(a).r || a - b);
   const mats = Object.keys(profile.items).map(Number).filter(id => !byId.has(id));
   const lo = i > 0 ? lg.demo : CONST.ratingInitial, pct = next ? Math.max(0, Math.min(100, (profile.rating - lo) / (next.promo - lo) * 100)) : 100;   // the bar runs from the demotion line (the starting rating in league 1) to promotion
-  $('home').innerHTML = `<section><div class="panel"><h2>League ${i + 1} of ${LG.length}</h2>
+  const html = `<section><div class="panel"><h2>League ${i + 1} of ${LG.length}</h2>
       <div class="big">${Math.floor(profile.rating)}<small>rating</small></div>
       <div class="meter"><i style="width:${pct}%"></i></div>
       <div class="ends"><span>${i > 0 ? 'demotion below ' + lg.demo : 'league ' + (i + 1)}</span><span>${next ? 'promotion at ' + next.promo : 'top league'}</span></div>
@@ -607,7 +608,7 @@ function drawHome() {
       ${profile.deck ? `<div class="cards teamcards six" data-act="deck" title="Edit deck">${profile.deck.map((d, i) => slotCard(slotFrom(d), 'deck:' + i)).join('')}</div>` : '<p class="note">Build a deck from your collection to play league matches.</p>'}
       ${(profile.deckPlates || []).length ? `<div>${profile.deckPlates.map(id => `<span class="chip" title="${esc(plateById.get(id).d)}">${esc(plateById.get(id).n)}</span>`).join('')}</div>` : ''}</div>
     <div class="panel"><h2>Time boosters ${profile.boxes.length}/${TIME_SLOTS}</h2>
-      <div class="boosters">${profile.boxes.map((b, k) => `<div class="booster"><span class="chip">${D.boxes[b.b][0]} min</span>${k === 0 ? (left(b) ? `<b>${clockText(left(b))}</b><span class="note">unlocking</span>` : `<button class="primary" data-open="0">Open</button>`) : '<span class="note">waiting</span>'}</div>`).join('')}${'<div class="booster empty">empty slot</div>'.repeat(Math.max(0, TIME_SLOTS - profile.boxes.length))}</div>
+      <div class="boosters">${profile.boxes.map((b, k) => `<div class="booster"><span class="chip">${D.boxes[b.b][0]} min</span>${k === 0 ? (left(b) ? `<b class="tick">${clockText(left(b))}</b><span class="note">unlocking</span>` : `<button class="primary" data-open="0">Open</button>`) : '<span class="note">waiting</span>'}</div>`).join('')}${'<div class="booster empty">empty slot</div>'.repeat(Math.max(0, TIME_SLOTS - profile.boxes.length))}</div>
       <p class="note" style="margin-bottom:0">${profile.boxes.length ? 'Boosters unlock one at a time.' : 'Win a league match to earn a time booster.'}</p>
       <div id="homeMsg" class="note">${esc(drawHome.msg || '')}</div></div></section>
     <section><div class="panel"><h2>Collection · ${figs.reduce((n, id) => n + profile.items[id], 0)} figures</h2>
@@ -615,6 +616,11 @@ function drawHome() {
       ${mats.length ? `<p class="note">Materials: ${mats.map(id => esc(itemLabel([id, profile.items[id]]))).join(' · ')}</p>` : ''}</div>
     <div class="panel"><p class="note" style="margin-top:0">League matches are played against the original AI with a random deck of figures available in your league. Rating moves by the original's fixed win / loss points.</p>
       <button data-act="reset" class="note">Reset profile</button></div></section>`;
+  // This runs every second for the booster countdown. Rewriting the page each time made every picture blink, so the page is only
+  // rewritten when something other than the countdown changed; otherwise just the countdown's text is updated.
+  const key = html.replace(/<b class="tick">[^<]*/, ''), tick = (html.match(/<b class="tick">([^<]*)/) || [])[1];
+  if (key !== drawHome.key || !$('home').firstChild) { drawHome.key = key; $('home').innerHTML = html; }
+  else if (tick != null) $('home').querySelector('.tick').textContent = tick;
 }
 $('home').onclick = e => {
   const t = e.target.closest('[data-act],[data-open]'); if (!t) return;
@@ -960,6 +966,7 @@ function animateMove(move) {
 // the colour of each status condition's ring, the same on the flat board and the 3D table
 const STATUS_COL = { poison: '#a855f7', bad_poison: '#6b21a8', burn: '#ff7a1a', paralyze: '#fde047', sleep: '#94a3b8', freeze: '#67e8f9', melt: '#67e8f9', panic: '#f472b6', curse: '#7c3aed' };
 const VIEW3D = !/\/2d\/(index\.html)?$/.test(location.pathname), U = ([x, y]) => [(x - 210) / 54.2, (y - 350) / 54.2];   // the duel is shown on a WebGL table (board3d.js); /2d/ shows the same duel on the flat board
+document.documentElement.style.setProperty('--board-ar', VIEW3D ? .72 : .517);   // the 3D table, seen at a tilt, is squarer than the flat board
 $('viewLink').innerHTML = icon(VIEW3D ? '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/>' : '<path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/>'); $('viewLink').title = VIEW3D ? 'Switch to the flat board' : 'Switch to the 3D table'; $('viewLink').setAttribute('aria-label', $('viewLink').title); $('viewLink').href = VIEW3D ? '2d/' : './';
 if (VIEW3D) { $('board').style.display = 'none'; $('board3d').hidden = false; import(new URL('board3d.js', document.baseURI)).catch(x => { $('board3d').innerHTML = `<p class="err" style="padding:16px">3D view failed to load: ${esc(x.message)}</p>`; }); }
 function xy(p, away) { // engine point ids: 0-27 field, 28-33 / 34-39 benches, 40-41 / 42-43 P.C., above that = out of play
@@ -981,7 +988,9 @@ function render() {
     if (v.type === 'declare_battle' && v.from_pokemon === sel) targets.set(v.to_pokemon, m);
   }
   render.routes = routes; render.targets = targets;
-  let h = EDGES.map(([a, b]) => { const [x1, y1] = xy(a), [x2, y2] = xy(b); return `<line class="edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; }).join('');
+  // a route stops at the rim of an entry point's ring (17.9 = its radius plus half its stroke) instead of running through it to the dot
+  const rimCut = (p, x, y, tx, ty) => { if (![0, 6, 21, 27].includes(p)) return [x, y]; const l = Math.hypot(tx - x, ty - y); return [x + (tx - x) * 17.9 / l, y + (ty - y) * 17.9 / l]; };
+  let h = EDGES.map(([a, b]) => { const A = xy(a), B = xy(b), [x1, y1] = rimCut(a, ...A, ...B), [x2, y2] = rimCut(b, ...B, ...A); return `<line class="edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; }).join('');
   for (let p = 0; p < 28; p++) {
     const [x, y] = xy(p), goal = p === (flip ? 3 : 24) ? 0 : p === (flip ? 24 : 3) ? 1 : null, mv = routes.has(p) ? ' mv' : '';
     if (goal != null) h += `<circle class="goal g${goal}${mv}" cx="${x}" cy="${y}" r="20"/><circle class="ringmark" cx="${x}" cy="${y}" r="23.3"/>`;

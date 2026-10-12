@@ -53,7 +53,11 @@ const AURA = { poison: 0xa855f7, bad_poison: 0x6b21a8, burn: 0xff7a1a, paralyze:
 
 function build(m) {   // routes, spots and slots never move during a duel (the far side is the near side turned around)
   statics.clear(); for (const g of points.values()) pickable.splice(pickable.indexOf(g.userData.disc), 1); points.clear();
-  for (const [a, b] of m.edges) { const d = new THREE.Vector3(b[0] - a[0], 0, b[1] - a[1]), e = new THREE.Mesh(new THREE.BoxGeometry(.06, .05, d.length()), M.line);
+  // a route stops at the rim of an entry point's ring, and of a goal's, instead of running through it. (Lifting the goal disc over the
+  // routes is not enough: from the duel's camera distance the two are too close in depth and the line shows through.)
+  const rims = m.pts.filter(p => p.goal != null || [0, 6, 21, 27].includes(p.k)).map(p => [p.x, p.z, p.goal != null ? .46 : .33]);
+  const cut = (q, to) => { const rim = rims.find(r => Math.hypot(r[0] - q[0], r[1] - q[1]) < .01); if (!rim) return q; const l = Math.hypot(to[0] - q[0], to[1] - q[1]); return [q[0] + (to[0] - q[0]) * rim[2] / l, q[1] + (to[1] - q[1]) * rim[2] / l]; };
+  for (const [a0, b0] of m.edges) { const a = cut(a0, b0), b = cut(b0, a0), d = new THREE.Vector3(b[0] - a[0], 0, b[1] - a[1]), e = new THREE.Mesh(new THREE.BoxGeometry(.06, .05, d.length()), M.line);
     e.position.set((a[0] + b[0]) / 2, .025, (a[1] + b[1]) / 2); e.rotation.y = Math.atan2(d.x, d.z); statics.add(e); }
   for (const s of m.slots) { const r = new THREE.Mesh(G.ring2, M.line); r.rotation.x = Math.PI / 2; r.position.set(s[0], .025, s[1]); r.castShadow = true; statics.add(r); }
   // Slots 12-15 are the P.C. spots (inner, outer for each side). A blunt raised arrow sits on each one's ring, pointing where its figure goes
