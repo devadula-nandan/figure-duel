@@ -635,7 +635,7 @@ function startClock() {
 // A duel is its record (decks, seed, moves), so it is kept on this device under its seed and the seed is put in the address (#g=seed).
 // Reloading, or switching between the flat and the 3D table, picks the same duel up again. Online duels are not kept: the connection would be gone.
 const GAME_KEY = 'figureduel.game.';
-const viewHref = () => { $('viewLink').href = (VIEW3D ? '../' : '3d/') + location.hash; };
+const viewHref = () => { $('viewLink').href = (VIEW3D ? './' : '3d/') + location.hash; };
 function saveGame() {
   if (net || !rec) return;
   try { for (const k of Object.keys(localStorage)) if (k.startsWith(GAME_KEY) && k !== GAME_KEY + rec.seed) localStorage.removeItem(k);
@@ -768,7 +768,7 @@ $('themeBtn').onclick = () => setTheme({ auto: 'light', light: 'dark', dark: 'au
 
 // ---------- board ----------
 const VIEW3D = /\/3d\/(index\.html)?$/.test(location.pathname), U = ([x, y]) => [(x - 210) / 54.2, (y - 350) / 54.2];   // /3d/ shows the same duel on a WebGL table (board3d.js)
-$('viewLink').textContent = VIEW3D ? '2D' : '3D'; $('viewLink').href = VIEW3D ? '../' : '3d/';
+$('viewLink').textContent = VIEW3D ? '2D' : '3D'; $('viewLink').href = VIEW3D ? './' : '3d/';
 if (VIEW3D) { $('board').style.display = 'none'; $('board3d').hidden = false; import(new URL('board3d.js', document.baseURI)).catch(x => { $('board3d').innerHTML = `<p class="err" style="padding:16px">3D view failed to load: ${esc(x.message)}</p>`; }); }
 function xy(p, away) { // engine point ids: 0-27 field, 28-33 / 34-39 benches, 40-41 / 42-43 P.C., above that = out of play
   if (p < 28) { const q = flip ? 27 - p : p; return [42 + XY[q][0] * 56, 186 + XY[q][1] * 82]; }
