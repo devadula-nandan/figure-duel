@@ -80,14 +80,24 @@
   .card .chip { position:absolute; top:6px; left:6px; margin:0; } .card .chip.r { left:auto; right:6px; min-width:18px; padding:0 6px; text-align:center; background:var(--ink); color:var(--bg); }
   .card .nm { font-weight:700; font-size:13px; line-height:1.2; } .card .note { line-height:1.25; }
   .card.plate { align-items:flex-start; text-align:left; padding:30px 10px 10px; } .card.plate .note { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  #team.cards { grid-template-columns:repeat(3,minmax(0,1fr)); overflow:visible; margin-bottom:10px; } #team .card { min-height:124px; justify-content:center; padding:26px 6px 8px; }
-  #team .card img { width:64px; height:64px; } #team .pics { justify-content:center; gap:2px; } .dots { display:flex; gap:6px; justify-content:center; } .dot { position:relative; width:10px; height:10px; border-radius:50%; background:var(--dim); } .dot.form { background:none; border:2px solid var(--dim); } .dot:hover { background:var(--ink); }
-  #team .dot img { display:none; position:absolute; bottom:16px; left:50%; transform:translateX(-50%); width:72px; height:72px; padding:4px; background:var(--panel); border:1px solid var(--dim); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.4); z-index:3; } #team .dot:hover img { display:block; }
-  #team .card.empty { border-style:dashed; background:none; cursor:default; color:var(--dim); font-size:22px; } #team .card.empty:hover { transform:none; border-color:var(--line); }
+  .teamcards.cards { grid-template-columns:repeat(3,minmax(0,1fr)); overflow:visible; margin-bottom:10px; } .teamcards .card { min-height:124px; justify-content:center; padding:26px 6px 8px; }
+  .teamcards .card img { width:64px; height:64px; } .teamcards .pics { justify-content:center; gap:2px; } .dots { display:flex; gap:6px; justify-content:center; } .dot { position:relative; width:10px; height:10px; border-radius:50%; background:var(--dim); } .dot.form { background:none; border:2px solid var(--dim); } .dot:hover { background:var(--ink); }
+  .teamcards .dot img { display:none; position:absolute; bottom:16px; left:50%; transform:translateX(-50%); width:72px; height:72px; padding:4px; background:var(--panel); border:1px solid var(--dim); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.4); z-index:3; } .teamcards .dot:hover img { display:block; }
+  .teamcards .card.empty { border-style:dashed; background:none; cursor:default; color:var(--dim); font-size:22px; } .teamcards .card.empty:hover { transform:none; border-color:var(--line); }
   .card .x { position:absolute; top:4px; right:6px; width:20px; height:20px; line-height:18px; border-radius:50%; color:var(--dim); font-size:15px; } .card .x:hover { background:var(--line); color:var(--ink); }
   @media (max-width:860px) { #list.cards { height:46dvh; } .cards { grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); } .card img { width:68px; height:68px; } }
   #tlist { max-height:230px; overflow:auto; } #tlist .row { border:1px solid var(--line); margin-bottom:4px; background:var(--ctl); } #tlist .row img { width:30px; height:30px; margin:-4px -3px; }
   #tlist .row .x { position:static; flex:none; text-align:center; cursor:pointer; width:22px; height:22px; line-height:20px; border-radius:50%; color:var(--dim); } #tlist .row .x:hover { background:var(--line); color:var(--ink); }
+  /* home: league summary, deck, boosters and collection */
+  .big { font:900 46px/1 "Segoe UI",system-ui,sans-serif; letter-spacing:-.01em; } .big small { font-size:13px; font-weight:600; color:var(--dim); letter-spacing:0; margin-left:8px; }
+  .meter { height:8px; border-radius:99px; background:var(--ctl2); overflow:hidden; margin:10px 0 4px; } .meter i { display:block; height:100%; border-radius:99px; background:var(--ink); }
+  .ends { display:flex; justify-content:space-between; color:var(--dim); font-size:11px; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:14px 0; } .stat { background:var(--ctl); border:1px solid var(--line); border-radius:12px; padding:10px 8px; text-align:center; } .stat b { display:block; font-size:20px; line-height:1.2; } .stat span { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+  .pips { display:flex; gap:4px; margin:6px 0 4px; } .pips i { flex:1; height:8px; border-radius:99px; background:var(--ctl2); } .pips i.on { background:var(--gold); }
+  .teamcards.cards.six { grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin:0 0 8px; } .six .card { min-height:92px; padding:24px 4px 8px; } .six .card img { width:52px; height:52px; }
+  .boosters { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; } .booster { border:1px solid var(--line); border-radius:12px; background:var(--ctl); padding:12px 8px; text-align:center; min-height:86px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; } .booster.empty { border-style:dashed; background:none; color:var(--dim); font-size:12px; }
+  #home .cards { max-height:min(62dvh,560px); } #home .card { cursor:default; } #home .card:hover { transform:none; background:var(--ctl); border-color:var(--line); } #home [data-act] .card { cursor:pointer; }
+  @media (max-width:860px) { .teamcards.cards.six { grid-template-columns:repeat(3,minmax(0,1fr)); } }
   #acts { display:grid; gap:6px; max-height:34dvh; overflow:auto; } #acts button { width:100%; padding:10px 14px; }
   #acts:empty:before { content:"Nothing to choose right now."; color:var(--dim); font-size:12px; }
   #modal { position:fixed; inset:0; background:rgba(3,5,12,.8); display:grid; place-items:center; padding:16px; z-index:5; }
@@ -111,7 +121,7 @@
     <div class="panel"><h2>Plates</h2><input id="pq" placeholder="search plates" style="width:100%;margin-bottom:8px"><div id="plist" class="cards"></div></div>
   </section>
   <section>
-    <div class="panel"><h2>Your team (6 figures)</h2><div id="team" class="team cards"></div>
+    <div class="panel"><h2>Your team (6 figures)</h2><div id="team" class="team cards teamcards"></div>
       <div class="bar"><button id="rnd">Random team</button><button id="clr">Clear</button><label class="note"><input type="checkbox" id="evo" checked> attach evolutions automatically</label></div>
       <p class="note">Click a team card to edit it: evolution / Mega attachments, level (wheel size) and damage boosts. Hover a picture for its name.</p>
       <h2>Your plates <span id="pcost" class="note"></span></h2><div id="myplates" class="team"></div></div>
@@ -412,20 +422,27 @@ function drawHome() {
   const left = b => Math.max(0, Math.ceil((b.t - now) / 1000)), clockText = t => `${Math.floor(t / 3600)}:${String(Math.floor(t / 60) % 60).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
   const figs = Object.keys(profile.items).map(Number).filter(id => byId.has(id)).sort((a, b) => byId.get(b).r - byId.get(a).r || a - b);
   const mats = Object.keys(profile.items).map(Number).filter(id => !byId.has(id));
+  const lo = i > 0 ? lg.demo : CONST.ratingInitial, pct = next ? Math.max(0, Math.min(100, (profile.rating - lo) / (next.promo - lo) * 100)) : 100;   // the bar runs from the demotion line (the starting rating in league 1) to promotion
   $('home').innerHTML = `<section><div class="panel"><h2>League ${i + 1} of ${LG.length}</h2>
-      <div style="font-size:22px">Rating ${Math.floor(profile.rating)}</div>
-      <div class="note">${next ? 'Promotion at ' + next.promo : 'Top league'}${i > 0 ? ' · demotion below ' + lg.demo : ''} · ${profile.wins} wins / ${profile.losses} losses</div>
-      <div style="margin:8px 0">Keys ${profile.stars}/${CONST.keyCost} <span class="note">(${lg.win} per win, ${lg.lose} per loss; a full set opens a key booster)</span></div>
-      <div class="bar"><button class="primary" data-act="league" ${profile.deck ? '' : 'disabled'}>League match</button><button data-act="deck">Edit deck</button><button data-act="free">Free duel (every figure)</button></div>
-      <div class="note">${profile.deck ? 'Deck: ' + profile.deck.map(d => slotText(slotFrom(d))).join(' · ') : 'Build a deck from your collection to play league matches.'}${(profile.deckPlates || []).length ? '<br>Plates: ' + profile.deckPlates.map(id => esc(plateById.get(id).n)).join(' · ') : ''}</div></div>
+      <div class="big">${Math.floor(profile.rating)}<small>rating</small></div>
+      <div class="meter"><i style="width:${pct}%"></i></div>
+      <div class="ends"><span>${i > 0 ? 'demotion below ' + lg.demo : 'league ' + (i + 1)}</span><span>${next ? 'promotion at ' + next.promo : 'top league'}</span></div>
+      <div class="stats"><div class="stat"><b>${profile.wins}</b><span>wins</span></div><div class="stat"><b>${profile.losses}</b><span>losses</span></div><div class="stat"><b>${profile.stars}/${CONST.keyCost}</b><span>keys</span></div></div>
+      <div class="pips">${Array.from({ length: CONST.keyCost }, (_, k) => `<i class="${k < profile.stars ? 'on' : ''}"></i>`).join('')}</div>
+      <div class="note">${lg.win} keys per win, ${lg.lose} per loss; a full set opens a key booster.</div>
+      <div class="bar" style="margin:14px 0 0"><button class="primary" data-act="league" ${profile.deck ? '' : 'disabled'}>League match</button><button data-act="deck">Edit deck</button><button data-act="free">Free duel (every figure)</button></div></div>
+    <div class="panel"><h2>Your deck</h2>
+      ${profile.deck ? `<div class="cards teamcards six" data-act="deck" title="Edit deck">${profile.deck.map(d => `<div class="card"><span class="chip rar${byId.get(d.st[0]).r}">${RAR[byId.get(d.st[0]).r]}</span>${teamPics(slotFrom(d))}</div>`).join('')}</div>` : '<p class="note">Build a deck from your collection to play league matches.</p>'}
+      ${(profile.deckPlates || []).length ? `<div>${profile.deckPlates.map(id => `<span class="chip" title="${esc(plateById.get(id).d)}">${esc(plateById.get(id).n)}</span>`).join('')}</div>` : ''}</div>
     <div class="panel"><h2>Time boosters ${profile.boxes.length}/${TIME_SLOTS}</h2>
-      ${profile.boxes.map((b, k) => `<div class="bar"><span class="chip">${D.boxes[b.b][0]} min</span>${k === 0 ? (left(b) ? `<span>unlocking… ${clockText(left(b))}</span>` : `<button class="primary" data-open="0">Open</button>`) : '<span class="note">waiting</span>'}</div>`).join('') || '<p class="note">Win a league match to earn a time booster.</p>'}
+      <div class="boosters">${profile.boxes.map((b, k) => `<div class="booster"><span class="chip">${D.boxes[b.b][0]} min</span>${k === 0 ? (left(b) ? `<b>${clockText(left(b))}</b><span class="note">unlocking</span>` : `<button class="primary" data-open="0">Open</button>`) : '<span class="note">waiting</span>'}</div>`).join('')}${'<div class="booster empty">empty slot</div>'.repeat(Math.max(0, TIME_SLOTS - profile.boxes.length))}</div>
+      <p class="note" style="margin-bottom:0">${profile.boxes.length ? 'Boosters unlock one at a time.' : 'Win a league match to earn a time booster.'}</p>
       <div id="homeMsg" class="note">${esc(drawHome.msg || '')}</div></div></section>
-    <section><div class="panel"><h2>Collection · ${figs.reduce((n, id) => n + profile.items[id], 0)} figures</h2><div style="max-height:330px;overflow:auto">
-      ${figs.map(id => `<div class="row"><img loading="lazy" src="${sprite(byId.get(id))}" alt="" onerror="this.remove()"><span class="chip rar${byId.get(id).r}">${RAR[byId.get(id).r] || ''}</span><span class="n">${esc(byId.get(id).n)}</span><span class="note">×${profile.items[id]}</span></div>`).join('')}</div>
+    <section><div class="panel"><h2>Collection · ${figs.reduce((n, id) => n + profile.items[id], 0)} figures</h2>
+      <div class="cards">${figs.map(id => { const f = byId.get(id); return `<div class="card"><span class="chip rar${f.r}">${RAR[f.r] || ''}</span><span class="chip r" title="${profile.items[id]} owned">×${profile.items[id]}</span>${sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="" onerror="this.outerHTML='<div class=nopic>no picture</div>'">` : '<div class="nopic">no picture</div>'}<span class="nm">${esc(f.n)}</span><span class="note">${typeNames(f)}</span></div>`; }).join('')}</div>
       ${mats.length ? `<p class="note">Materials: ${mats.map(id => esc(itemLabel([id, profile.items[id]]))).join(' · ')}</p>` : ''}</div>
-    <div class="panel"><button data-act="reset" class="note">Reset profile</button>
-      <p class="note">League matches are played against the original AI with a random deck of figures available in your league. Rating moves by the original's fixed win / loss points.</p></div></section>`;
+    <div class="panel"><p class="note" style="margin-top:0">League matches are played against the original AI with a random deck of figures available in your league. Rating moves by the original's fixed win / loss points.</p>
+      <button data-act="reset" class="note">Reset profile</button></div></section>`;
 }
 $('home').onclick = e => {
   const t = e.target.closest('[data-act],[data-open]'); if (!t) return;
