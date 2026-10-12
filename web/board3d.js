@@ -12,17 +12,41 @@ scene.add(new THREE.HemisphereLight(0xffffff, 0x20264a, 1.5));
 const sun = new THREE.DirectionalLight(0xffffff, 1.8); sun.position.set(-4, 12, 6); sun.castShadow = true; sun.shadow.mapSize.set(1024, 1024);
 Object.assign(sun.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8 }); scene.add(sun);
 
-// the table: a dark slab, red at the far end and blue at the near end
 const tex = (w, h, paint) => { const c = document.createElement('canvas'); c.width = w; c.height = h; paint(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t; };
-const top = tex(256, 512, (g, w, h) => { const l = g.createLinearGradient(0, 0, 0, h); l.addColorStop(0, '#7a1626'); l.addColorStop(.42, '#1a1638'); l.addColorStop(.58, '#14183c'); l.addColorStop(1, '#123c9c'); g.fillStyle = l; g.fillRect(0, 0, w, h); });
-const slab = new THREE.Mesh(new THREE.BoxGeometry(8.4, .4, 13.6), [0, 1, 2, 3, 4, 5].map(i => new THREE.MeshStandardMaterial(i === 2 ? { map: top, roughness: .55 } : { color: 0x0a0e1e, roughness: .7 })));
-slab.position.y = -.2; slab.receiveShadow = true; scene.add(slab);
-const floor = new THREE.Mesh(new THREE.CircleGeometry(40, 64), new THREE.MeshStandardMaterial({ color: 0x05070f, roughness: 1 })); floor.rotation.x = -Math.PI / 2; floor.position.y = -.4; scene.add(floor);
+const css = (name, fallback) => (getComputedStyle(document.documentElement).getPropertyValue(name) || '').trim() || fallback;
+// The table is one slate surface that runs past the edge of the view in every direction: a small tile (grain and a faint weave) repeated
+// across a very large plane, fading into the distance. Each side's colour is a soft glow laid over it at that side's end.
+const tileCanvas = document.createElement('canvas'); tileCanvas.width = tileCanvas.height = 256;
+const tile = new THREE.CanvasTexture(tileCanvas); tile.colorSpace = THREE.SRGBColorSpace; tile.wrapS = tile.wrapT = THREE.RepeatWrapping; tile.repeat.set(100, 100); tile.anisotropy = 8;
+const glowCanvas = document.createElement('canvas'); glowCanvas.width = 256; glowCanvas.height = 512;
+const glowTex = new THREE.CanvasTexture(glowCanvas); glowTex.colorSpace = THREE.SRGBColorSpace;
+function paintTable() {
+  const bd = css('--bd', '#0c0d10'), bd2 = css('--bd2', '#17191e'), line = css('--bd-line', '#c9ced8'), light = new THREE.Color(bd).getHSL({}).l > .5;
+  let g = tileCanvas.getContext('2d'); g.globalAlpha = 1; g.fillStyle = new THREE.Color(bd).lerp(new THREE.Color(bd2), .5).getStyle(); g.fillRect(0, 0, 256, 256);
+  g.strokeStyle = line; g.lineWidth = 1; g.globalAlpha = .06; g.beginPath(); for (let k = -256; k < 512; k += 32) { g.moveTo(k, 0); g.lineTo(k + 256, 256); g.moveTo(k, 0); g.lineTo(k - 256, 256); } g.stroke();   // 32 px steps so the weave meets itself at the tile edges
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;   // fixed seed: the grain is the same every time
+  for (let k = 0; k < 7000; k++) { g.globalAlpha = rnd() * .1; g.fillStyle = rnd() < .5 ? '#000' : '#fff'; g.fillRect(rnd() * 256, rnd() * 256, 1 + rnd() * 1.6, 1 + rnd() * 1.6); }
+  g.globalAlpha = 1; tile.needsUpdate = true;
+  g = glowCanvas.getContext('2d'); g.clearRect(0, 0, 256, 512);
+  for (const [cy, c] of [[96, css('--p1', '#ff4658')], [416, css('--p0', '#2f8cff')]]) { const col = new THREE.Color(c), rgb = `${Math.round(col.r * 255)},${Math.round(col.g * 255)},${Math.round(col.b * 255)}`;
+    g.save(); g.translate(128, cy); g.scale(1, .72); const r = g.createRadialGradient(0, 0, 0, 0, 0, 128); r.addColorStop(0, `rgba(${rgb},${light ? .5 : .42})`); r.addColorStop(1, `rgba(${rgb},0)`); g.fillStyle = r; g.fillRect(-128, -180, 256, 360); g.restore(); }
+  glowTex.needsUpdate = true;
+}
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ map: tile, roughness: .6 })); floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+const glow = new THREE.Mesh(new THREE.PlaneGeometry(13, 26), new THREE.MeshBasicMaterial({ map: glowTex, transparent: true, depthWrite: false })); glow.rotation.x = -Math.PI / 2; glow.position.y = .004; scene.add(glow);
+scene.fog = new THREE.Fog(0x0c0d10, 28, 120);   // the far floor melts into the table colour instead of ending at a line
 
 const mat = (color, emissive = 0, o = {}) => new THREE.MeshStandardMaterial({ color, emissive, roughness: .45, ...o });
 const M = { line: mat(0xdfe6ff, 0x30385c), pt: mat(0x0c1230), rim: mat(0xdfe6ff, 0x30385c), blue: mat(BLUE, 0x0a2a66), red: mat(RED, 0x4a0a12), mv: mat(GOLD, 0xa07800), slot: mat(0xdfe6ff, 0, { transparent: true, opacity: .25 }) };
 const G = { pt: new THREE.CylinderGeometry(.33, .33, .05, 36), rim: new THREE.CylinderGeometry(.4, .4, .03, 36), goal: new THREE.CylinderGeometry(.5, .5, .04, 40), slot: new THREE.RingGeometry(.36, .42, 36), aura: new THREE.RingGeometry(.42, .66, 40), words: new THREE.PlaneGeometry(1.33, 1.33),
   base: new THREE.CylinderGeometry(.36, .4, .16, 32), cap: new THREE.CylinderGeometry(.33, .36, .03, 32), ring: new THREE.TorusGeometry(.5, .035, 10, 40), hit: new THREE.CylinderGeometry(.42, .42, 1.1, 12) };
+function applyTheme() {
+  const bd = css('--bd', '#0c0d10'), line = css('--bd-line', '#c9ced8'), pt = css('--bd-pt', '#101216'), light = new THREE.Color(bd).getHSL({}).l > .5;
+  paintTable(); scene.fog.color.set(bd).lerp(new THREE.Color(css('--bd2', '#17191e')), .5); scene.background = scene.fog.color;   // the sky is the table colour too, so there is no line where the far floor ends
+  M.line.color.set(line); M.rim.color.set(line); M.slot.color.set(line); M.pt.color.set(pt);
+  M.line.emissive.set(line).multiplyScalar(light ? 0 : .22); M.rim.emissive.copy(M.line.emissive);
+}
+applyTheme(); new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 const statics = new THREE.Group(), points = new Map(), tokens = new Map(), pickable = []; scene.add(statics);
 let built = '', last = null;
 // status conditions get an aura in their own colour; anything else with a marker gets a white one

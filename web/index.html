@@ -6,8 +6,8 @@
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
 <title>Figure Duel</title>
 <style>
-  :root { --bg:#0a0a0a; --bar:#111; --panel:#161616; --ctl:#1f1f1f; --ctl2:#2b2b2b; --line:#333; --ink:#f2f2f2; --dim:#9a9a9a; --accent:#f2f2f2; --err:#ff8a94; --p0:#2f8cff; --p0d:#0f3fa8; --p1:#ff4658; --p1d:#a3122a; --ok:#39d98a; --gold:#ffd23f; }
-  :root[data-theme=light] { --bg:#f1f1f1; --bar:#fff; --panel:#fff; --ctl:#f3f3f3; --ctl2:#e4e4e4; --line:#cfcfcf; --ink:#111; --dim:#666; --accent:#111; --err:#c62828; }
+  :root { --bg:#0a0a0a; --bar:#111; --panel:#161616; --ctl:#1f1f1f; --ctl2:#2b2b2b; --line:#333; --ink:#f2f2f2; --dim:#9a9a9a; --accent:#f2f2f2; --err:#ff8a94; --p0:#2f8cff; --p0d:#0f3fa8; --p1:#ff4658; --p1d:#a3122a; --ok:#39d98a; --gold:#ffd23f; --bd:#0c0d10; --bd2:#17191e; --bd-line:#c9ced8; --bd-pt:#101216; --bd-glow:26%; }
+  :root[data-theme=light] { --bg:#f1f1f1; --bar:#fff; --panel:#fff; --ctl:#f3f3f3; --ctl2:#e4e4e4; --line:#cfcfcf; --ink:#111; --dim:#666; --accent:#111; --err:#c62828; --bd:#dedad1; --bd2:#f3f0e9; --bd-line:#3c4048; --bd-pt:#fbfaf6; --bd-glow:34%; }
   * { box-sizing:border-box; } [hidden] { display:none !important; }
   body { height:100dvh; display:flex; flex-direction:column; margin:0; color:var(--ink); font:14px/1.45 "Segoe UI",system-ui,Roboto,sans-serif;
     background:var(--bg); }
@@ -50,15 +50,16 @@
   .clock { padding:1px 10px; border-radius:999px; background:rgba(0,0,0,.45); border:2px solid rgba(255,255,255,.35); font-variant-numeric:tabular-nums; font-weight:800; color:#fff; } .clock.on { border-color:var(--gold); color:var(--gold); }
   .banner { grid-column:1 / -1; grid-row:2; text-align:center; color:var(--dim); font-size:12px; font-weight:600; padding:5px 8px; background:var(--bar); } .banner b { color:var(--ink); }
   /* the table: red end at the top, blue end at the bottom */
-  .table { flex:1; min-height:0; display:flex; padding:0; border-radius:18px; border:2px solid #000; box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px rgba(255,255,255,.08);
-    background:radial-gradient(ellipse at 50% 0%, rgba(255,70,88,.55), rgba(255,70,88,0) 55%), radial-gradient(ellipse at 50% 100%, rgba(47,140,255,.6), rgba(47,140,255,0) 55%), linear-gradient(180deg,#3a0d1c 0%,#161233 50%,#0b1f5a 100%); }
+  .table { flex:1; min-height:0; display:flex; padding:0; border-radius:18px; border:2px solid #000; box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px color-mix(in srgb, var(--bd-line) 10%, transparent);
+    /* glow of each side's colour, a fine grain, a faint weave, then the slate itself */
+    background:radial-gradient(ellipse at 50% -8%, color-mix(in srgb, var(--p1) var(--bd-glow), transparent), transparent 52%), radial-gradient(ellipse at 50% 108%, color-mix(in srgb, var(--p0) var(--bd-glow), transparent), transparent 52%), url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), repeating-linear-gradient(45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), repeating-linear-gradient(-45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), linear-gradient(180deg,var(--bd2),var(--bd)); }
   #board3d { flex:1; min-width:0; min-height:0; } #board3d canvas { display:block; }
   .top a { color:var(--ink); font-weight:600; text-decoration:none; padding:3px 12px; border:1px solid var(--line); border-radius:10px; background:var(--ctl); }
   svg#board { width:100%; height:100%; display:block; user-select:none; }
-  .edge { stroke:#dfe6ff; stroke-width:4; stroke-linecap:round; opacity:.55; }
-  .pt { fill:#0c1230; stroke:#dfe6ff; stroke-width:2; } .pt.goal0 { stroke:var(--p0); stroke-width:5; fill:#0f2a6b; } .pt.goal1 { stroke:var(--p1); stroke-width:5; fill:#5a1020; }
+  .edge { stroke:var(--bd-line); stroke-width:4; stroke-linecap:round; opacity:.5; }
+  .pt { fill:var(--bd-pt); stroke:var(--bd-line); stroke-width:2; } .pt.goal0 { stroke:var(--p0); stroke-width:5; fill:color-mix(in srgb, var(--p0) 30%, var(--bd-pt)); } .pt.goal1 { stroke:var(--p1); stroke-width:5; fill:color-mix(in srgb, var(--p1) 30%, var(--bd-pt)); }
   .pt.entry { stroke-dasharray:4 3; } .pt.mv { fill:var(--gold); stroke:#fff; cursor:pointer; }
-  .slot { fill:rgba(0,0,0,.28); stroke:rgba(223,230,255,.4); stroke-dasharray:3 4; } .lbl { fill:#dfe6ff; font-size:10px; font-weight:700; letter-spacing:.14em; opacity:.8; }
+  .slot { fill:color-mix(in srgb, var(--bd) 55%, transparent); stroke:color-mix(in srgb, var(--bd-line) 45%, transparent); stroke-dasharray:3 4; } .lbl { fill:var(--bd-line); font-size:10px; font-weight:700; letter-spacing:.14em; opacity:.8; }
   .tok { cursor:pointer; } .tok:has(image) .nm { display:none; } .tok:has(image) .bg { fill:transparent; } .tok:has(image) .ring { stroke-width:3; } .pics { display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .row img { width:32px; height:32px; margin:-6px 0; } .tok text { pointer-events:none; text-anchor:middle; font-weight:800; }
   .tok .ring { fill:none; stroke-width:5; } .tok.sel .ring { stroke:#fff; } .tok.atk .halo { stroke:var(--gold); }
   .tok .halo { fill:none; stroke:transparent; stroke-width:3; stroke-dasharray:5 4; } .tok.dim { opacity:.55; }
