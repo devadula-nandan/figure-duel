@@ -532,7 +532,7 @@ async function engineBytes() {
   if (!bytes) bytes = await new Promise(ok => {
     $('box').innerHTML = `<h2 style="margin-top:0">The rule engine</h2><p>This game does not re-implement the rules. It runs the original game's own rule engine, which is part of the original app.</p>
       <p>Choose your copy of the original Android app (version 7.0.16, an <b>.apk</b> file). It is read on this device only, nothing is uploaded, and you will not be asked again here.</p>
-      <input type="file" id="apkFile" accept=".apk,application/vnd.android.package-archive"> <div id="apkErr" class="err"></div>`;
+      <input type="file" id="apkFile"> <div id="apkErr" class="err"></div>`;
     $('box').onclick = null; $('box').onchange = async ev => { if (ev.target.id !== 'apkFile' || !ev.target.files[0]) return; try { const b = await libFromApk(ev.target.files[0]); $('modal').hidden = true; ok(b); } catch (x) { $('apkErr').textContent = x.message; } };
     $('modal').hidden = false;
   });
