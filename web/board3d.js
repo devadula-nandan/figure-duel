@@ -68,7 +68,7 @@ function build(m) {   // routes, spots and slots never move during a duel (the f
     const g = new THREE.Group(), spot = new THREE.Mesh(G.spot, M.unseen); let mark;
     if (p.goal == null) { mark = new THREE.Mesh(G.dot, M.line); mark.position.y = .025; mark.castShadow = true; g.add(mark);
       if ([0, 6, 21, 27].includes(p.k)) { const ring = new THREE.Mesh(G.entry, M.line); ring.rotation.x = Math.PI / 2; ring.position.y = .025; ring.castShadow = true; g.add(ring); } }
-    else { mark = new THREE.Mesh(G.goalDisc, p.goal === 0 ? M.blue : M.red); mark.rotation.x = -Math.PI / 2; mark.position.y = .014; const rim = new THREE.Mesh(G.ring2, M.line); rim.rotation.x = Math.PI / 2; rim.position.y = .025; rim.castShadow = true; g.add(mark, rim); }
+    else { mark = new THREE.Mesh(G.goalDisc, p.goal === 0 ? M.blue : M.red); mark.rotation.x = -Math.PI / 2; mark.position.y = .054; const rim = new THREE.Mesh(G.ring2, M.line); rim.rotation.x = Math.PI / 2; rim.position.y = .025; rim.castShadow = true; g.add(mark, rim); }
     spot.position.y = .07; g.add(spot); g.position.set(p.x, 0, p.z); g.userData = { disc: spot, mark, plain: mark.material, goal: p.goal != null }; spot.userData.pick = g.userData; statics.add(g); points.set(p.k, g); pickable.push(spot);
   }
   built = m.pts.length + ':' + m.slots.length + ':' + m.edges.length;
@@ -127,7 +127,7 @@ function keepCamera() {   // called whenever the lock changes or a locked view i
 }
 function home(reset) {   // reset = the Reset button: go to the default view even when a locked view is remembered.
   // the whole table, both benches included, from behind the near player; a model may bring its own camera: { pos, at, width } (width = how much of the scene must fit across)
-  const d = Math.max(1, .66 / camera.aspect) * 20.5, c = last && last.cam, at = new THREE.Vector3(...(c ? c.at : [0, 0, .75])), pos = c ? new THREE.Vector3(...c.pos) : new THREE.Vector3(0, d * .84, d * .55 + .75);
+  const d = Math.max(1, .72 / camera.aspect) * 20.5, c = last && last.cam, at = new THREE.Vector3(...(c ? c.at : [0, 0, .75])), pos = c ? new THREE.Vector3(...c.pos) : new THREE.Vector3(0, d * .84, d * .55 + .75);
   if (c) pos.lerpVectors(at, pos, Math.max(1, c.width / (2 * Math.tan(camera.fov * Math.PI / 360) * camera.aspect) / pos.distanceTo(at)));
   const far = pos.distanceTo(at); controls.minDistance = far * .5; controls.maxDistance = far * 1.3; camera.position.copy(pos); controls.target.copy(at); controls.update(); moved = false;
   if (kept && !c && reset !== true) { camera.position.fromArray(kept.pos); controls.target.fromArray(kept.at); controls.update(); moved = true; }   // the remembered locked view (not in scenes that bring their own camera)
@@ -139,7 +139,10 @@ function fit() {
 }
 new ResizeObserver(fit).observe(host); fit();
 host.style.position = 'relative';
-host.insertAdjacentHTML('beforeend', '<div style="position:absolute;left:8px;bottom:8px;display:flex;gap:6px"><button id="camReset" style="padding:3px 10px;font-size:12px">Reset view</button><button id="camLock" style="padding:3px 10px;font-size:12px">Lock view</button></div>');
+// the camera buttons go in the page's menu when it has a place for them (id "camBar"), else in a corner of the table
+const camBar = document.getElementById('camBar');
+if (camBar) camBar.innerHTML = '<button id="camReset">Reset view</button><button id="camLock">Lock view</button>';
+else host.insertAdjacentHTML('beforeend', '<div style="position:absolute;left:8px;bottom:8px;display:flex;gap:6px"><button id="camReset" style="padding:3px 10px;font-size:12px">Reset view</button><button id="camLock" style="padding:3px 10px;font-size:12px">Lock view</button></div>');
 document.getElementById('camReset').onclick = () => { home(true); if (!controls.enabled) keepCamera(); };
 document.getElementById('camLock').onclick = e => { controls.enabled = !controls.enabled; e.target.textContent = controls.enabled ? 'Lock view' : 'Unlock view'; keepCamera(); };
 if (kept) { controls.enabled = false; document.getElementById('camLock').textContent = 'Unlock view'; home(); }

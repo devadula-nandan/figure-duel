@@ -17,36 +17,37 @@
   @media (prefers-reduced-motion:reduce) { .ticker { white-space:normal; padding:6px 16px; } .ticker span { animation:none; padding-left:0; } }
   main { display:grid; gap:18px; padding:18px; max-width:1260px; width:100%; margin:0 auto; flex:1; min-height:0; overflow:auto; align-content:start; }
   #game { grid-template-columns:minmax(320px, calc((100dvh - 215px) * .517)) minmax(280px,420px); grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:10px 18px; padding:10px 18px; overflow:hidden; }
-  #sideBtn, #sideHome { display:none; }
+  #sideBtn, #sideHome { display:none; } #camBar { margin-bottom:14px; } #camBar:empty { display:none; } #camBar button { flex:1; }
   @media (max-width:860px) { #game, #setup, #home { grid-template-columns:1fr !important; }
-    #sideBtn { display:block; position:fixed; right:0; top:50%; z-index:4; padding:14px 6px; border-radius:10px 0 0 10px; writing-mode:vertical-rl; }
-    .side { position:fixed; top:0; right:0; bottom:0; z-index:3; width:min(88vw,380px); padding:12px; background:var(--bar); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .2s; }
+    #sideBtn { display:inline-flex; position:fixed; right:8px; top:89px; z-index:4; width:36px; height:36px; padding:0; border:0; border-radius:0; }   /* top right of the board, under the score bar; it stays put over the open menu and closes it */
+    #sideBtn .c, body:has(.side.open) #sideBtn .m { display:none; } body:has(.side.open) #sideBtn .c { display:block; } body:has(.side.open) #sideBtn { top:8px; }
+    .side { position:fixed; top:0; right:0; bottom:0; z-index:3; width:min(88vw,380px); padding:12px; padding-top:52px; background:var(--bar); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .2s; }
     body:has(#game:not([hidden])) .top { display:none; } #sideHome { display:block; width:100%; margin-bottom:12px; text-align:center; }
-    #game { padding:0; } .arena { border:0; border-radius:0; outline:0; }
+    #game { padding:0; } .arena, .side, #board3d button, .hud .z, .clock { border:0 !important; border-radius:0 !important; outline:0 !important; }   /* the plain rules come later in this sheet, hence !important */
     .side.open { transform:none; box-shadow:-20px 0 60px rgba(0,0,0,.7); } }
   .arena { display:flex; flex-direction:column; gap:8px; min-height:0; } .side { min-height:0; overflow:auto; }
-  .panel { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,.18); }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,.18); }
   .panel h2 { font:800 12px/1 "Segoe UI",system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:var(--accent); margin:0 0 10px; }
   /* HUD and table are one card */
-  .arena { gap:0 !important; border:1px solid var(--line); border-radius:18px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.5); outline:1px solid var(--line); }
+  .arena { gap:0 !important; border:1px solid var(--line); border-radius:8px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.5); outline:1px solid var(--line); }
   .arena .hud, .arena .table { border:0 !important; border-radius:0 !important; box-shadow:none !important; }
   /* HUD: you in blue on the left, the opponent in red on the right */
-  .hud { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:14px; overflow:hidden; border:1px solid var(--line); box-shadow:0 6px 18px rgba(0,0,0,.45); background:var(--bar); }
+  .hud { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:8px; overflow:hidden; border:1px solid var(--line); box-shadow:0 6px 18px rgba(0,0,0,.45); background:var(--bar); }
   .hud .pl { display:flex; flex-wrap:wrap; align-items:center; gap:3px 8px; min-width:0; padding:8px 12px; position:relative; opacity:.62; transition:opacity .15s; }
   .hud #hudBottom { background:linear-gradient(180deg,#4aa0ff,var(--p0d)); clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%); margin-right:-7px; }
   .hud #hudTop { background:linear-gradient(180deg,#ff6b7a,var(--p1d)); clip-path:polygon(14px 0,100% 0,100% 100%,0 100%); margin-left:-7px; justify-content:flex-end; }
   .hud .pl.turn { opacity:1; box-shadow:inset 0 -4px 0 var(--gold); }
   .hud .who { flex:1 1 100%; min-width:0; font:900 15px/1.1 "Segoe UI",system-ui,sans-serif; font-style:italic; letter-spacing:.04em; text-shadow:0 2px 0 rgba(0,0,0,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
   .hud .pl.right .who { text-align:right; order:-1; } .hud .dot { display:none; }
-  .hud .z { font-size:11px; font-weight:700; color:#fff; background:rgba(0,0,0,.35); border-radius:999px; padding:1px 8px; white-space:nowrap; }
-  .clock { padding:1px 10px; border-radius:999px; background:rgba(0,0,0,.45); border:2px solid rgba(255,255,255,.35); font-variant-numeric:tabular-nums; font-weight:800; color:#fff; } .clock.on { border-color:var(--gold); color:var(--gold); }
+  .hud .z { font-size:11px; font-weight:700; color:#fff; background:rgba(0,0,0,.35); border-radius:4px; padding:1px 8px; white-space:nowrap; }
+  .clock { padding:1px 10px; border-radius:4px; background:rgba(0,0,0,.45); border:2px solid rgba(255,255,255,.35); font-variant-numeric:tabular-nums; font-weight:800; color:#fff; } .clock.on { border-color:var(--gold); color:var(--gold); }
   .banner { grid-column:1 / -1; grid-row:2; text-align:center; color:var(--dim); font-size:12px; font-weight:600; padding:5px 8px; background:var(--bar); } .banner b { color:var(--ink); }
   /* the table: red end at the top, blue end at the bottom */
-  .table { flex:1; min-height:0; display:flex; padding:0; border-radius:18px; border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px color-mix(in srgb, var(--bd-line) 10%, transparent);
+  .table { flex:1; min-height:0; display:flex; padding:0; border-radius:8px; border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px color-mix(in srgb, var(--bd-line) 10%, transparent);
     /* a fine grain, a faint weave, then the slate itself */
     background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), repeating-linear-gradient(45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), repeating-linear-gradient(-45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), linear-gradient(180deg,var(--bd2),var(--bd)); }
   #board3d { flex:1; min-width:0; min-height:0; } #board3d canvas { display:block; }
-  .top a { margin:3px 3px; border:1px solid var(--line); border-radius:10px; background:var(--ctl); } .top a:hover { background:var(--ctl2); border-color:var(--dim); } .top .iconbtn:last-child { margin-right:8px; }
+  .top a { margin:3px 3px; border:1px solid var(--line); border-radius:4px; background:var(--ctl); } .top a:hover { background:var(--ctl2); border-color:var(--dim); } .top .iconbtn:last-child { margin-right:8px; }
   svg#board { width:100%; height:100%; display:block; user-select:none; }
   /* the flat board uses the 3D table's shapes: thin routes, dots, rings, team-coloured goal discs */
   .edge { stroke:var(--bd-line); stroke-width:3.2; stroke-linecap:round; }
@@ -57,10 +58,10 @@
   .tok .halo { fill:none; stroke:transparent; stroke-width:2.6; } .tok.sel .halo { stroke:var(--gold); } .tok.atk .halo { stroke:#e2494e; } .tok.dim { opacity:.55; }
   .pics { display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .row img { width:32px; height:32px; margin:-6px 0; }
   .bar { display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
-  .chip { display:inline-block; padding:0 8px; border-radius:999px; font-size:11px; font-weight:700; background:var(--ctl2); color:var(--ink); margin-right:4px; } .chip.w { background:var(--ink); color:var(--bg); }
+  .chip { display:inline-block; padding:0 8px; border-radius:4px; font-size:11px; font-weight:700; background:var(--ctl2); color:var(--ink); margin-right:4px; } .chip.w { background:var(--ink); color:var(--bg); }
   .atkrow { display:grid; grid-template-columns:14px 1fr auto; gap:6px; padding:5px 0; border-top:1px solid var(--line); align-items:start; }
   .sw { width:12px; height:12px; border-radius:50%; margin-top:4px; border:1px solid rgba(255,255,255,.4); } .desc { color:var(--dim); font-size:12px; grid-column:2 / 4; }
-  #log { height:200px; overflow:auto; font-size:12px; color:var(--dim); } #log b, .ink { color:var(--ink); font-weight:700; }
+  #log { height:160px; overflow:auto; font-size:12px; color:var(--dim); } #log b, .ink { color:var(--ink); font-weight:700; }
   #list, #plist { height:300px; overflow:auto; } .row { display:flex; gap:8px; padding:6px 8px; border-radius:8px; cursor:pointer; align-items:center; }
   .row:hover { background:var(--ctl2); } .row .n { flex:1; } .team .row { background:var(--ctl); margin-bottom:4px; border:1px solid var(--line); }
   .chip.rar1 { background:#8a8f98; color:#fff; } .chip.rar2 { background:#2e9e5b; color:#fff; } .chip.rar3 { background:#2f7fe0; color:#fff; } .chip.rar4 { background:#d9a514; color:#111; } .chip.rar5 { background:#c0392b; color:#fff; }   /* rarity: C, UC, R, EX, UX */
@@ -70,36 +71,101 @@
     .top .paths a.on { background:var(--ink); border-color:var(--ink); color:var(--bg); } .top #viewLink { display:none; } }
   /* deck builder: figures, plates and the team as cards */
   #setup { grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr); }
-  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(116px,1fr)); gap:10px; overflow:auto; padding:2px; align-content:start; }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(116px,1fr)); gap:8px; overflow:auto; padding:2px; align-content:start; }
   #list.cards { height:min(58dvh,560px); } #plist.cards { height:250px; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); }
-  .card { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:4px; padding:26px 8px 10px; margin:0 !important; border:1px solid var(--line); border-radius:12px; background:var(--ctl); cursor:pointer; text-align:center; transition:transform .1s,background .12s,border-color .12s; }
+  .card { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:8px; padding:34px 8px 8px; margin:0 !important; border:1px solid var(--line); border-radius:8px; background:var(--ctl); cursor:pointer; text-align:center; transition:transform .1s,background .12s,border-color .12s; }
   .card:hover { background:var(--ctl2); border-color:var(--dim); transform:translateY(-2px); }
   .card img { width:84px; height:84px; margin:0; } .card .nopic { height:84px; display:grid; place-items:center; color:var(--dim); font-size:12px; }
-  .card .chip { position:absolute; top:6px; left:6px; margin:0; } .card .chip.r { left:auto; right:6px; min-width:18px; padding:0 6px; text-align:center; background:var(--ink); color:var(--bg); }
+  .card .chip { position:absolute; top:8px; left:8px; margin:0; height:18px; line-height:18px; padding:0 6px; } .card .chip.r { left:auto; right:8px; min-width:18px; text-align:center; background:var(--ink); color:var(--bg); }
   .card .nm { font-weight:700; font-size:13px; line-height:1.2; } .card .note { line-height:1.25; }
-  .card.plate { align-items:flex-start; text-align:left; padding:30px 10px 10px; } .card.plate .note { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
-  .teamcards.cards { grid-template-columns:repeat(3,minmax(0,1fr)); overflow:visible; margin-bottom:10px; } .teamcards .card { min-height:124px; justify-content:center; padding:26px 6px 8px; }
-  .teamcards .card img { width:64px; height:64px; } .teamcards .pics { justify-content:center; gap:2px; } .dots { display:flex; gap:6px; justify-content:center; } .dot { position:relative; width:10px; height:10px; border-radius:50%; background:var(--dim); } .dot.form { background:none; border:2px solid var(--dim); } .dot:hover { background:var(--ink); }
-  .teamcards .dot img { display:none; position:absolute; bottom:16px; left:50%; transform:translateX(-50%); width:72px; height:72px; padding:4px; background:var(--panel); border:1px solid var(--dim); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.4); z-index:3; } .teamcards .dot:hover img { display:block; }
+  .card.plate { align-items:flex-start; text-align:left; gap:4px; } .card.plate .note { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .teamcards.cards { grid-template-columns:repeat(3,minmax(0,1fr)); overflow:visible; margin-bottom:8px; } .teamcards .card { min-height:124px; justify-content:center; }
+  .teamcards .card img { width:64px; height:64px; } .teamcards .pics { justify-content:center; gap:2px; } .dots { display:flex; gap:4px; justify-content:center; } .dots:empty { display:none; } .card .txt > .dots { position:absolute; left:8px; top:34px; flex-direction:column; overflow:visible; }   /* evolutions and forms: a column down the card's left edge, under the rarity badge */ .dot { position:relative; width:10px; height:10px; border-radius:50%; background:var(--dim); } .dot.form { background:none; border:2px solid var(--dim); } .dot:hover { background:var(--ink); }
+  .teamcards .dot img { display:none; position:absolute; left:16px; top:50%; transform:translateY(-50%); max-width:none; width:72px; height:72px; padding:4px; background:var(--panel); border:1px solid var(--dim); border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,.4); z-index:3; } .teamcards .dot:hover img { display:block; }
   .teamcards .card.empty { border-style:dashed; background:none; cursor:default; color:var(--dim); font-size:22px; } .teamcards .card.empty:hover { transform:none; border-color:var(--line); }
-  .card .x { position:absolute; top:4px; right:6px; width:20px; height:20px; line-height:18px; border-radius:50%; color:var(--dim); font-size:15px; } .card .x:hover { background:var(--line); color:var(--ink); }
+  .card .foot > .txt { flex:1; min-width:0; flex-direction:column; align-items:flex-start; gap:2px; text-align:left; } .card .txt > * { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .teamcards .foot > span:last-child { flex-direction:column; }
+  .card .foot { display:flex; justify-content:space-between; align-items:flex-end; gap:8px; width:100%; min-height:24px; margin-top:auto; } .card .foot > span { display:flex; align-items:center; gap:4px; } .card .own { font-size:12px; color:var(--dim); }
+  .card .info, .card .x, #figpop > .x { flex:none; width:24px; height:24px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; border:1px solid var(--line); background:none; color:var(--dim); cursor:pointer; } .card .info svg, .card .x svg, #figpop > .x svg { width:14px; height:14px; }
+  .card .info:hover, .card .x:hover, #figpop > .x:hover { background:var(--line); color:var(--ink); } .card .x:hover { background:var(--danger); border-color:var(--danger); color:#fff; }   /* remove: the theme's red */
+  /* the details panel of a figure card */
+  #figpop { position:fixed; z-index:8; width:500px; max-height:calc(100dvh - 16px); overflow:auto; padding:16px; border:1px solid var(--dim); border-radius:8px; background:var(--panel); box-shadow:0 10px 30px rgba(0,0,0,.5); pointer-events:none; }
+  #figpop.pin { pointer-events:auto; } #figpop > .x { position:absolute; top:12px; right:12px; display:none; } #figpop.pin > .x { display:inline-flex; }
+  .fp-head { display:flex; gap:12px; align-items:center; padding-right:36px; } .fp-head img { width:56px; height:56px; } .fp-name { display:flex; gap:8px; align-items:center; flex-wrap:wrap; } .fp-name b { font-size:18px; line-height:1.2; } .fp-name .chip { margin:0; }
+  .fp-line { display:flex; align-items:center; gap:4px; margin-top:12px; overflow-x:auto; } .fp-line button { flex:none; display:flex; align-items:center; gap:6px; padding:4px 8px 4px 4px; font-size:12px; } .fp-line img { width:28px; height:28px; } .fp-line .on { border-color:var(--ink); background:var(--ctl2); }
+  .fp-side { display:grid; gap:12px; justify-items:center; } .fp-body { display:grid; grid-template-columns:180px minmax(0,1fr); gap:16px; align-items:start; margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
+  .fp-atk { display:grid; grid-template-columns:minmax(0,1fr) auto auto; } .fp-atk > * { padding:6px 0 6px 12px; border-top:1px solid var(--line); text-align:right; font-weight:700; } .fp-atk > .h { padding-top:0; border-top:0; }
+  .fp-atk > .an, .fp-atk > .h:first-child { padding-left:0; text-align:left; } .fp-atk .an { display:flex; gap:8px; align-items:flex-start; font-weight:400; } .fp-atk .an .sw { flex:none; } .fp-atk .an { align-items:center; } .fp-atk .an b { font-weight:600; } .fp-atk > .desc { grid-column:1 / -1; padding:0 0 8px 20px; border-top:0; text-align:left; font-weight:400; }   /* an attack's effect runs the table's full width under its row */
+  .fp-body + .fp-ab { margin-top:12px; } .fp-ab { justify-self:stretch; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); } .fp-ab .h { margin-bottom:4px; } .fp-ab .desc { margin-top:4px; }
+  @media (max-width:860px) { #figpop { left:0; right:0; bottom:0; width:auto; max-height:72dvh; border-width:1px 0 0; border-radius:0; } .fp-body { grid-template-columns:minmax(0,1fr); } .fp-side { display:contents; } .fp-wheel { justify-self:center; } .fp-ab { order:3; } }
   @media (max-width:860px) { #list.cards { height:46dvh; } .cards { grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); } .card img { width:68px; height:68px; } }
-  #tlist { max-height:230px; overflow:auto; } #tlist .row { border:1px solid var(--line); margin-bottom:4px; background:var(--ctl); } #tlist .row img { width:30px; height:30px; margin:-4px -3px; }
+  #tlist { max-height:230px; overflow:auto; } #tlist .row .n { min-width:0; } #tlist .row .n b { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } #tlist .row .pics { flex:none; flex-wrap:nowrap; gap:2px; } #tlist .row .pics span { max-width:54px; font-size:10px; line-height:1.1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--dim); } #tlist .row { border:1px solid var(--line); margin-bottom:4px; background:var(--ctl); } #tlist .row img { width:30px; height:30px; margin:-4px -3px; }
   #tlist .row .x { position:static; flex:none; text-align:center; cursor:pointer; width:22px; height:22px; line-height:20px; border-radius:50%; color:var(--dim); } #tlist .row .x:hover { background:var(--line); color:var(--ink); }
   /* home: league summary, deck, boosters and collection */
   .big { font:900 46px/1 "Segoe UI",system-ui,sans-serif; letter-spacing:-.01em; } .big small { font-size:13px; font-weight:600; color:var(--dim); letter-spacing:0; margin-left:8px; }
-  .meter { height:8px; border-radius:99px; background:var(--ctl2); overflow:hidden; margin:10px 0 4px; } .meter i { display:block; height:100%; border-radius:99px; background:var(--ink); }
+  .meter { height:8px; border-radius:4px; background:var(--ctl2); overflow:hidden; margin:10px 0 4px; } .meter i { display:block; height:100%; border-radius:4px; background:var(--ink); }
   .ends { display:flex; justify-content:space-between; color:var(--dim); font-size:11px; }
-  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:14px 0; } .stat { background:var(--ctl); border:1px solid var(--line); border-radius:12px; padding:10px 8px; text-align:center; } .stat b { display:block; font-size:20px; line-height:1.2; } .stat span { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
-  .pips { display:flex; gap:4px; margin:6px 0 4px; } .pips i { flex:1; height:8px; border-radius:99px; background:var(--ctl2); } .pips i.on { background:var(--gold); }
-  .teamcards.cards.six { grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; margin:0 0 8px; } .six .card { min-height:92px; padding:24px 4px 8px; } .six .card img { width:52px; height:52px; }
-  .boosters { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; } .booster { border:1px solid var(--line); border-radius:12px; background:var(--ctl); padding:12px 8px; text-align:center; min-height:86px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; } .booster.empty { border-style:dashed; background:none; color:var(--dim); font-size:12px; }
+  .stats { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:14px 0; } .stat { background:var(--ctl); border:1px solid var(--line); border-radius:8px; padding:10px 8px; text-align:center; } .stat b { display:block; font-size:20px; line-height:1.2; } .stat span { color:var(--dim); font-size:11px; text-transform:uppercase; letter-spacing:.08em; }
+  .pips { display:flex; gap:4px; margin:6px 0 4px; } .pips i { flex:1; height:8px; border-radius:4px; background:var(--ctl2); } .pips i.on { background:var(--gold); }
+  .teamcards.cards.six { gap:8px; margin:0 0 8px; }   /* the deck on Home: three to a row, like the team in the builder, so names have room */
+  .boosters { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; } .booster { border:1px solid var(--line); border-radius:8px; background:var(--ctl); padding:12px 8px; text-align:center; min-height:86px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; } .booster.empty { border-style:dashed; background:none; color:var(--dim); font-size:12px; }
   #home .cards { max-height:min(62dvh,560px); } #home .card { cursor:default; } #home .card:hover { transform:none; background:var(--ctl); border-color:var(--line); } #home [data-act] .card { cursor:pointer; }
-  @media (max-width:860px) { .teamcards.cards.six { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+  #card:empty { display:none; }
+  #list.cards, #plist.cards, #tlist, #home .cards, #log, #acts { padding-top:14px; padding-bottom:14px; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+  /* chosen plates: chips in a wrapping row. The popover is placed against the whole block (not the chip), so it is never cut off at the sides. */
+  #myplates { position:relative; display:flex; flex-wrap:wrap; gap:6px; } #myplates > p { margin:0; }
+  .pchip { display:inline-flex; align-items:center; gap:6px; padding:3px 6px 3px 3px; border:1px solid var(--line); border-radius:4px; background:var(--ctl); font-size:12px; font-weight:600; cursor:pointer; }
+  .pchip:hover, .pchip:focus-visible { background:var(--ctl2); border-color:var(--dim); } .pchip > b { min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:4px; background:var(--ink); color:var(--bg); font-size:11px; }
+  .pchip > i { font-style:normal; color:var(--dim); font-size:14px; line-height:1; } .pchip:hover > i { color:var(--ink); }
+  .pchip .pop { display:none; position:absolute; left:0; right:0; bottom:calc(100% + 8px); z-index:5; padding:10px 12px; border:1px solid var(--dim); border-radius:8px; background:var(--panel); box-shadow:0 8px 22px rgba(0,0,0,.45); font-weight:400; line-height:1.4; cursor:default; }
+  .pchip:hover .pop, .pchip:focus .pop { display:block; }
+  /* Deck builder layout. Wide screen: it fills the window with no page scroll; the two lists on the left stretch to the height there is, and
+     the right column (team, saved teams, opponent) scrolls by itself with the Start button pinned at its foot. Narrow screen: one scrolling
+     column with the team first, then figures, plates, saved teams and opponent, and the Start button pinned to the bottom of the screen. */
+  #setup > section:last-child > .panel:last-child { padding:10px 12px; } #setup > section:last-child > .panel:last-child p.note { display:none; }
+  @media (min-width:861px) {
+    #setup { grid-template-rows:minmax(0,1fr); align-content:stretch; overflow:hidden; }
+    #setup > section { display:flex; flex-direction:column; gap:14px; min-width:0; min-height:0; overflow:auto; } #setup > section > .panel { margin-bottom:0; flex:none; }
+    #setup > section:first-child > .panel { display:flex; flex-direction:column; } #setup > section:first-child > .panel:nth-child(1) { flex:1.7 1 0; min-height:230px; } #setup > section:first-child > .panel:nth-child(2) { flex:1 1 0; min-height:170px; }
+    #list.cards, #plist.cards { height:auto; flex:1 1 0; min-height:0; }
+    #game .side { margin:-14px 0; }   /* its fade padding hangs outside the row, so its first panel lines up with the board's top edge */
+    #setup > section, #game .side { padding-top:14px; padding-bottom:14px; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+    #setup { padding-top:4px; padding-bottom:4px; }
+    #setup > section:last-child { padding-right:2px; } #setup > section:last-child > .panel:last-child { position:sticky; bottom:0; z-index:2; box-shadow:0 -10px 14px -6px var(--bg); }
+  }
+  @media (max-width:860px) {
+    #setup { gap:12px; padding:12px; overflow-x:hidden; } #setup > section { display:contents; } #setup .panel { margin-bottom:0; min-width:0; padding:12px; }
+    #setup > section:last-child > .panel:nth-child(1) { order:1; } #setup > section:first-child > .panel:nth-child(1) { order:2; } #setup > section:first-child > .panel:nth-child(2) { order:3; }
+    #setup > section:last-child > .panel:nth-child(2) { order:4; } #setup > section:last-child > .panel:nth-child(3) { order:5; }
+    #setup > section:last-child > .panel:nth-child(4) { order:6; position:sticky; bottom:0; z-index:2; box-shadow:0 -10px 14px -6px var(--bg); }
+    #list.cards { height:52dvh; } #plist.cards { height:40dvh; grid-template-columns:1fr; } .teamcards .card { min-height:96px; } .teamcards .card img { width:52px; height:52px; }
+    #setup .bar select, #setup .bar input:not([type=checkbox]) { min-width:0; max-width:100%; } #mode { width:100%; }
+  }
   #acts { display:grid; gap:6px; max-height:34dvh; overflow:auto; } #acts button { width:100%; padding:10px 14px; }
   #acts:empty:before { content:"Nothing to choose right now."; color:var(--dim); font-size:12px; }
   #modal { position:fixed; inset:0; background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(3px); display:grid; place-items:center; padding:16px; z-index:5; }
-  #modal .box { background:var(--panel); border:1px solid var(--line); outline:1px solid var(--line); border-radius:16px; padding:20px; width:min(700px,100%); max-height:92vh; overflow:auto; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  /* the team slot editor */
+  .ed-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .ed-foot { position:sticky; bottom:calc(-1 * var(--pad)); z-index:1; display:flex; justify-content:flex-end; margin:16px calc(-1 * var(--pad)) calc(-1 * var(--pad)); padding:12px var(--pad); background:var(--panel); border-top:1px solid var(--line); }   /* Done stays at the editor's bottom right while it scrolls */ .ed-head h2 { margin:0; }
+  .ed-tabs { display:flex; gap:8px; margin-bottom:12px; overflow-x:auto; } .ed-tab { flex:none; display:flex; flex-direction:column; gap:8px; width:136px; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); }
+  .ed-tab.on { border-color:var(--ink); background:var(--ctl2); } .ed-tab button { display:flex; flex-direction:column; align-items:center; gap:4px; padding:0; border:0; background:none; font-weight:400; }
+  .ed-tab img { width:64px; height:64px; } .box .plus { height:64px; font-size:28px; line-height:64px; color:var(--dim); } .ed-tab select { width:100%; height:28px; padding:0 8px; font-size:12px; }
+  .ed-tab b { height:28px; line-height:28px; text-align:center; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ed-body { display:grid; grid-template-columns:200px minmax(0,1fr); gap:16px; align-items:start; padding-top:16px; border-top:1px solid var(--line); } .ed-fig { display:grid; justify-items:center; }
+  .box .h, #figpop .h { display:block; white-space:nowrap; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); }
+  .ed-id { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:12px; } .ed-id b { font-size:18px; } .ed-id .chip { margin:0; }
+  .ed-stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(104px,1fr)); gap:8px; margin-bottom:12px; } .ed-stats > div { min-width:0; display:flex; flex-direction:column; gap:4px; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); } .ed-stats > div > b { height:28px; line-height:28px; font-size:16px; white-space:nowrap; } .ed-stats .stepper { align-self:flex-start; background:var(--panel); }
+  .ed-grid { display:grid; grid-template-columns:minmax(0,1fr) repeat(var(--n),auto); } .ed-grid > * { display:flex; align-items:center; justify-content:center; padding:6px 0 6px 12px; border-top:1px solid var(--line); }
+  .ed-grid > .h { padding-top:0; border-top:0; } .ed-grid > .h:first-child, .ed-grid > .an { justify-content:flex-start; padding-left:0; gap:8px; min-width:0; } .ed-grid .an .sw { flex:none; margin:0; } .ed-grid .an.dim { color:var(--dim); }
+  .stepper { display:inline-flex; align-items:center; justify-content:center; min-width:94px; height:30px; border:1px solid var(--line); border-radius:4px; background:var(--ctl); overflow:hidden; } .stepper.plain { border-color:transparent; background:none; }
+  .stepper button { flex:none; display:inline-flex; align-items:center; justify-content:center; gap:2px; min-width:28px; height:28px; padding:0; line-height:1; border:0; border-radius:0; background:none; } .stepper button:hover:not(:disabled) { background:var(--ctl2); } .stepper button:disabled { opacity:.3; cursor:default; } .stepper b { flex:1; min-width:36px; text-align:center; } .stepper.pair { min-width:0; width:auto !important; } .stepper.pair button { min-width:28px; padding:0 6px; font-size:10px; } .stepper.pair button + button { border-left:1px solid var(--line); }
+  .ed-ab { margin-top:12px; padding-top:12px; border-top:1px solid var(--line); } .ed-ab .desc { margin-top:4px; }
+  #modal .box { background:var(--panel); border:1px solid var(--line); outline:1px solid var(--line); border-radius:8px; --pad:20px; padding:var(--pad); width:min(700px,100%); max-height:92vh; overflow:auto; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  /* narrow screen: the editor fills the screen; the wheel sits above the controls; each attack is its name on one line and its steppers,
+     stretched to equal columns, on the next */
+  @media (max-width:860px) { #modal { padding:0; } #modal .box { width:100%; height:100dvh; max-height:none; --pad:12px; display:flex; flex-direction:column; border:0; outline:0; border-radius:0; box-shadow:none; }
+    .ed-body { grid-template-columns:minmax(0,1fr); padding-bottom:16px; } .ed-foot { margin-top:auto; } .ed-grid { grid-template-columns:repeat(var(--n),minmax(0,1fr)); column-gap:8px; }
+    .ed-grid > * { padding:0 0 8px; border-top:0; } .ed-grid > .h:first-child { display:none; } .ed-grid > .h { padding-bottom:4px; }
+    .ed-grid > .an { grid-column:1 / -1; padding:8px 0 4px; border-top:1px solid var(--line); } .ed-grid .stepper { width:100%; min-width:0; } }
   /* battle screen: a dark stage with two disks that touch at the gem. --w / --h are the stage, --d a disk's diameter; the disk centres sit
      on a line leaning 24 degrees (sin .407, cos .914) through the stage's middle, one radius either side of it. */
   .arena { position:relative; } #battle { position:absolute; inset:0; z-index:6; container-type:size; background:#15171b; }
@@ -139,8 +205,9 @@
   </section>
   <section>
     <div class="panel"><h2>Your team (6 figures)</h2><div id="team" class="team cards teamcards"></div>
-      <div class="bar"><button id="rnd">Random team</button><button id="clr">Clear</button><label class="note"><input type="checkbox" id="evo" checked> attach evolutions automatically</label></div>
-      <p class="note">Click a team card to edit it: evolution / Mega attachments, level (wheel size) and damage boosts. Hover a picture for its name.</p>
+      <div class="bar"><button id="rnd">Random team</button><button id="clr">Clear</button></div>
+      <label class="note" style="display:block;margin:0 0 8px"><input type="checkbox" id="evo" checked> attach evolutions automatically</label>
+      <p class="note">Point at a card, or press its i, for the data wheel, ability and attacks. Click a team card to edit it: evolution / Mega attachments, level (wheel size) and damage boosts.</p>
       <h2>Your plates <span id="pcost" class="note"></span></h2><div id="myplates" class="team"></div></div>
     <div class="panel"><h2>Saved teams</h2>
       <div class="bar"><input id="tname" placeholder="name for this team" style="flex:1;min-width:0" maxlength="40"><button id="tsave">Save</button></div>
@@ -163,14 +230,16 @@
     </div>
     <div class="table"><svg id="board" viewBox="0 -56 420 812" preserveAspectRatio="xMidYMid meet"></svg><div id="board3d" hidden></div></div>
   </section>
-  <button id="sideBtn" onclick="document.querySelector('.side').classList.toggle('open')">Menu</button>
+  <button id="sideBtn" class="iconbtn" title="Menu" aria-label="Menu" onclick="document.querySelector('.side').classList.toggle('open')"></button>
   <section class="side">
     <button id="sideHome" onclick="this.parentNode.classList.remove('open');document.getElementById('newBtn').click()">Home</button>
-    <div class="panel"><h2>Actions</h2><div id="acts"></div></div>
-    <div class="panel" id="card"><span class="note">Select a figure.</span></div>
+    <div class="bar" id="camBar"></div>
     <div class="panel"><h2>Log</h2><div id="log"></div></div>
+    <div class="panel"><h2>Actions</h2><div id="acts"></div></div>
+    <div class="panel" id="card"></div>
   </section>
 </main>
+<div id="figpop" hidden></div>
 <div id="modal" hidden><div class="box" id="box"></div></div>
 
 <script src="data.js"></script>
@@ -245,7 +314,7 @@ const colourOf = id => (D.skills[id] || [0, 0, 0])[2], sum = a => a.reduce((x, y
 function drawList() {
   const q = $('q').value.toLowerCase(), r = $('rar').value;
   $('list').innerHTML = BASES.filter(f => (!ownedMode || profile.items[f.id] > 0) && (!r || f.r == r) && (f.n + ' ' + typeNames(f)).toLowerCase().includes(q)).slice(0, 300)
-    .map(f => `<div class="row card" data-id="${f.id}"><span class="chip rar${f.r}">${RAR[f.r] || '?'}</span><span class="chip r" title="MP ${f.mp}">${f.mp}</span>${sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="" onerror="this.outerHTML='<div class=nopic>no picture</div>'">` : '<div class="nopic">no picture</div>'}<span class="nm">${esc(f.n)}</span><span class="note">${typeNames(f)}</span></div>`).join('');
+    .map(f => figCard(f, { cls: 'row', attrs: `data-id="${f.id}"` })).join('');
   const pq = $('pq').value.toLowerCase();
   $('plist').innerHTML = D.plates.filter(p => (!ownedMode || (profile.plates || {})[p.id] > 0) && (p.n + ' ' + p.d).toLowerCase().includes(pq))
     .map(p => `<div class="row card plate" data-id="${p.id}" title="${esc(p.d)}"><span class="chip">cost ${p.c}</span><span class="nm">${esc(p.n)}</span><span class="note">${esc(p.d)}</span></div>`).join('');
@@ -253,10 +322,54 @@ function drawList() {
 const figText = (id, m) => esc(byId.get(id).n) + (m.lv > 1 || sum(m.boost) ? ` <span class="note">Lv${m.lv}${sum(m.boost) ? ' +' + sum(m.boost) : ''}</span>` : '');
 const pic = (id, mod) => { const f = byId.get(id), tip = esc(figText(id, mod).replace(/<[^>]+>/g, '')); return sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="${esc(f.n)}" title="${tip}" onerror="this.replaceWith(this.alt)">` : `<span title="${tip}">${esc(f.n)}</span>`; };
 const dot = (id, mod, form) => { const f = byId.get(id), tip = esc(figText(id, mod).replace(/<[^>]+>/g, '')); return `<span class="dot${form ? ' form' : ''}" title="${tip}">${sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="${esc(f.n)}">` : ''}</span>`; };
-function teamPics(slot) {   // the figure that starts the duel is the card's picture; its evolutions (and form changes) are dots under it that show their picture on hover
-  const st = slot.st.map((id, k) => [id, slot.mod[k]]).filter(x => x[0] != null), first = st.shift();
-  const dots = st.map(x => dot(x[0], x[1])).join('') + slot.forms.map((id, k) => id == null ? '' : dot(id, slot.fmod[k], true)).join('');
-  return `<span class="pics">${pic(first[0], first[1])}</span>${dots ? `<span class="dots">${dots}</span>` : ''}`;
+// One figure card for every list (collection, deck, figure list, team): rarity top left, MP top right, picture, name, types, then a foot
+// row with extras on the left (copies owned, a dot per evolution or form) and buttons on the right (details, remove). The rest of what
+// there is to know about the figure is one step away, in the details panel: point at the card, or press its "i".
+const X_ICON = icon('<path d="M6 6l12 12M18 6L6 18"/>');
+function figCard(f, o = {}) {
+  const img = sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="" onerror="this.outerHTML='<div class=nopic>no picture</div>'">` : '<div class="nopic">no picture</div>';
+  return `<div class="${o.cls || ''} card fig" data-info="${f.id}" ${o.attrs || ''}><span class="chip rar${f.r}">${RAR[f.r] || '?'}</span><span class="chip r" title="MP ${f.mp}">${f.mp}</span>${img}<span class="foot"><span class="txt"><span class="nm">${o.name || esc(f.n)}</span><span class="note">${typeNames(f)}</span>${o.left || ''}</span><span><button class="info" title="Details" aria-label="Details of ${esc(f.n)}">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>')}</button>${o.right || ''}</span></span></div>`;
+}
+// a team or deck slot: the figure that starts the duel is the card; its evolutions (and form changes) are dots that show their picture on hover
+const chainOf = slot => [...slot.st.map((id, k) => [id, slot.mod[k]]), ...slot.forms.map((id, k) => [id, slot.fmod[k], true])].filter(x => x[0] != null);
+function slotCard(slot, src, o = {}) {
+  const [first, ...rest] = chainOf(slot);
+  return figCard(byId.get(first[0]), { ...o, attrs: `data-src="${src}" ${o.attrs || ''}`, name: figText(first[0], first[1]), left: `<span class="dots">${rest.map(x => dot(x[0], x[1], x[2])).join('')}</span>` });
+}
+// The details panel: picture, data wheel, ability and every attack of one figure, and for a slot the whole line to step through.
+// `src` names the slot the card stands for ("team:2", "deck:0"), which carries levels and boosts; without it the figure is shown as printed.
+function figInfo(id, src, at) {
+  const slot = src ? (src.startsWith('team') ? team[+src.slice(5)] : profile.deck && slotFrom(profile.deck[+src.slice(5)])) : null, chain = slot ? chainOf(slot) : [[id, null]];
+  const [fid, mod] = chain[at] || chain[0], f = byId.get(fid), rows = (mod && wheelRows(f, mod)) || wheelRows(f, blankMod(f)), ab = D.abilities[f.ab];
+  const skills = rows.map(r => ({ id: r.id, range: r.range, speed_or_damage: r.val }));
+  // a short ability fits under the wheel; a long one would leave the attack table stranded beside it, so it goes full width underneath
+  const abBox = ab ? `<div class="fp-ab"><span class="h">Ability</span><b>${esc(ab[0])}</b><div class="desc">${esc(ab[1])}</div></div>` : '', long = ab && ab[1].length > 150;
+  const pic = g => sprite(g) ? `<img src="${sprite(g)}" alt="">` : '';
+  // header (who it is), the slot's line as tabs, the wheel beside the table that reads it, then the ability
+  return `<button class="x" data-close title="Close" aria-label="Close">${X_ICON}</button>
+    <div class="fp-head">${pic(f)}<div><div class="fp-name"><b>${mod ? figText(fid, mod) : esc(f.n)}</b><span class="chip rar${f.r}">${RAR[f.r] || '?'}</span></div><div class="note">MP ${f.mp} · ${typeNames(f)}</div></div></div>
+    ${chain.length > 1 ? `<div class="fp-line">${chain.map((x, k) => `<button data-at="${k}" class="${k === (at || 0) ? 'on' : ''}">${pic(byId.get(x[0]))}${esc(byId.get(x[0]).n)}</button>`).join('<span class="note">›</span>')}</div>` : ''}
+    <div class="fp-body"><div class="fp-side"><div class="fp-wheel">${wheelSvg(skills, 180)}</div>${long ? '' : abBox}</div>
+      <div class="fp-atk"><span class="h">Attack</span><span class="h">Size</span><span class="h">Power</span>${skills.filter(x => x.range > 0).map(x => { const k = D.skills[x.id] || ['Attack ' + x.id, '', 0]; return `<span class="an"><span class="sw" style="background:${SEG_COL[k[2]]}"></span><b>${esc(k[0])}</b></span><span>${x.range}</span><span>${power(x) || '–'}</span>${k[2] && k[1] ? `<span class="desc">${esc(k[1])}</span>` : ''}`; }).join('')}</div></div>${long ? abBox : ''}`;
+}
+// Pointing at a card previews its details; its "i" (or, in the collection, the card itself) pins the panel open so it can be read, scrolled
+// and stepped through. A click anywhere else closes it. On a narrow screen the panel is a sheet along the bottom.
+function showInfo(card, pin, at) {
+  const p = $('figpop'); p.innerHTML = figInfo(+card.dataset.info, card.dataset.src, at || 0); p.hidden = false; p.classList.toggle('pin', !!pin); p.scrollTop = 0;
+  if (at == null) { showInfo.card = card; const r = card.getBoundingClientRect(), wide = innerWidth > 860;
+    p.style.left = wide ? (r.right + 8 + p.offsetWidth <= innerWidth ? r.right + 8 : Math.max(8, r.left - 8 - p.offsetWidth)) + 'px' : ''; p.style.top = wide ? Math.max(8, Math.min(r.top, innerHeight - p.offsetHeight - 8)) + 'px' : ''; }
+  showInfo.pin = !!pin;
+}
+const hideInfo = () => { clearTimeout(showInfo.wait); $('figpop').hidden = true; showInfo.pin = false; showInfo.card = null; };
+document.addEventListener('click', e => {
+  const p = $('figpop'), b = e.target.closest('.card.fig .info, #home .cards:not([data-act]) > .card.fig'), tab = e.target.closest('#figpop [data-at]');
+  if (b) { e.stopPropagation(); e.preventDefault(); const c = b.closest('.card'); showInfo.pin && showInfo.card === c ? hideInfo() : showInfo(c, true); }
+  else if (tab) showInfo(showInfo.card, true, +tab.dataset.at);
+  else if (!p.hidden && (!p.contains(e.target) || e.target.closest('[data-close]'))) hideInfo();
+}, true);
+if (matchMedia('(hover: hover)').matches) {
+  document.addEventListener('mouseover', e => { const c = e.target.closest('.card.fig'); if (!c || showInfo.pin || c === showInfo.card) return; clearTimeout(showInfo.wait); showInfo.wait = setTimeout(() => c.isConnected && !showInfo.pin && showInfo(c, false), 350); });
+  document.addEventListener('mouseout', e => { const c = e.target.closest('.card.fig'); if (c && !showInfo.pin && !c.contains(e.relatedTarget)) hideInfo(); });
 }
 const slotText = slot => slot.st.map((id, k) => id == null ? null : figText(id, slot.mod[k])).filter(Boolean).join(' → ') + slot.forms.map((id, k) => id == null ? '' : ' ⇄ ' + figText(id, slot.fmod[k])).join('');
 // ---------- saved teams ----------
@@ -330,8 +443,8 @@ $('tlist').onclick = e => {
 };
 
 function drawTeam() {
-  $('team').innerHTML = team.map((slot, i) => `<div class="row card" data-i="${i}"><span class="chip rar${byId.get(slot.st[0]).r}">${RAR[byId.get(slot.st[0]).r]}</span>${teamPics(slot)}<span class="x" data-x="${i}" title="remove">×</span></div>`).join('') + '<div class="card empty">+</div>'.repeat(6 - team.length);
-  $('myplates').innerHTML = myPlates.map((id, i) => `<div class="row" data-i="${i}"><span class="chip">cost ${plateById.get(id).c}</span><span class="n">${esc(plateById.get(id).n)}</span><span class="note">remove</span></div>`).join('') || '<p class="note">Optional. Click plates on the left.</p>';
+  $('team').innerHTML = team.map((slot, i) => slotCard(slot, 'team:' + i, { cls: 'row', attrs: `data-i="${i}"`, right: `<button class="x" data-x="${i}" title="Remove" aria-label="Remove">${X_ICON}</button>` })).join('') + '<div class="card empty">+</div>'.repeat(6 - team.length);
+  $('myplates').innerHTML = myPlates.map((id, i) => { const pl = plateById.get(id); return `<span class="pchip" data-i="${i}" tabindex="0"><b>${pl.c}</b>${esc(pl.n)}<i title="remove">×</i><span class="pop"><b>${esc(pl.n)}</b> · cost ${pl.c}<br>${esc(pl.d)}</span></span>`; }).join('') || '<p class="note">Optional. Click plates on the left.</p>';
   $('pcost').textContent = `${myPlates.length}/${PLATE_MAX} plates · cost ${cost(myPlates)}/${COST_MAX}`;
   $('go').disabled = team.length !== 6;
 }
@@ -341,36 +454,49 @@ function editSlot(si) {
   const own = (ids, k) => o => o.id === ids[k] || ownedLeft(o.id);
   const places = () => slot.st.map((_, k) => ({ key: 's' + k, label: k ? 'Stage +' + k : 'Base', ids: slot.st, mods: slot.mod, k, opts: k ? candidates(slot, k).filter(own(slot.st, k)) : null }))
     .concat(slot.forms.map((_, k) => ({ key: 'f' + k, label: 'Form ' + (k + 1), ids: slot.forms, mods: slot.fmod, k, opts: formCandidates(slot).filter(o => !slot.forms.some((id, j) => j !== k && id === o.id)).filter(own(slot.forms, k)) })));
+  // The editor shows one figure of the slot at a time. Along the top is the slot's line in one row (base, each evolution stage, each form
+  // place): the picture opens that figure, the dropdown under it chooses what is attached there. Below is the open figure itself: picture and data wheel on
+  // the left, and on the right its level, the points it has to spend, and a table of its attacks with a stepper for size and for damage.
+  let tab = 's0';
+  const face = f => sprite(f) ? `<img src="${sprite(f)}" alt="">` : '<span class="plus">?</span>';
+  const stepper = (val, down, up) => `<span class="stepper"><button ${down} aria-label="less">−</button><b>${val}</b><button ${up} aria-label="more">+</button></span>`;
   const draw = () => {
-    $('box').innerHTML = `<h2 style="margin-top:0">Team slot ${si + 1}</h2>` + places().map(pl => {
-      const id = pl.ids[pl.k], f = id != null ? byId.get(id) : null, m = pl.mods[pl.k], rows = f && wheelRows(f, m);
-      const head = !pl.opts ? `<b>${esc(f.n)}</b>` : `<select data-pl="${pl.key}"><option value="">${pl.opts.length ? '— nothing attached —' : '— nothing can be attached here —'}</option>${pl.opts.map(o => `<option value="${o.id}" ${o.id === id ? 'selected' : ''}>${esc(o.n)} (${RAR[o.r] || ''})</option>`).join('')}</select>`;
-      if (!f) return pl.opts && !pl.opts.length ? '' : `<div class="panel"><div class="bar"><span class="note">${pl.label}</span>${head}</div></div>`;
-      return `<div class="panel"><div class="bar"><span class="note">${pl.label}</span>${head}<span style="flex:1"></span>Level <select data-lv="${pl.key}">${Array.from({ length: lvMax() }, (_, x) => `<option ${m.lv === x + 1 ? 'selected' : ''}>${x + 1}</option>`).join('')}</select>
-          <span class="note">wheel points ${sum(m.ext)}/${Math.min(m.lv, EXP_LEVEL_MAX) - 1}${m.lv > EXP_LEVEL_MAX ? ` · Carmonite +${sum(m.inc)}/${m.lv - EXP_LEVEL_MAX} −${sum(m.dec)}/${m.lv - EXP_LEVEL_MAX}` : ''} · chain ${sum(m.boost)}/${boostMax()}</span></div>
-        <div style="display:flex;gap:12px;align-items:flex-start">${wheelSvg(rows.filter(r => r.range > 0).map(r => ({ id: r.id, range: r.range, speed_or_damage: r.val })), 180)}<div style="flex:1">
-        ${rows.map(r => { const c = colourOf(r.id), dmg = (c === 1 || c === 3) && f.w[r.i][2] > 0; return `<div class="atkrow" style="grid-template-columns:14px 1fr auto auto"><span class="sw" style="background:${SEG_COL[c]}"></span><span>${esc((D.skills[r.id] || ['Attack'])[0])}</span>
-          <span>${c ? `<button data-e="${pl.key}:${r.i}:-1">−</button> ` : ''}size ${r.range}${c ? ` <button data-e="${pl.key}:${r.i}:1">+</button>` : ''}${m.lv > EXP_LEVEL_MAX ? ` <button title="Carmonite: grow this segment" data-ci="${pl.key}:${r.i}">▲${m.inc[r.i] || ''}</button><button title="Carmonite: shrink this segment (must be larger than 4)" data-cd="${pl.key}:${r.i}">▼${m.dec[r.i] || ''}</button>` : ''}</span>
-          <span>${dmg ? `<button data-b="${pl.key}:${r.i}:-1">−</button> ${r.val} <button data-b="${pl.key}:${r.i}:1">+</button>` : c === 2 ? '★'.repeat(r.val) : ''}</span></div>`; }).join('')}</div></div></div>`;
-    }).join('') + '<div class="bar"><button class="primary" data-done="1">Done</button><span id="editErr" class="err"></span></div>';
+    const all = places().filter(pl => pl.ids[pl.k] != null || (pl.opts && pl.opts.length)), cur = all.find(pl => pl.key === tab) || all[0], K = cur.key;
+    const id = cur.ids[cur.k], f = id != null ? byId.get(id) : null, m = cur.mods[cur.k], rows = f && wheelRows(f, m), carm = f && m.lv > EXP_LEVEL_MAX;
+    $('box').innerHTML = `<div class="ed-head"><h2>Team slot ${si + 1}</h2></div>
+      <div class="ed-tabs">${all.map(pl => { const g = pl.ids[pl.k] != null ? byId.get(pl.ids[pl.k]) : null; return `<div class="ed-tab ${pl === cur ? 'on' : ''}"><button data-tab="${pl.key}" title="${g ? 'Edit ' + esc(g.n) : pl.label}"><span class="note">${pl.label}</span>${g ? face(g) : '<span class="plus">+</span>'}</button>${pl.opts ? `<select data-pl="${pl.key}" aria-label="${pl.label}"><option value="">Nothing</option>${pl.opts.map(o => `<option value="${o.id}" ${g && o.id === g.id ? 'selected' : ''}>${esc(o.n)} (${RAR[o.r] || ''})</option>`).join('')}</select>` : `<b>${esc(g.n)}</b>`}</div>`; }).join('')}</div>
+      <div id="editErr" class="err"></div>
+      ${f ? (() => { const extMax = Math.min(m.lv, EXP_LEVEL_MAX) - 1, off = x => x ? 'disabled' : '', ab = D.abilities[f.ab];
+        return `<div class="ed-body"><div class="ed-fig">${wheelSvg(rows.filter(r => r.range > 0).map(r => ({ id: r.id, range: r.range, speed_or_damage: r.val })), 200)}</div>
+        <div><div class="ed-id"><b>${esc(f.n)}</b><span class="chip rar${f.r}">${RAR[f.r] || '?'}</span><span class="note">MP ${f.mp} · ${typeNames(f)}</span></div>
+          <div class="ed-stats"><div><span class="h">Level</span>${stepper(m.lv, `data-lv="${K}:-1" ${off(m.lv <= 1)}`, `data-lv="${K}:1" ${off(m.lv >= lvMax())}`)}</div>
+            <div title="Each point grows one attack by one size step; Miss shrinks to pay for it"><span class="h">Wheel points</span><b>${sum(m.ext)} / ${extMax}</b></div>
+            <div title="Each point adds damage to one attack"><span class="h">Chain</span><b>${sum(m.boost)} / ${boostMax()}</b></div>
+            ${carm ? `<div><span class="h">Carmonite</span><b>▲${sum(m.inc)} ▼${sum(m.dec)} / ${m.lv - EXP_LEVEL_MAX}</b></div>` : ''}</div>
+          <div class="ed-grid" style="--n:${carm ? 3 : 2}"><span class="h">Attack</span><span class="h">Size</span>${carm ? '<span class="h">Carmonite</span>' : ''}<span class="h">Damage</span>
+          ${rows.map(r => { const c = colourOf(r.id), sk = D.skills[r.id] || ['Attack', ''], dmg = (c === 1 || c === 3) && f.w[r.i][2] > 0; return `<span class="an${c ? '' : ' dim'}" title="${esc(sk[1] || '')}"><span class="sw" style="background:${SEG_COL[c]}"></span>${esc(sk[0])}</span>
+            <span>${c ? stepper(r.range, `data-e="${K}:${r.i}:-1" ${off(m.ext[r.i] <= 0)}`, `data-e="${K}:${r.i}:1" ${off(sum(m.ext) >= extMax)}`) : `<span class="stepper plain"><b>${r.range}</b></span>`}</span>
+            ${carm ? `<span><span class="stepper pair"><button title="Carmonite: grow this segment" data-ci="${K}:${r.i}">▲${m.inc[r.i] || ''}</button><button title="Carmonite: shrink this segment (must be larger than 4)" data-cd="${K}:${r.i}">▼${m.dec[r.i] || ''}</button></span></span>` : ''}
+            <span>${dmg ? stepper(r.val, `data-b="${K}:${r.i}:-1" ${off(m.boost[r.i] <= 0)}`, `data-b="${K}:${r.i}:1" ${off(sum(m.boost) >= boostMax())}`) : `<span class="stepper plain"><b>${c === 2 ? '★'.repeat(r.val) : ''}</b></span>`}</span>`; }).join('')}</div>
+          ${ab ? `<div class="ed-ab"><span class="h">Ability</span><b>${esc(ab[0])}</b><div class="desc">${esc(ab[1])}</div></div>` : ''}</div></div>`; })() : ''}<div class="ed-foot"><button class="primary" data-done="1">Done</button></div>`;
   };
   const at = key => places().find(pl => pl.key === key);
-  $('box').onchange = e => {
-    const t = e.target;
-    if (t.dataset.pl) {
-      const pl = at(t.dataset.pl), f = t.value ? byId.get(+t.value) : null, before = pl.ids[pl.k];
-      pl.ids[pl.k] = null;
-      if (f && overLimit(f, slot)) { pl.ids[pl.k] = before; draw(); $('editErr').textContent = 'A deck can hold at most 3 figures of the same species.'; return; }
-      pl.ids[pl.k] = f ? f.id : null; pl.mods[pl.k] = f ? blankMod(f) : null;
-      for (let j = 1; j <= EVO_SLOTS; j++) if (slot.st[j] != null && !candidates(slot, j).some(o => o.id === slot.st[j])) { slot.st[j] = null; slot.mod[j] = null; }
-    }
-    if (t.dataset.lv) { const pl = at(t.dataset.lv), m = pl.mods[pl.k]; m.lv = +t.value; while (sum(m.ext) > Math.min(m.lv, EXP_LEVEL_MAX) - 1) m.ext[m.ext.findIndex(x => x > 0)]--;
-      for (const arr of [m.inc, m.dec]) while (sum(arr) > Math.max(0, m.lv - EXP_LEVEL_MAX)) arr[arr.findIndex(x => x > 0)]--; }
+  const attach = (key, val) => {   // put a figure (or nothing) in a place of the slot
+    const pl = at(key), f = val ? byId.get(+val) : null, before = pl.ids[pl.k];
+    pl.ids[pl.k] = null;
+    if (f && overLimit(f, slot)) { pl.ids[pl.k] = before; draw(); $('editErr').textContent = 'A deck can hold at most 3 figures of the same species.'; return; }
+    pl.ids[pl.k] = f ? f.id : null; pl.mods[pl.k] = f ? blankMod(f) : null;
+    for (let j = 1; j <= EVO_SLOTS; j++) if (slot.st[j] != null && !candidates(slot, j).some(o => o.id === slot.st[j])) { slot.st[j] = null; slot.mod[j] = null; }
     draw();
   };
+  const setLevel = (key, lv) => { const pl = at(key), m = pl.mods[pl.k]; m.lv = Math.max(1, Math.min(lvMax(), lv)); while (sum(m.ext) > Math.min(m.lv, EXP_LEVEL_MAX) - 1) m.ext[m.ext.findIndex(x => x > 0)]--;
+    for (const arr of [m.inc, m.dec]) while (sum(arr) > Math.max(0, m.lv - EXP_LEVEL_MAX)) arr[arr.findIndex(x => x > 0)]--; draw(); };
+  $('box').onchange = e => { const t = e.target; if (t.dataset.pl) { tab = t.dataset.pl; attach(tab, t.value); } };
   $('box').onclick = e => {
-    const t = e.target;
+    const t = e.target.closest('button'); if (!t) return;
     if (t.dataset.done) { $('modal').hidden = true; return drawTeam(); }
+    if (t.dataset.tab) { tab = t.dataset.tab; return draw(); }
+    if (t.dataset.lv) { const [key, d] = t.dataset.lv.split(':'), pl = at(key); return setLevel(key, pl.mods[pl.k].lv + +d); }
     for (const key of ['ci', 'cd']) if (t.dataset[key]) {   // a tap adds a Carmonite point; tapping a full allocation clears that segment
       const [pk, i] = t.dataset[key].split(':'), pl = at(pk), m = pl.mods[pl.k], arr = key === 'ci' ? m.inc : m.dec, f = byId.get(pl.ids[pl.k]);
       if (sum(arr) >= m.lv - EXP_LEVEL_MAX) arr[+i] = 0;
@@ -398,9 +524,15 @@ $('list').onclick = e => { const r = e.target.closest('.row'); if (!r || team.le
   if (!ownedLeft(f.id)) { $('setupErr').textContent = 'You have no more copies of that figure.'; return; }
   $('setupErr').textContent = ''; team.push(newSlot(f.id, $('evo').checked && !ownedMode)); drawTeam(); };
 $('plist').onclick = e => { const r = e.target.closest('.row'); if (r && plateLeft(+r.dataset.id) && myPlates.length < PLATE_MAX && cost(myPlates) + plateById.get(+r.dataset.id).c <= COST_MAX) { myPlates.push(+r.dataset.id); drawTeam(); } };
-$('team').onclick = e => { const r = e.target.closest('.row'); if (!r) return; if (e.target.dataset.x) { team.splice(+r.dataset.i, 1); drawTeam(); } else editSlot(+r.dataset.i); };
-$('myplates').onclick = e => { const r = e.target.closest('.row'); if (r) { myPlates.splice(+r.dataset.i, 1); drawTeam(); } };
-$('rnd').onclick = () => { team = randomTeam(); drawTeam(); };
+$('team').onclick = e => { const r = e.target.closest('.row'); if (!r) return; if (e.target.closest('[data-x]')) { team.splice(+r.dataset.i, 1); drawTeam(); } else editSlot(+r.dataset.i); };
+$('myplates').onclick = e => { const r = e.target.closest('.pchip'); if (r) { myPlates.splice(+r.dataset.i, 1); drawTeam(); } };
+$('rnd').onclick = () => {
+  if (!ownedMode) { team = randomTeam(); myPlates = randomPlates(); return drawTeam(); }
+  const shuffled = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(x => x[1]), copies = owned => Object.keys(owned || {}).flatMap(id => Array(Math.max(0, owned[id] | 0)).fill(+id));
+  team = []; for (const id of shuffled(copies(profile.items).filter(id => BASES.includes(byId.get(id))))) if (team.length < 6 && !overLimit(byId.get(id), null)) team.push(newSlot(id, false));
+  myPlates = []; for (const id of shuffled(copies(profile.plates).filter(id => plateById.has(id)))) if (myPlates.length < PLATE_MAX && cost(myPlates) + plateById.get(id).c <= COST_MAX) myPlates.push(id);
+  drawTeam();
+};
 $('clr').onclick = () => { team = []; myPlates = []; drawTeam(); };
 $('newBtn').onclick = () => showHome();
 $('go').onclick = () => {
@@ -472,14 +604,14 @@ function drawHome() {
       <div class="note">${lg.win} keys per win, ${lg.lose} per loss; a full set opens a key booster.</div>
       <div class="bar" style="margin:14px 0 0"><button class="primary" data-act="league" ${profile.deck ? '' : 'disabled'}>League match</button><button data-act="deck">Edit deck</button><button data-act="free">Free duel (every figure)</button></div></div>
     <div class="panel"><h2>Your deck</h2>
-      ${profile.deck ? `<div class="cards teamcards six" data-act="deck" title="Edit deck">${profile.deck.map(d => `<div class="card"><span class="chip rar${byId.get(d.st[0]).r}">${RAR[byId.get(d.st[0]).r]}</span>${teamPics(slotFrom(d))}</div>`).join('')}</div>` : '<p class="note">Build a deck from your collection to play league matches.</p>'}
+      ${profile.deck ? `<div class="cards teamcards six" data-act="deck" title="Edit deck">${profile.deck.map((d, i) => slotCard(slotFrom(d), 'deck:' + i)).join('')}</div>` : '<p class="note">Build a deck from your collection to play league matches.</p>'}
       ${(profile.deckPlates || []).length ? `<div>${profile.deckPlates.map(id => `<span class="chip" title="${esc(plateById.get(id).d)}">${esc(plateById.get(id).n)}</span>`).join('')}</div>` : ''}</div>
     <div class="panel"><h2>Time boosters ${profile.boxes.length}/${TIME_SLOTS}</h2>
       <div class="boosters">${profile.boxes.map((b, k) => `<div class="booster"><span class="chip">${D.boxes[b.b][0]} min</span>${k === 0 ? (left(b) ? `<b>${clockText(left(b))}</b><span class="note">unlocking</span>` : `<button class="primary" data-open="0">Open</button>`) : '<span class="note">waiting</span>'}</div>`).join('')}${'<div class="booster empty">empty slot</div>'.repeat(Math.max(0, TIME_SLOTS - profile.boxes.length))}</div>
       <p class="note" style="margin-bottom:0">${profile.boxes.length ? 'Boosters unlock one at a time.' : 'Win a league match to earn a time booster.'}</p>
       <div id="homeMsg" class="note">${esc(drawHome.msg || '')}</div></div></section>
     <section><div class="panel"><h2>Collection · ${figs.reduce((n, id) => n + profile.items[id], 0)} figures</h2>
-      <div class="cards">${figs.map(id => { const f = byId.get(id); return `<div class="card"><span class="chip rar${f.r}">${RAR[f.r] || ''}</span><span class="chip r" title="${profile.items[id]} owned">×${profile.items[id]}</span>${sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="" onerror="this.outerHTML='<div class=nopic>no picture</div>'">` : '<div class="nopic">no picture</div>'}<span class="nm">${esc(f.n)}</span><span class="note">${typeNames(f)}</span></div>`; }).join('')}</div>
+      <div class="cards">${figs.map(id => figCard(byId.get(id), { left: `<b class="own" title="${profile.items[id]} owned">×${profile.items[id]}</b>` })).join('')}</div>
       ${mats.length ? `<p class="note">Materials: ${mats.map(id => esc(itemLabel([id, profile.items[id]]))).join(' · ')}</p>` : ''}</div>
     <div class="panel"><p class="note" style="margin-top:0">League matches are played against the original AI with a random deck of figures available in your league. Rating moves by the original's fixed win / loss points.</p>
       <button data-act="reset" class="note">Reset profile</button></div></section>`;
@@ -809,6 +941,7 @@ const QUIET = new Set(['add_z_gauge', 'battled_after_field_in', 'battle_info', '
 
 // ---------- sound ----------
 // (the sound effects live in sound.js, shared with the storybook)
+$('sideBtn').innerHTML = `<span class="m">${icon('<path d="M4 7h16M4 12h16M4 17h16"/>')}</span><span class="c">${icon('<path d="M6 6l12 12M18 6L6 18"/>')}</span>`;
 $('newBtn').innerHTML = icon('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>');
 
 // A move along a route is shown as hops from point to point (STEP_MS each), with a landing sound per point. It starts the moment the move is
@@ -868,10 +1001,10 @@ function render() {
     $('n' + k).textContent = label(c); $('d' + k).style.background = P_COL[c]; $('z' + k).textContent = z(c).replace(' · ', '');
     $(k ? 'hudTop' : 'hudBottom').classList.toggle('turn', !over && st.selective_side === c);
   }
-  const away = { [low]: 434, [high]: -14 }, toks = [];   // the next free place in each side's row of excluded figures (bottom row fills from the right, top row from the left)
+  const away = { [low]: 378, [high]: 42 }, toks = [];   // the next free place in each side's row of excluded figures (bottom row fills from the right, top row from the left)
   for (const c of st.pokemon_conditions) {
     const i = c.pokemon_index, f = figOf(i), col = colorOf(i), p = pk(i) || {}, b = badges(c);
-    const hop = moveAnim && moveAnim.fig === i ? moveAnim : null, [x, y] = hop ? xy(hop.route[hop.route.length - 1]) : xy(c.index, c.index >= 44 ? (away[col] += col === low ? -44 : 44) : 0), mp = (p.mp || 0) + ((c.effect && c.effect.mp) || 0);
+    const hop = moveAnim && moveAnim.fig === i ? moveAnim : null, [x, y] = hop ? xy(hop.route[hop.route.length - 1]) : xy(c.index, c.index >= 44 ? (away[col] += col === low ? -48 : 48) : 0), mp = (p.mp || 0) + ((c.effect && c.effect.mp) || 0);
     toks.push({ i, moveId: hop ? hop.id : null, path: hop ? hop.route.map(q => U(xy(q))) : null, x: U([x, y])[0], z: U([x, y])[1], team: col === low ? 0 : 1, img: sprite(f), name: f.n, mp: c.index < 40 ? String(mp) : '', badge: b.join(' · '), status: c.marker && c.marker.circle && c.marker.circle !== 'normal' ? c.marker.circle : '', wait: c.wait > 0, mpd: (c.effect && c.effect.mp) || 0, sel: i === sel, atk: targets.has(i), dim: c.index >= 40 });
     const mpd = (c.effect && c.effect.mp) || 0, circle = (c.marker || {}).circle, aura = circle && circle !== 'normal' ? (STATUS_COL[circle] || '#ffffff') : b.length ? '#cbd5e1' : '';
     h += `<g class="tok ${i === sel ? 'sel' : ''} ${targets.has(i) ? 'atk' : ''} ${c.index >= 40 ? 'dim' : ''}" data-fig="${i}" transform="translate(${x},${y}) scale(${c.index >= 44 ? .85 : 1.3})"><circle class="halo" r="27.5"/>${aura ? `<circle class="aura" r="23" stroke="${aura}"/>` : ''}
@@ -963,7 +1096,7 @@ function badgeTips(c) {
   return out;
 }
 function drawCard(c) {
-  if (!c) { $('card').innerHTML = '<span class="note">Select a figure.</span>'; return; }
+  if (!c) { $('card').innerHTML = ''; return; }   // nothing selected: the panel is not shown at all
   const i = c.pokemon_index, p = pk(i), f = figOf(i), ab = D.abilities[p.pokepower];
   $('card').innerHTML = `<div style="display:flex;gap:12px;align-items:center">${wheelSvg(p.skills, 96)}<div>
       <div style="font-size:16px">${nameOf(i)} <span class="chip rar${f.r}">${RAR[f.r] || ''}</span></div>

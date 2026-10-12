@@ -18,7 +18,7 @@
   main { display:flex; flex-direction:column; min-width:0; min-height:0; }
   header { display:flex; align-items:center; padding:0 8px 0 16px; border-bottom:1px solid var(--line); background:var(--bar); } header > div { flex:1; min-width:0; display:flex; align-items:baseline; gap:10px; white-space:nowrap; overflow:hidden; } header b { font-size:14px; } #note { color:var(--dim); font-size:12px; overflow:hidden; text-overflow:ellipsis; } header button { margin:3px 3px; }
   .paths { display:none; }
-  @media (min-width:861px) { .paths { display:flex; gap:4px; margin:0 6px; } .paths a { padding:4px 10px; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; border:1px solid var(--line); border-radius:10px; background:var(--ctl); }
+  @media (min-width:861px) { .paths { display:flex; gap:4px; margin:0 6px; } .paths a { padding:4px 10px; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; border:1px solid var(--line); border-radius:4px; background:var(--ctl); }
     .paths a:hover { background:var(--ctl2); border-color:var(--dim); } .paths a.on { background:var(--ink); border-color:var(--ink); color:var(--bg); } }
   #board3d { flex:1; min-height:0; background:var(--bd); } #board3d canvas { display:block; }
   pre { margin:0; padding:10px 16px; border-top:1px solid var(--line); background:var(--bar); color:var(--dim); font:12px/1.4 Consolas,monospace; max-height:22dvh; overflow:auto; white-space:pre-wrap; }
@@ -46,7 +46,7 @@ const P = p => p < 28 ? [(42 + XY[p][0] * 56 - 210) / 54.2, (186 + XY[p][1] * 82
 function table(mv = [], toks = []) {
   const pts = []; for (let p = 0; p < 28; p++) pts.push({ k: p, p, x: P(p)[0], z: P(p)[1], goal: p === 24 ? 0 : p === 3 ? 1 : null, mv: mv.includes(p) });
   const slots = []; for (let p = 28; p < 44; p++) slots.push(P(p));
-  return { pts, slots, edges: EDGES.map(([a, b]) => [P(a), P(b)]), toks: toks.map((t, i) => ({ ...tok(t, t.f || fig), i, x: t.out != null ? (t.team ? -180 + t.out * 44 : 180 - t.out * 44) / 54.2 : P(t.at)[0], z: t.out != null ? (t.team ? -7.01 : 7.01) : P(t.at)[1] })), snap: true };   // `out: n` = the n-th excluded figure of its side
+  return { pts, slots, edges: EDGES.map(([a, b]) => [P(a), P(b)]), toks: toks.map((t, i) => ({ ...tok(t, t.f || fig), i, x: t.out != null ? (t.team ? -120 + t.out * 48 : 120 - t.out * 48) / 54.2 : P(t.at)[0], z: t.out != null ? (t.team ? -7.01 : 7.01) : P(t.at)[1] })), snap: true };   // `out: n` = the n-th excluded figure of its side
 }
 const STATUS = ['poison', 'bad_poison', 'burn', 'paralyze', 'sleep', 'freeze', 'panic', 'curse'], MARKERS = Object.keys(D.conds).filter(k => !D.conds[k].includes('{0}') && !STATUS.includes(k) && !/^mp_|^plus_|faint|melt/.test(k));
 const mpd = d => ({ mp: String(fig.mp + d), mpd: d, badge: d ? 'MP ' + (d > 0 ? '+' : '') + d : 'normal' });
