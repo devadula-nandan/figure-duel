@@ -1,0 +1,3229 @@
+[
+ {
+  "id": 1214,
+  "rule_id": 1214,
+  "figure_no": 141,
+  "name": "Bibarel",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 141 (original text master has no ItemName for 1214); engine name table: ビーダル",
+  "types": [
+   "Normal",
+   "Water"
+  ],
+  "type_ids": [
+   5,
+   8
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": null,
+  "ability_name": null,
+  "ability_name_source": null,
+  "ability_description": null,
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.6",
+  "engine_name_ja": "ビーダル",
+  "mp": 2,
+  "rarity": 3,
+  "rarity_name": "R",
+  "served_rarity": 3,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 214,
+  "wheel": [
+   {
+    "skill_id": 1326,
+    "size": 24,
+    "value": 70,
+    "color": 1,
+    "name": "Cut",
+    "name_source": "original text master SkillMaster.SkillName.1326",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1139,
+    "size": 24,
+    "value": 50,
+    "color": 1,
+    "name": "Rock Smash",
+    "name_source": "original text master SkillMaster.SkillName.1139",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1313,
+    "size": 20,
+    "value": 110,
+    "color": 1,
+    "name": "Surf",
+    "name_source": "original text master SkillMaster.SkillName.1313",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1147,
+    "size": 24,
+    "value": 90,
+    "color": 1,
+    "name": "Strength",
+    "name_source": "Remake B guide (text master has no entry for skill 1147)",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 400,
+  "from_groups": [
+   399
+  ],
+  "to_groups": [],
+  "poke_no": 400,
+  "form_max": 0,
+  "evo_source": "authentic: Bidoof(1170) tree node 400 lists FigureNo 141; PokeNo = group (pattern of 451 plain figures)",
+  "tree_position": [
+   {
+    "parent": 399,
+    "depth": 1,
+    "form_change": 0,
+    "root": 399
+   }
+  ]
+ },
+ {
+  "id": 1397,
+  "rule_id": 1397,
+  "figure_no": 397,
+  "name": "Shiny Metagross",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 397 (original text master has no ItemName for 1397); engine name table: メタグロス_色違い",
+  "types": [
+   "Steel",
+   "Psychic"
+  ],
+  "type_ids": [
+   6,
+   3
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1443,
+  "ability_name": "Parallel Arithmetic",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1443)",
+  "ability_description": "When this Pokémon is on the field, your Pokémon deal +1 damage for each Pokémon on the field. While this Pokémon is on the bench, it gains +1 MP.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.7",
+  "engine_name_ja": "メタグロス_色違い",
+  "mp": 1,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 397,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1122,
+    "size": 4,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1278,
+    "size": 16,
+    "value": 130,
+    "color": 1,
+    "name": "Metal Claw",
+    "name_source": "original text master SkillMaster.SkillName.1278",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 4,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1231,
+    "size": 24,
+    "value": 160,
+    "color": 1,
+    "name": "Hyper Beam*",
+    "name_source": "original text master SkillMaster.SkillName.1231",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 4,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1278,
+    "size": 16,
+    "value": 130,
+    "color": 1,
+    "name": "Metal Claw",
+    "name_source": "original text master SkillMaster.SkillName.1278",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 4,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1386,
+    "size": 20,
+    "value": 50,
+    "color": 3,
+    "name": "Bullet Punch",
+    "name_source": "original text master SkillMaster.SkillName.1386",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 50376,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 376,
+  "form_max": 0,
+  "evo_source": "pattern: shiny = 50000+dex (13/13 authentic shinies), PokeNo = dex. Shiny Metang/Beldum (1521/1522) and Shiny Mega Metagross (1508) are placeholders, so it stands alone",
+  "tree_position": "not in any authentic tree: add tree entry {\"50376\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1413,
+  "rule_id": 1413,
+  "figure_no": 413,
+  "name": "Mega Gyarados",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 413 (original text master has no ItemName for 1413); engine name table: メガギャラドス",
+  "types": [
+   "Water",
+   "Dark"
+  ],
+  "type_ids": [
+   8,
+   0
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1383,
+  "ability_name": "Billows of the Fell Dragon",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1383)",
+  "ability_description": "When this Pokémon moves from the bench to the field, or appears as an Evolution, it removes the burned condition from your Pokémon. While this Pokémon is on the field, your Pokémon cannot be burned. Your Water-type and Dark-type Pokémon each deal +10 damage.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "6.2.1",
+  "engine_name_ja": "メガギャラドス",
+  "mp": 2,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 5,
+  "ex_type": 0,
+  "rarity_model": 1,
+  "model_id": 413,
+  "wheel": [
+   {
+    "skill_id": 1231,
+    "size": 56,
+    "value": 160,
+    "color": 1,
+    "name": "Hyper Beam*",
+    "name_source": "original text master SkillMaster.SkillName.1231",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1052,
+    "size": 36,
+    "value": 1,
+    "color": 2,
+    "name": "Storm",
+    "name_source": "original text master SkillMaster.SkillName.1052",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 10130,
+  "from_groups": [
+   130
+  ],
+  "to_groups": [],
+  "poke_no": 10413,
+  "form_max": 0,
+  "evo_source": "authentic group: Gyarados(1097/1562) ToEvoGroupIds [10130] and tree node 10130 lists FigureNo 413; PokeNo 10000+no by pattern of neighbouring megas (1410 -> 10410), not certain",
+  "tree_position": [
+   {
+    "parent": 130,
+    "depth": 2,
+    "form_change": 0,
+    "root": 129
+   }
+  ]
+ },
+ {
+  "id": 1462,
+  "rule_id": 1462,
+  "figure_no": 462,
+  "name": "Rotom",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 462 (original text master has no ItemName for 1462); engine name table: ロトム",
+  "types": [
+   "Electric",
+   "Ghost"
+  ],
+  "type_ids": [
+   1,
+   15
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1125,
+  "ability_name": "Infiltrator",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1125",
+  "ability_description": "On the field, this Pokémon can pass through other Pokémon.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "6.0.1",
+  "engine_name_ja": "ロトム",
+  "mp": 3,
+  "rarity": 3,
+  "rarity_name": "R",
+  "served_rarity": 3,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 462,
+  "wheel": [
+   {
+    "skill_id": 1628,
+    "size": 20,
+    "value": 1,
+    "color": 2,
+    "name": "Sphere Trick",
+    "name_source": "Remake B guide (text master has no entry for skill 1628)",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 4,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1314,
+    "size": 40,
+    "value": 10,
+    "color": 1,
+    "name": "Discharge",
+    "name_source": "original text master SkillMaster.SkillName.1314",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 4,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1071,
+    "size": 20,
+    "value": 2,
+    "color": 2,
+    "name": "Thunder Wave",
+    "name_source": "original text master SkillMaster.SkillName.1071",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 479,
+  "from_groups": [
+   101479,
+   102479,
+   103479,
+   104479,
+   105479
+  ],
+  "to_groups": [
+   101479,
+   102479,
+   103479,
+   104479,
+   105479
+  ],
+  "poke_no": 479,
+  "form_max": 5,
+  "evo_source": "authentic: root node 479 of the Rotom-form trees (1367/1371/1468/1477) lists FigureNo 462; From/To/FormMax 5 mirror the four dumped forms",
+  "tree_position": [
+   {
+    "parent": -1,
+    "depth": 0,
+    "form_change": 0,
+    "root": 479
+   }
+  ]
+ },
+ {
+  "id": 1473,
+  "rule_id": 1473,
+  "figure_no": 473,
+  "name": "Frost Rotom",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 473 (original text master has no ItemName for 1473); engine name table: フロストロトム",
+  "types": [
+   "Electric",
+   "Ice"
+  ],
+  "type_ids": [
+   1,
+   9
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1346,
+  "ability_name": "Frost Tag",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1346)",
+  "ability_description": "If this Pokémon is on the field and not affected by a special condition, opposing Ice-type Pokémon next to your Ice-type Pokémon get MP-1. This effect does not stack.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "6.0.1",
+  "engine_name_ja": "フロストロトム",
+  "mp": 2,
+  "rarity": 3,
+  "rarity_name": "R",
+  "served_rarity": 3,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 473,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1647,
+    "size": 12,
+    "value": 0,
+    "color": 4,
+    "name": "Revert",
+    "name_source": "original text master SkillMaster.SkillName.1647",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1314,
+    "size": 24,
+    "value": 50,
+    "color": 1,
+    "name": "Discharge",
+    "name_source": "original text master SkillMaster.SkillName.1314",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1647,
+    "size": 12,
+    "value": 0,
+    "color": 4,
+    "name": "Revert",
+    "name_source": "original text master SkillMaster.SkillName.1647",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1649,
+    "size": 36,
+    "value": 90,
+    "color": 1,
+    "name": "Blizzard*",
+    "name_source": "original text master SkillMaster.SkillName.1649",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 103479,
+  "from_groups": [
+   479,
+   101479,
+   102479,
+   104479,
+   105479
+  ],
+  "to_groups": [
+   479,
+   101479,
+   102479,
+   104479,
+   105479
+  ],
+  "poke_no": 11473,
+  "form_max": 5,
+  "evo_source": "authentic: node 103479 (FormChange 2) of the Rotom trees lists FigureNo 473; PokeNo 11000+no and FormMax 5 by the four sibling forms",
+  "tree_position": [
+   {
+    "parent": 479,
+    "depth": 1,
+    "form_change": 2,
+    "root": 479
+   }
+  ]
+ },
+ {
+  "id": 1475,
+  "rule_id": 1475,
+  "figure_no": 475,
+  "name": "Alolan Sandslash",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 475 (original text master has no ItemName for 1475); engine name table: アローラサンドパン",
+  "types": [
+   "Ice",
+   "Steel"
+  ],
+  "type_ids": [
+   9,
+   6
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1369,
+  "ability_name": "Snow Cloak",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1369)",
+  "ability_description": "If this Pokémon is attacked, it may move under the attacking Pokémon to a point next to it. (A battle does not occur.) This Pokémon can MP move past Ice-type Pokémon on the field.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "6.0.10",
+  "engine_name_ja": "アローラサンドパン",
+  "mp": 2,
+  "rarity": 3,
+  "rarity_name": "R",
+  "served_rarity": 3,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 475,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1181,
+    "size": 24,
+    "value": 100,
+    "color": 1,
+    "name": "Earthquake*",
+    "name_source": "original text master SkillMaster.SkillName.1181",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 20,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1661,
+    "size": 48,
+    "value": 50,
+    "color": 1,
+    "name": "Icicle Spear",
+    "name_source": "Remake B guide (text master has no entry for skill 1661)",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 30028,
+  "from_groups": [
+   30027
+  ],
+  "to_groups": [],
+  "poke_no": 28,
+  "form_max": 0,
+  "evo_source": "pattern: Alolan = 30000+dex (Alolan Vulpix 30037 -> Ninetales 30038), PokeNo = dex",
+  "tree_position": "not in any authentic tree: add tree entry {\"30028\": [30027, 1, 0]}"
+ },
+ {
+  "id": 1496,
+  "rule_id": 1496,
+  "figure_no": 496,
+  "name": "Alolan Sandshrew",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 496 (original text master has no ItemName for 1496); engine name table: アローラサンド",
+  "types": [
+   "Ice",
+   "Steel"
+  ],
+  "type_ids": [
+   9,
+   6
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1369,
+  "ability_name": "Snow Cloak",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1369)",
+  "ability_description": "If this Pokémon is attacked, it may move under the attacking Pokémon to a point next to it. (A battle does not occur.) This Pokémon can MP move past Ice-type Pokémon on the field.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "6.0.10",
+  "engine_name_ja": "アローラサンド",
+  "mp": 2,
+  "rarity": 1,
+  "rarity_name": "C",
+  "served_rarity": 1,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 496,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1127,
+    "size": 36,
+    "value": 0,
+    "color": 4,
+    "name": "Protect",
+    "name_source": "original text master SkillMaster.SkillName.1127",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1661,
+    "size": 56,
+    "value": 30,
+    "color": 1,
+    "name": "Icicle Spear",
+    "name_source": "Remake B guide (text master has no entry for skill 1661)",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 30027,
+  "from_groups": [],
+  "to_groups": [
+   30028
+  ],
+  "poke_no": 27,
+  "form_max": 0,
+  "evo_source": "pattern: Alolan = 30000+dex, PokeNo = dex",
+  "tree_position": "not in any authentic tree: add tree entry {\"30027\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1507,
+  "rule_id": 1507,
+  "figure_no": 507,
+  "name": "Shiny Mega Gengar",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 507 (original text master has no ItemName for 1507); engine name table: 色違いのメガゲンガー",
+  "types": [
+   "Ghost",
+   "Poison"
+  ],
+  "type_ids": [
+   15,
+   10
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1244,
+  "ability_name": "Otherworldly Talons",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1244",
+  "ability_description": "This Pokémon can MP move through other Pokémon on the field. Pokémon next to this Pokémon cannot move using the effects of Attacks, Abilities, or Energy. Opposing Pokémon next to this Pokémon cannot make MP moves. Your Ghost-type and Poison-type Pokémon each deal +10 damage.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1337 (Mega Gengar); the engine also accepts rule id 1337 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "6.0.2",
+  "engine_name_ja": "色違いのメガゲンガー",
+  "mp": 3,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 5,
+  "ex_type": 0,
+  "rarity_model": 1,
+  "model_id": 507,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1075,
+    "size": 32,
+    "value": 1,
+    "color": 2,
+    "name": "Toxic",
+    "name_source": "original text master SkillMaster.SkillName.1075",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 16,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1531,
+    "size": 44,
+    "value": 110,
+    "color": 1,
+    "name": "Abyssal Grip*",
+    "name_source": "original text master SkillMaster.SkillName.1531",
+    "piece_ext_priority": 1,
+    "boost_priority": 1
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1337",
+  "identical_to": 1337,
+  "evo_group": 500094,
+  "from_groups": [
+   50094
+  ],
+  "to_groups": [],
+  "poke_no": 11507,
+  "form_max": 0,
+  "evo_source": "pattern: shiny mega = 500000+dex (only precedent 500384); PokeNo synthetic",
+  "tree_position": "not in any authentic tree: add tree entry {\"500094\": [50094, 1, 0]}"
+ },
+ {
+  "id": 1509,
+  "rule_id": 1509,
+  "figure_no": 509,
+  "name": "Shiny Gengar",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 509 (original text master has no ItemName for 1509); engine name table: 色違いのゲンガー",
+  "types": [
+   "Ghost",
+   "Poison"
+  ],
+  "type_ids": [
+   15,
+   10
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1245,
+  "ability_name": "Night Stalker",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1245",
+  "ability_description": "This Pokémon can pass through other Pokémon when it MP moves. If it passes through Poisoned, noxious, or sleeping Pokémon, they will faint.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1345 (Gengar); the engine also accepts rule id 1345 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "6.0.2",
+  "engine_name_ja": "色違いのゲンガー",
+  "mp": 2,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 509,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1532,
+    "size": 32,
+    "value": 2,
+    "color": 2,
+    "name": "Contagious Terror",
+    "name_source": "original text master SkillMaster.SkillName.1532",
+    "piece_ext_priority": 1,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 16,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1224,
+    "size": 40,
+    "value": 100,
+    "color": 1,
+    "name": "Night Shade",
+    "name_source": "original text master SkillMaster.SkillName.1224",
+    "piece_ext_priority": 0,
+    "boost_priority": 1
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1345",
+  "identical_to": 1345,
+  "evo_group": 50094,
+  "from_groups": [],
+  "to_groups": [
+   500094
+  ],
+  "poke_no": 94,
+  "form_max": 0,
+  "evo_source": "pattern: shiny = 50000+dex; mega link by the Shiny Rayquaza precedent (50384 -> 500384)",
+  "tree_position": "not in any authentic tree: add tree entry {\"50094\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1530,
+  "rule_id": 1530,
+  "figure_no": 530,
+  "name": "Espeon",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 530 (original text master has no ItemName for 1530); engine name table: エーフィ",
+  "types": [
+   "Psychic"
+  ],
+  "type_ids": [
+   3
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1405,
+  "ability_name": "Psychic Arrow",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1405)",
+  "ability_description": "This Pokémon can MP move through your Pokémon and opposing Fighting-type and Poison-type Pokémon. If there are opposing Pokémon on all entry points, this Pokémon games +1 MP.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.0",
+  "engine_name_ja": "エーフィ",
+  "mp": 3,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 4,
+  "ex_type": 1,
+  "rarity_model": 0,
+  "model_id": 530,
+  "wheel": [
+   {
+    "skill_id": 1544,
+    "size": 24,
+    "value": 3,
+    "color": 2,
+    "name": "Psyshock",
+    "name_source": "original text master SkillMaster.SkillName.1544",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1349,
+    "size": 32,
+    "value": 90,
+    "color": 1,
+    "name": "Dazzling Gleam*",
+    "name_source": "original text master SkillMaster.SkillName.1349",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1324,
+    "size": 24,
+    "value": 50,
+    "color": 3,
+    "name": "Quick Attack",
+    "name_source": "original text master SkillMaster.SkillName.1324",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 12,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 200196,
+  "from_groups": [
+   133,
+   200133
+  ],
+  "to_groups": [],
+  "poke_no": 196,
+  "form_max": 0,
+  "evo_source": "authentic: Eevee(1010/1526) ToEvoGroupIds contain 200196, tree node lists FigureNo 530; other fields as Vaporeon UX 1527",
+  "tree_position": [
+   {
+    "parent": 133,
+    "depth": 1,
+    "form_change": 0,
+    "root": 133
+   },
+   {
+    "parent": 200133,
+    "depth": 1,
+    "form_change": 1,
+    "root": 200133
+   }
+  ]
+ },
+ {
+  "id": 1533,
+  "rule_id": 1533,
+  "figure_no": 533,
+  "name": "Glaceon",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 533 (original text master has no ItemName for 1533); engine name table: グレイシア",
+  "types": [
+   "Ice"
+  ],
+  "type_ids": [
+   9
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1445,
+  "ability_name": "Frost Arrow",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1445)",
+  "ability_description": "This Pokémon can MP move through your Pokémon and opposing Ground-type and Flying-type Pokémon. If there are opposing Pokémon on all of your entry points, this Pokémon gains +1MP.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.10",
+  "engine_name_ja": "グレイシア",
+  "mp": 3,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 4,
+  "ex_type": 1,
+  "rarity_model": 0,
+  "model_id": 533,
+  "wheel": [
+   {
+    "skill_id": 1319,
+    "size": 24,
+    "value": 1,
+    "color": 2,
+    "name": "Diamond Dust",
+    "name_source": "original text master SkillMaster.SkillName.1319",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1287,
+    "size": 32,
+    "value": 70,
+    "color": 1,
+    "name": "Ice Beam*",
+    "name_source": "original text master SkillMaster.SkillName.1287",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1001,
+    "size": 24,
+    "value": 40,
+    "color": 3,
+    "name": "Ice Shard*",
+    "name_source": "original text master SkillMaster.SkillName.1001",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 12,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 200471,
+  "from_groups": [
+   133,
+   200133
+  ],
+  "to_groups": [],
+  "poke_no": 471,
+  "form_max": 0,
+  "evo_source": "authentic: Eevee ToEvoGroupIds contain 200471, tree node lists FigureNo 533",
+  "tree_position": [
+   {
+    "parent": 133,
+    "depth": 1,
+    "form_change": 0,
+    "root": 133
+   },
+   {
+    "parent": 200133,
+    "depth": 1,
+    "form_change": 1,
+    "root": 200133
+   }
+  ]
+ },
+ {
+  "id": 1534,
+  "rule_id": 1534,
+  "figure_no": 534,
+  "name": "Sylveon",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 534 (original text master has no ItemName for 1534); engine name table: ニンフィア",
+  "types": [
+   "Fairy"
+  ],
+  "type_ids": [
+   17
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1424,
+  "ability_name": "Mystic Arrow",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1424)",
+  "ability_description": "This Pokémon can MP move through your Pokémon and opposing Dragon-type [CTRL NOTE][Pokémon] and Dark-type Pokémon. If there are opposing Pokémon on all your entry points, this Pokémon gains +1MP.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.4",
+  "engine_name_ja": "ニンフィア",
+  "mp": 3,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 4,
+  "ex_type": 1,
+  "rarity_model": 0,
+  "model_id": 534,
+  "wheel": [
+   {
+    "skill_id": 1726,
+    "size": 24,
+    "value": 90,
+    "color": 1,
+    "name": "Fairy Wind",
+    "name_source": "Remake B guide (text master has no entry for skill 1726)",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1347,
+    "size": 32,
+    "value": 80,
+    "color": 1,
+    "name": "Moonblast",
+    "name_source": "original text master SkillMaster.SkillName.1347",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1324,
+    "size": 24,
+    "value": 50,
+    "color": 3,
+    "name": "Quick Attack",
+    "name_source": "original text master SkillMaster.SkillName.1324",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 12,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 200700,
+  "from_groups": [
+   133,
+   200133
+  ],
+  "to_groups": [],
+  "poke_no": 700,
+  "form_max": 0,
+  "evo_source": "authentic: Eevee ToEvoGroupIds contain 200700, tree node lists FigureNo 534",
+  "tree_position": [
+   {
+    "parent": 133,
+    "depth": 1,
+    "form_change": 0,
+    "root": 133
+   },
+   {
+    "parent": 200133,
+    "depth": 1,
+    "form_change": 1,
+    "root": 200133
+   }
+  ]
+ },
+ {
+  "id": 1557,
+  "rule_id": 1557,
+  "figure_no": 557,
+  "name": "Pikachu",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 557 (original text master has no ItemName for 1557); engine name table: ピカチュウ",
+  "types": [
+   "Electric"
+  ],
+  "type_ids": [
+   1
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1415,
+  "ability_name": "Electrical Charge",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1415)",
+  "ability_description": "If this Pokémon is paralyzed, it gains +1 MP and deals +30 damage.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.0",
+  "engine_name_ja": "ピカチュウ",
+  "mp": 2,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 4,
+  "ex_type": 1,
+  "rarity_model": 0,
+  "model_id": 557,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1338,
+    "size": 24,
+    "value": 70,
+    "color": 3,
+    "name": "Extreme Speed",
+    "name_source": "original text master SkillMaster.SkillName.1338",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 4,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1645,
+    "size": 24,
+    "value": 1,
+    "color": 2,
+    "name": "Volt Switch",
+    "name_source": "original text master SkillMaster.SkillName.1645",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1689,
+    "size": 40,
+    "value": 110,
+    "color": 1,
+    "name": "Volt Tackle",
+    "name_source": "Remake B guide (text master has no entry for skill 1689)",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 25,
+  "from_groups": [
+   172
+  ],
+  "to_groups": [
+   26,
+   30026
+  ],
+  "poke_no": 25,
+  "form_max": 0,
+  "evo_source": "authentic: Pikachu tree node 25 lists FigureNos [52,104,557]; From/To as Pikachu 1018/1132",
+  "tree_position": [
+   {
+    "parent": 172,
+    "depth": 1,
+    "form_change": 0,
+    "root": 172
+   }
+  ]
+ },
+ {
+  "id": 1567,
+  "rule_id": 1567,
+  "figure_no": 567,
+  "name": "Celebi",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 567 (original text master has no ItemName for 1567); engine name table: セレビィ",
+  "types": [
+   "Psychic",
+   "Grass"
+  ],
+  "type_ids": [
+   3,
+   2
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1043,
+  "ability_name": "Time Travel",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1043)",
+  "ability_description": "If this Pokémon is not affected by a special condition, it can MP move over opposing non-Flying-type Pokémon on the field. You may use this Ability at the start of your turn. If you do, return the duel to the start of your previous turn, and exclude this Pokémon from the duel. Neither player's remaining time changes. Until the end of your opponent's next turn, neither player can use Time Travel.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.0",
+  "engine_name_ja": "セレビィ",
+  "mp": 3,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 567,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1640,
+    "size": 32,
+    "value": 1,
+    "color": 2,
+    "name": "Energy Ball",
+    "name_source": "original text master SkillMaster.SkillName.1640",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1452,
+    "size": 44,
+    "value": 40,
+    "color": 1,
+    "name": "Grass Knot*",
+    "name_source": "original text master SkillMaster.SkillName.1452",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1700,
+    "size": 16,
+    "value": 0,
+    "color": 4,
+    "name": "Backtrack",
+    "name_source": "Remake B guide (text master has no entry for skill 1700)",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 251,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 251,
+  "form_max": 0,
+  "evo_source": "pattern: plain figure, group = PokeNo = national dex",
+  "tree_position": "not in any authentic tree: add tree entry {\"251\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1573,
+  "rule_id": 1573,
+  "figure_no": 573,
+  "name": "Salamence",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 573 (original text master has no ItemName for 1573); engine name table: ボーマンダ",
+  "types": [
+   "Dragon",
+   "Flying"
+  ],
+  "type_ids": [
+   16,
+   12
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1432,
+  "ability_name": "Bonfire",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1432)",
+  "ability_description": "At the start of your turn, instead of an MP move, this Pokémon may move over an adjacent Pokémon to a point 1 step away from that Pokémon. If the Pokémon it moved over is an opposing Pokémon, that Pokémon becomes burned. Your turn ends.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.5",
+  "engine_name_ja": "ボーマンダ",
+  "mp": 1,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 573,
+  "wheel": [
+   {
+    "skill_id": 1402,
+    "size": 24,
+    "value": 1,
+    "color": 2,
+    "name": "Draco Meteor",
+    "name_source": "original text master SkillMaster.SkillName.1402",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1297,
+    "size": 32,
+    "value": 0,
+    "color": 1,
+    "name": "Dragon Dance",
+    "name_source": "original text master SkillMaster.SkillName.1297",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1133,
+    "size": 32,
+    "value": 120,
+    "color": 1,
+    "name": "Iron Tail",
+    "name_source": "original text master SkillMaster.SkillName.1133",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 373,
+  "from_groups": [
+   372
+  ],
+  "to_groups": [
+   10373
+  ],
+  "poke_no": 373,
+  "form_max": 0,
+  "evo_source": "authentic: tree node 373 lists FigureNos [70,573]; From/To as Salamence 1013",
+  "tree_position": [
+   {
+    "parent": 372,
+    "depth": 2,
+    "form_change": 0,
+    "root": 371
+   }
+  ]
+ },
+ {
+  "id": 1574,
+  "rule_id": 1574,
+  "figure_no": 574,
+  "name": "Mismagius",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 574 (original text master has no ItemName for 1574); engine name table: ムウマージ",
+  "types": [
+   "Ghost"
+  ],
+  "type_ids": [
+   15
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1125,
+  "ability_name": "Infiltrator",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1125",
+  "ability_description": "On the field, this Pokémon can pass through other Pokémon.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "6.2.6",
+  "engine_name_ja": "ムウマージ",
+  "mp": 2,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 574,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1349,
+    "size": 16,
+    "value": 120,
+    "color": 1,
+    "name": "Dazzling Gleam*",
+    "name_source": "original text master SkillMaster.SkillName.1349",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1687,
+    "size": 28,
+    "value": 2,
+    "color": 2,
+    "name": "Final Chant",
+    "name_source": "Remake B guide (text master has no entry for skill 1687)",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1529,
+    "size": 20,
+    "value": 80,
+    "color": 1,
+    "name": "Hex",
+    "name_source": "original text master SkillMaster.SkillName.1529",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1009,
+    "size": 20,
+    "value": 3,
+    "color": 2,
+    "name": "Confuse Ray",
+    "name_source": "original text master SkillMaster.SkillName.1009",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 429,
+  "from_groups": [
+   200
+  ],
+  "to_groups": [],
+  "poke_no": 429,
+  "form_max": 0,
+  "evo_source": "pattern: plain figure, group = dex; evolves from Misdreavus (dex 200)",
+  "tree_position": "not in any authentic tree: add tree entry {\"429\": [200, 1, 0]}"
+ },
+ {
+  "id": 1596,
+  "rule_id": 1596,
+  "figure_no": 596,
+  "name": "Aerodactyl",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 596 (original text master has no ItemName for 1596); engine name table: プテラ",
+  "types": [
+   "Rock",
+   "Flying"
+  ],
+  "type_ids": [
+   14,
+   12
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1451,
+  "ability_name": "Soar: Aerodactyl",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1451)",
+  "ability_description": "[CTRL QL Restored Pokémon][Restored Pokémon]. This Pokémon may MP move over Pokémon on the field that don't have [CTRL QL Soar][Soar].",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.10",
+  "engine_name_ja": "プテラ",
+  "mp": 3,
+  "rarity": 3,
+  "rarity_name": "R",
+  "served_rarity": 3,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 596,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1315,
+    "size": 16,
+    "value": 70,
+    "color": 1,
+    "name": "Dragon Claw",
+    "name_source": "original text master SkillMaster.SkillName.1315",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1485,
+    "size": 28,
+    "value": 40,
+    "color": 1,
+    "name": "Ice Fang*",
+    "name_source": "original text master SkillMaster.SkillName.1485",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1315,
+    "size": 16,
+    "value": 70,
+    "color": 1,
+    "name": "Dragon Claw",
+    "name_source": "original text master SkillMaster.SkillName.1315",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1065,
+    "size": 28,
+    "value": 3,
+    "color": 2,
+    "name": "Taunt",
+    "name_source": "original text master SkillMaster.SkillName.1065",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 142,
+  "from_groups": [],
+  "to_groups": [
+   10142
+  ],
+  "poke_no": 142,
+  "form_max": 0,
+  "evo_source": "authentic: tree node 142 lists FigureNos [563,596]; To as Aerodactyl EX 1563",
+  "tree_position": [
+   {
+    "parent": -1,
+    "depth": 0,
+    "form_change": 0,
+    "root": 142
+   }
+  ]
+ },
+ {
+  "id": 1597,
+  "rule_id": 1597,
+  "figure_no": 597,
+  "name": "Misdreavus",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 597 (original text master has no ItemName for 1597); engine name table: ムウマ",
+  "types": [
+   "Ghost"
+  ],
+  "type_ids": [
+   15
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1125,
+  "ability_name": "Infiltrator",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1125",
+  "ability_description": "On the field, this Pokémon can pass through other Pokémon.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "6.2.6",
+  "engine_name_ja": "ムウマ",
+  "mp": 2,
+  "rarity": 3,
+  "rarity_name": "R",
+  "served_rarity": 3,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 597,
+  "wheel": [
+   {
+    "skill_id": 1413,
+    "size": 12,
+    "value": 30,
+    "color": 3,
+    "name": "Shadow Sneak",
+    "name_source": "original text master SkillMaster.SkillName.1413",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1479,
+    "size": 16,
+    "value": 1,
+    "color": 2,
+    "name": "Curse",
+    "name_source": "original text master SkillMaster.SkillName.1479",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1413,
+    "size": 12,
+    "value": 30,
+    "color": 3,
+    "name": "Shadow Sneak",
+    "name_source": "original text master SkillMaster.SkillName.1413",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1009,
+    "size": 40,
+    "value": 3,
+    "color": 2,
+    "name": "Confuse Ray",
+    "name_source": "original text master SkillMaster.SkillName.1009",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 200,
+  "from_groups": [],
+  "to_groups": [
+   429
+  ],
+  "poke_no": 200,
+  "form_max": 0,
+  "evo_source": "pattern: plain figure, group = dex; evolves to Mismagius (dex 429)",
+  "tree_position": "not in any authentic tree: add tree entry {\"200\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1608,
+  "rule_id": 1608,
+  "figure_no": 608,
+  "name": "Slowpoke",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 608 (original text master has no ItemName for 1608); engine name table: ヤドン",
+  "types": [
+   "Water",
+   "Psychic"
+  ],
+  "type_ids": [
+   8,
+   3
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1048,
+  "ability_name": "Oblivious",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1048)",
+  "ability_description": "This Pokémon cannot be paralyzed. This Pokémon is not affected by Taunt.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.12",
+  "engine_name_ja": "ヤドン",
+  "mp": 1,
+  "rarity": 3,
+  "rarity_name": "R",
+  "served_rarity": 3,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 608,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1727,
+    "size": 24,
+    "value": 2,
+    "color": 2,
+    "name": "Trick Room",
+    "name_source": "original text master SkillMaster.SkillName.1727",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1764,
+    "size": 36,
+    "value": 1,
+    "color": 2,
+    "name": "Yawn",
+    "name_source": "Remake B guide (text master has no entry for skill 1764)",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1174,
+    "size": 28,
+    "value": 120,
+    "color": 1,
+    "name": "Psychic",
+    "name_source": "original text master SkillMaster.SkillName.1174",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 79,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 79,
+  "form_max": 0,
+  "evo_source": "pattern: plain figure, group = dex (no Slowbro/Slowking figure exists)",
+  "tree_position": "not in any authentic tree: add tree entry {\"79\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1623,
+  "rule_id": 1623,
+  "figure_no": 623,
+  "name": "Shiny Tapu Koko",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 623 (original text master has no ItemName for 1623); engine name table: 色違いのカプ・コケコ",
+  "types": [
+   "Electric",
+   "Fairy"
+  ],
+  "type_ids": [
+   1,
+   17
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1267,
+  "ability_name": "Electric Surge",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1267",
+  "ability_description": "This Ability is only valid on your turn. This Pokémon can MP Move past non-Fairy-type Pokémon on the field. When this Pokémon is on the field, your Electric-type Pokémon deal +30 damage (this effect is not cumulative). It removes the asleep condition from Pokémon within 2 steps of this Pokémon.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1338 (Tapu Koko); the engine also accepts rule id 1338 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "6.0.9",
+  "engine_name_ja": "色違いのカプ・コケコ",
+  "mp": 3,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 623,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1503,
+    "size": 28,
+    "value": 69,
+    "color": 1,
+    "name": "Wild Charge*",
+    "name_source": "original text master SkillMaster.SkillName.1503",
+    "piece_ext_priority": 0,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1122,
+    "size": 4,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1324,
+    "size": 32,
+    "value": 30,
+    "color": 3,
+    "name": "Quick Attack",
+    "name_source": "original text master SkillMaster.SkillName.1324",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1535,
+    "size": 20,
+    "value": 0,
+    "color": 4,
+    "name": "Melemele Wish",
+    "name_source": "original text master SkillMaster.SkillName.1535",
+    "piece_ext_priority": 1,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1338",
+  "identical_to": 1338,
+  "evo_group": 50785,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 785,
+  "form_max": 0,
+  "evo_source": "pattern: shiny = 50000+dex",
+  "tree_position": "not in any authentic tree: add tree entry {\"50785\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1628,
+  "rule_id": 1628,
+  "figure_no": 628,
+  "name": "Shiny Mimikyu",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 628 (original text master has no ItemName for 1628); engine name table: 色違いのミミッキュ",
+  "types": [
+   "Ghost",
+   "Fairy"
+  ],
+  "type_ids": [
+   15,
+   17
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1265,
+  "ability_name": "Disguise",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1265",
+  "ability_description": "When this Pokémon moves from the bench to the field, attach a Disguise marker to this Pokémon. While that marker is attached to it, this Pokémon is not knocked out in battle (instead of knocking it out, remove the marker and any special conditions affecting it). This Pokémon can MP move through other Pokémon on the field.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1363 (Mimikyu); the engine also accepts rule id 1363 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "6.1.2",
+  "engine_name_ja": "色違いのミミッキュ",
+  "mp": 2,
+  "rarity": 3,
+  "rarity_name": "R",
+  "served_rarity": 3,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 628,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1479,
+    "size": 20,
+    "value": 1,
+    "color": 2,
+    "name": "Curse",
+    "name_source": "original text master SkillMaster.SkillName.1479",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1188,
+    "size": 24,
+    "value": 30,
+    "color": 1,
+    "name": "Shadow Claw",
+    "name_source": "original text master SkillMaster.SkillName.1188",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1781,
+    "size": 40,
+    "value": 90,
+    "color": 1,
+    "name": "Play Rough*",
+    "name_source": "original text master SkillMaster.SkillName.1781",
+    "piece_ext_priority": 1,
+    "boost_priority": 1
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1363",
+  "identical_to": 1363,
+  "evo_group": 50778,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 778,
+  "form_max": 0,
+  "evo_source": "pattern: shiny = 50000+dex",
+  "tree_position": "not in any authentic tree: add tree entry {\"50778\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1629,
+  "rule_id": 1629,
+  "figure_no": 629,
+  "name": "Shiny Mewtwo",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 629 (original text master has no ItemName for 1629); engine name table: 色違いのミュウツー",
+  "types": [
+   "Psychic"
+  ],
+  "type_ids": [
+   3
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": null,
+  "ability_name": null,
+  "ability_name_source": null,
+  "ability_description": null,
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1050 (Mewtwo); the engine also accepts rule id 1050 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "7.0.0",
+  "engine_name_ja": "色違いのミュウツー",
+  "mp": 2,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 629,
+  "wheel": [
+   {
+    "skill_id": 1037,
+    "size": 32,
+    "value": 2,
+    "color": 2,
+    "name": "Psychic Shove",
+    "name_source": "original text master SkillMaster.SkillName.1037",
+    "piece_ext_priority": 1,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1545,
+    "size": 16,
+    "value": 0,
+    "color": 4,
+    "name": "Annihilate",
+    "name_source": "original text master SkillMaster.SkillName.1545",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1533,
+    "size": 40,
+    "value": 100,
+    "color": 1,
+    "name": "Psycho Cut",
+    "name_source": "original text master SkillMaster.SkillName.1533",
+    "piece_ext_priority": 0,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1050",
+  "identical_to": 1050,
+  "evo_group": 50150,
+  "from_groups": [],
+  "to_groups": [
+   500150,
+   510150
+  ],
+  "poke_no": 150,
+  "form_max": 0,
+  "evo_source": "pattern: shiny = 50000+dex; mega links by the Shiny Rayquaza precedent",
+  "tree_position": "not in any authentic tree: add tree entry {\"50150\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1630,
+  "rule_id": 1630,
+  "figure_no": 630,
+  "name": "Shiny Charizard",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 630 (original text master has no ItemName for 1630); engine name table: 色違いのリザードン",
+  "types": [
+   "Fire",
+   "Flying"
+  ],
+  "type_ids": [
+   7,
+   12
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": null,
+  "ability_name": null,
+  "ability_name_source": null,
+  "ability_description": null,
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1001 (Charizard); the engine also accepts rule id 1001 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "6.2.4",
+  "engine_name_ja": "色違いのリザードン",
+  "mp": 2,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 630,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1261,
+    "size": 56,
+    "value": 60,
+    "color": 1,
+    "name": "Fire Spin",
+    "name_source": "original text master SkillMaster.SkillName.1261",
+    "piece_ext_priority": 1,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1427,
+    "size": 28,
+    "value": 100,
+    "color": 1,
+    "name": "Dragon Tail*",
+    "name_source": "original text master SkillMaster.SkillName.1427",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1001",
+  "identical_to": 1001,
+  "evo_group": 50006,
+  "from_groups": [],
+  "to_groups": [
+   500006,
+   510006
+  ],
+  "poke_no": 6,
+  "form_max": 0,
+  "evo_source": "pattern: shiny = 50000+dex (no shiny Charmeleon exists, so no From)",
+  "tree_position": "not in any authentic tree: add tree entry {\"50006\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1633,
+  "rule_id": 1633,
+  "figure_no": 633,
+  "name": "Shiny Genesect",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 633 (original text master has no ItemName for 1633); engine name table: 色違いのゲノセクト",
+  "types": [
+   "Bug",
+   "Steel"
+  ],
+  "type_ids": [
+   13,
+   6
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1157,
+  "ability_name": "Hoverjet",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1157",
+  "ability_description": "May MP move over your Pokémon on the field. If any of your Drive plates have been used, then, when this Pokémon is knocked out, one of them becomes usable (other than a plate still in use on that turn).",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1129 (Genesect); the engine also accepts rule id 1129 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "6.0.9",
+  "engine_name_ja": "色違いのゲノセクト",
+  "mp": 3,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 633,
+  "wheel": [
+   {
+    "skill_id": 1122,
+    "size": 8,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1333,
+    "size": 40,
+    "value": 70,
+    "color": 1,
+    "name": "Techno Blast",
+    "name_source": "original text master SkillMaster.SkillName.1333",
+    "piece_ext_priority": 0,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 8,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1513,
+    "size": 28,
+    "value": 3,
+    "color": 2,
+    "name": "Techno Charge",
+    "name_source": "original text master SkillMaster.SkillName.1513",
+    "piece_ext_priority": 1,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1129",
+  "identical_to": 1129,
+  "evo_group": 50649,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 649,
+  "form_max": 0,
+  "evo_source": "pattern: shiny = 50000+dex",
+  "tree_position": "not in any authentic tree: add tree entry {\"50649\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1638,
+  "rule_id": 1638,
+  "figure_no": 638,
+  "name": "Shiny Mega Rayquaza",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 638 (original text master has no ItemName for 1638); engine name table: 色違いのメガレックウザ",
+  "types": [
+   "Dragon",
+   "Flying"
+  ],
+  "type_ids": [
+   16,
+   12
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1370,
+  "ability_name": "Ripped Sky Reign",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1370",
+  "ability_description": "This Pokémon can MP move over other Pokémon on the field. While this Pokémon is on the field, all the Blue Attacks of battle opponents of your Dragon-type Pokémon become Misses. Your Dragon-type and Flying-type Pokémon each deal +10 damage.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1499 (Mega Rayquaza); the engine also accepts rule id 1499 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "7.0.7",
+  "engine_name_ja": "色違いのメガレックウザ",
+  "mp": 2,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 5,
+  "ex_type": 0,
+  "rarity_model": 1,
+  "model_id": 638,
+  "wheel": [
+   {
+    "skill_id": 1057,
+    "size": 28,
+    "value": 3,
+    "color": 2,
+    "name": "Fly",
+    "name_source": "original text master SkillMaster.SkillName.1057",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1338,
+    "size": 44,
+    "value": 140,
+    "color": 3,
+    "name": "Extreme Speed",
+    "name_source": "original text master SkillMaster.SkillName.1338",
+    "piece_ext_priority": 1,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1662,
+    "size": 20,
+    "value": 100,
+    "color": 1,
+    "name": "Dragon Ascent",
+    "name_source": "original text master SkillMaster.SkillName.1662",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1499",
+  "identical_to": 1499,
+  "evo_group": 500384,
+  "from_groups": [
+   50384
+  ],
+  "to_groups": [],
+  "poke_no": 10638,
+  "form_max": 0,
+  "evo_source": "authentic group: Shiny Rayquaza(1395) ToEvoGroupIds [500384], tree node lists FigureNo 638; PokeNo synthetic",
+  "tree_position": [
+   {
+    "parent": 50384,
+    "depth": 1,
+    "form_change": 0,
+    "root": 50384
+   }
+  ]
+ },
+ {
+  "id": 1639,
+  "rule_id": 1639,
+  "figure_no": 639,
+  "name": "Shiny Mega Charizard X",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 639 (original text master has no ItemName for 1639); engine name table: 色違いのメガリザードンX",
+  "types": [
+   "Fire",
+   "Dragon"
+  ],
+  "type_ids": [
+   7,
+   16
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1240,
+  "ability_name": "Inferno Ladder",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1240",
+  "ability_description": "When this Pokémon appears as a Mega Evolution, remove the frozen condition from all of your Pokémon. Pokémon knocked out by the Attacks of this Pokémon are temporarily removed from the duel, returning to the bench 7 turns later. Your Fire-type Pokémon deal +10 damage and your Dragon-type Pokémon deal +10 damage.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1279 (Mega Charizard X); the engine also accepts rule id 1279 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "6.2.4",
+  "engine_name_ja": "色違いのメガリザードンX",
+  "mp": 3,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 5,
+  "ex_type": 0,
+  "rarity_model": 1,
+  "model_id": 639,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1522,
+    "size": 56,
+    "value": 60,
+    "color": 1,
+    "name": "Bright Flame*",
+    "name_source": "original text master SkillMaster.SkillName.1522",
+    "piece_ext_priority": 1,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1523,
+    "size": 32,
+    "value": 120,
+    "color": 1,
+    "name": "Backdraft*",
+    "name_source": "original text master SkillMaster.SkillName.1523",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1279",
+  "identical_to": 1279,
+  "evo_group": 500006,
+  "from_groups": [
+   50006
+  ],
+  "to_groups": [],
+  "poke_no": 11639,
+  "form_max": 0,
+  "evo_source": "SYNTHETIC group id (original value unknown; only the parent link matters): shiny mega of 10006",
+  "tree_position": "not in any authentic tree: add tree entry {\"500006\": [50006, 1, 0]}"
+ },
+ {
+  "id": 1640,
+  "rule_id": 1640,
+  "figure_no": 640,
+  "name": "Shiny Mega Charizard Y",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 640 (original text master has no ItemName for 1640); engine name table: 色違いのメガリザードンY",
+  "types": [
+   "Fire",
+   "Flying"
+  ],
+  "type_ids": [
+   7,
+   12
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1231,
+  "ability_name": "Blue Skies Captor",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1231",
+  "ability_description": "This Pokémon can use an MP move to fly over Pokémon on the field that don't have Soar. Move opposing Pokémon surrounded by this Pokémon to your P.C. Your Fire-type Pokémon deal +10 damage and your Flying-type Pokémon deal +10 damage.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1280 (Mega Charizard Y); the engine also accepts rule id 1280 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "6.2.4",
+  "engine_name_ja": "色違いのメガリザードンY",
+  "mp": 3,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 5,
+  "ex_type": 0,
+  "rarity_model": 1,
+  "model_id": 640,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1522,
+    "size": 56,
+    "value": 60,
+    "color": 1,
+    "name": "Bright Flame*",
+    "name_source": "original text master SkillMaster.SkillName.1522",
+    "piece_ext_priority": 1,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1524,
+    "size": 32,
+    "value": 3,
+    "color": 2,
+    "name": "Flash Over",
+    "name_source": "original text master SkillMaster.SkillName.1524",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1280",
+  "identical_to": 1280,
+  "evo_group": 510006,
+  "from_groups": [
+   50006
+  ],
+  "to_groups": [],
+  "poke_no": 11640,
+  "form_max": 0,
+  "evo_source": "SYNTHETIC group id (original value unknown): shiny mega of 20006",
+  "tree_position": "not in any authentic tree: add tree entry {\"510006\": [50006, 1, 0]}"
+ },
+ {
+  "id": 1641,
+  "rule_id": 1641,
+  "figure_no": 641,
+  "name": "Shiny Mega Mewtwo X",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 641 (original text master has no ItemName for 1641); engine name table: 色違いのメガミュウツーX",
+  "types": [
+   "Psychic",
+   "Fighting"
+  ],
+  "type_ids": [
+   3,
+   4
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1306,
+  "ability_name": "Ruinous Helix",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1306",
+  "ability_description": "This Pokémon is not knocked out in battle (if it would be, it moves to the bench instead). When this Pokémon battles, this Pokémon's number of Mega Evolution turns increases by 2. Your Psychic-type Pokémon deal +10 damage and your Fighting-type Pokémon deal +10 damage.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1408 (Mega Mewtwo X); the engine also accepts rule id 1408 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "7.0.0",
+  "engine_name_ja": "色違いのメガミュウツーX",
+  "mp": 2,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 5,
+  "ex_type": 0,
+  "rarity_model": 1,
+  "model_id": 641,
+  "wheel": [
+   {
+    "skill_id": 1037,
+    "size": 32,
+    "value": 2,
+    "color": 2,
+    "name": "Psychic Shove",
+    "name_source": "original text master SkillMaster.SkillName.1037",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1584,
+    "size": 20,
+    "value": 0,
+    "color": 4,
+    "name": "Laser Focus",
+    "name_source": "original text master SkillMaster.SkillName.1584",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1583,
+    "size": 36,
+    "value": 150,
+    "color": 1,
+    "name": "Psystrike",
+    "name_source": "original text master SkillMaster.SkillName.1583",
+    "piece_ext_priority": 1,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1408",
+  "identical_to": 1408,
+  "evo_group": 510150,
+  "from_groups": [
+   50150
+  ],
+  "to_groups": [],
+  "poke_no": 11641,
+  "form_max": 0,
+  "evo_source": "SYNTHETIC group id (original value unknown): shiny mega of 20150",
+  "tree_position": "not in any authentic tree: add tree entry {\"510150\": [50150, 1, 0]}"
+ },
+ {
+  "id": 1642,
+  "rule_id": 1642,
+  "figure_no": 642,
+  "name": "Shiny Mega Mewtwo Y",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 642 (original text master has no ItemName for 1642); engine name table: 色違いのメガミュウツーY",
+  "types": [
+   "Psychic"
+  ],
+  "type_ids": [
+   3
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1307,
+  "ability_name": "Transcendent Helix",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1307",
+  "ability_description": "This Pokémon cannot be moved by the Attacks of other Pokémon. When this Pokémon battles, this Pokémon's number of Mega Evolution turns increases by 2. Your Psychic-type Pokémon deal +20 damage.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1405 (Mega Mewtwo Y); the engine also accepts rule id 1405 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "7.0.0",
+  "engine_name_ja": "色違いのメガミュウツーY",
+  "mp": 3,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 5,
+  "ex_type": 0,
+  "rarity_model": 1,
+  "model_id": 642,
+  "wheel": [
+   {
+    "skill_id": 1002,
+    "size": 32,
+    "value": 50,
+    "color": 3,
+    "name": "Hyper Sonic*",
+    "name_source": "original text master SkillMaster.SkillName.1002",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1545,
+    "size": 20,
+    "value": 0,
+    "color": 4,
+    "name": "Annihilate",
+    "name_source": "original text master SkillMaster.SkillName.1545",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1583,
+    "size": 36,
+    "value": 130,
+    "color": 1,
+    "name": "Psystrike",
+    "name_source": "original text master SkillMaster.SkillName.1583",
+    "piece_ext_priority": 1,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1405",
+  "identical_to": 1405,
+  "evo_group": 500150,
+  "from_groups": [
+   50150
+  ],
+  "to_groups": [],
+  "poke_no": 11642,
+  "form_max": 0,
+  "evo_source": "SYNTHETIC group id (original value unknown): shiny mega of 10150",
+  "tree_position": "not in any authentic tree: add tree entry {\"500150\": [50150, 1, 0]}"
+ },
+ {
+  "id": 1643,
+  "rule_id": 1643,
+  "figure_no": 643,
+  "name": "Shiny Greninja",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 643 (original text master has no ItemName for 1643); engine name table: 色違いのゲッコウガ",
+  "types": [
+   "Water",
+   "Dark"
+  ],
+  "type_ids": [
+   8,
+   0
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": null,
+  "ability_name": null,
+  "ability_name_source": null,
+  "ability_description": null,
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "Identical pokepower/MP/wheel to authentic figure 1269 (Greninja); the engine also accepts rule id 1269 (alternative if the lost RulePokeId was an alias).",
+  "released": true,
+  "first_appear": "6.2.0",
+  "engine_name_ja": "色違いのゲッコウガ",
+  "mp": 3,
+  "rarity": 4,
+  "rarity_name": "EX",
+  "served_rarity": 4,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 643,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 28,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1366,
+    "size": 20,
+    "value": 70,
+    "color": 1,
+    "name": "Hydro Pump",
+    "name_source": "original text master SkillMaster.SkillName.1366",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1368,
+    "size": 40,
+    "value": 40,
+    "color": 3,
+    "name": "Water Shuriken*",
+    "name_source": "original text master SkillMaster.SkillName.1368",
+    "piece_ext_priority": 1,
+    "boost_priority": 1
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1269",
+  "identical_to": 1269,
+  "evo_group": 50658,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 658,
+  "form_max": 0,
+  "evo_source": "pattern: shiny = 50000+dex (no shiny Frogadier exists)",
+  "tree_position": "not in any authentic tree: add tree entry {\"50658\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1646,
+  "rule_id": 1646,
+  "figure_no": 646,
+  "name": "Bidoof",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 646 (original text master has no ItemName for 1646); engine name table: ビッパ",
+  "types": [
+   "Normal"
+  ],
+  "type_ids": [
+   5
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1074,
+  "ability_name": "Form Herd",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1074",
+  "ability_description": "The 3-Pokémon limit does not apply to this Pokémon.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.6",
+  "engine_name_ja": "ビッパ",
+  "mp": 3,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 4,
+  "ex_type": 1,
+  "rarity_model": 0,
+  "model_id": 646,
+  "wheel": [
+   {
+    "skill_id": 1005,
+    "size": 20,
+    "value": 2,
+    "color": 2,
+    "name": "Dig",
+    "name_source": "original text master SkillMaster.SkillName.1005",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1247,
+    "size": 40,
+    "value": 170,
+    "color": 1,
+    "name": "Hyper Fang",
+    "name_source": "original text master SkillMaster.SkillName.1247",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1324,
+    "size": 20,
+    "value": 90,
+    "color": 3,
+    "name": "Quick Attack",
+    "name_source": "original text master SkillMaster.SkillName.1324",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 12,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 200399,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 399,
+  "form_max": 0,
+  "evo_source": "pattern: UX re-release = 200000+dex (Eevee family, Darkrai); NOT in Bidoof's authentic node 399 (FigureNos [20] only), so it does not share Bidoof's tree; whether it could evolve into Bibarel is unknown",
+  "tree_position": "not in any authentic tree: add tree entry {\"200399\": [-1, 0, 0]}"
+ },
+ {
+  "id": 1647,
+  "rule_id": 1504,
+  "figure_no": 647,
+  "name": "Dawn Wings Necrozma",
+  "name_source": "by its authentic twin 1648 (ItemMaster.ItemNameFull.1648 = Dawn Wings Necrozma); engine name table: 1647 = ネクロズマM金 (gold), 1648 = ネクロズマM銀 (silver); original model goldnecrozmaakatsuki",
+  "types": [
+   "Psychic",
+   "Ghost"
+  ],
+  "type_ids": [
+   3,
+   15
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures",
+  "ability_id": 1399,
+  "ability_name": "Prism Armor: Dawn",
+  "ability_name_source": "original text master FigureMaster.PokepowerName.1399",
+  "ability_description": "Ultra Beast. When this Pokémon appears with its form changed, it may attach a Photon marker to an opposing Pokémon within X+1 steps, where X is the number of Pokémon in the Ultra Space. In this Pokémon's first battle after moving to the field, its battle opponent's Gold Attacks become White Attacks. This Pokémon can MP move through other Pokémon on the field. When this Pokémon is knocked out in battle, it may change its form to Necrozma without moving to the P.C. If it does and any of your Lunala are in the Ultra Space, move one of them to the bench.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "OPTIONAL. Gold recolour of Dawn Wings Necrozma. rule_id 1504 because its silver twin 1648 has authentic RulePokeId 1504 (the engine also accepts 1647). Listed in authentic tree node 110800 (FigureNos [504,647,648]). Whether it was ever handed out is unknown (not in the community guide).",
+  "released": null,
+  "first_appear": null,
+  "engine_name_ja": "ネクロズマM金",
+  "mp": 2,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 4,
+  "ex_type": 1,
+  "rarity_model": 0,
+  "model_id": 647,
+  "wheel": [
+   {
+    "skill_id": 1122,
+    "size": 4,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1677,
+    "size": 24,
+    "value": 2,
+    "color": 2,
+    "name": "Photon Geyser",
+    "name_source": "original text master SkillMaster.SkillName.1677",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1541,
+    "size": 24,
+    "value": 2,
+    "color": 2,
+    "name": "Moongeist Beam",
+    "name_source": "original text master SkillMaster.SkillName.1541",
+    "piece_ext_priority": 1,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1678,
+    "size": 36,
+    "value": 149,
+    "color": 1,
+    "name": "Prismatic Laser*",
+    "name_source": "original text master SkillMaster.SkillName.1678",
+    "piece_ext_priority": 0,
+    "boost_priority": 1
+   }
+  ],
+  "piece_ext_priority_source": "copied from identical authentic row 1504",
+  "identical_to": 1504,
+  "evo_group": 110800,
+  "from_groups": [
+   800,
+   100800,
+   130800
+  ],
+  "to_groups": [
+   800,
+   100800,
+   130800
+  ],
+  "poke_no": 111504,
+  "form_max": 3,
+  "evo_source": "authentic: tree node 110800 lists FigureNos [504,647,648]; all fields as its twin 1648",
+  "tree_position": [
+   {
+    "parent": 800,
+    "depth": 1,
+    "form_change": 2,
+    "root": 800
+   }
+  ]
+ }
+]

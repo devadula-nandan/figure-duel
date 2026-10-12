@@ -1,0 +1,225 @@
+{
+ "skills": {
+  "1099": {
+   "name": "Eerie Light",
+   "note": "The battle opponent becomes confused.",
+   "figures": [
+    1600,
+    1613
+   ],
+   "alternatives": []
+  },
+  "1147": {
+   "name": "Strength",
+   "note": "",
+   "figures": [
+    1214
+   ],
+   "alternatives": []
+  },
+  "1628": {
+   "name": "Sphere Trick",
+   "note": "If any Sphere plates have been used on the battle opponent, then this Pokémon also gains those effects until the end of the duel.",
+   "figures": [
+    1462
+   ],
+   "alternatives": []
+  },
+  "1661": {
+   "name": "Icicle Spear",
+   "note": "Spin again until Icicle Spear does not land - damage is multiplied by the number of Icicle Spear spins.",
+   "figures": [
+    1475,
+    1496
+   ],
+   "alternatives": []
+  },
+  "1687": {
+   "name": "Final Chant",
+   "note": "Attaches a Final Song marker to a Pokémon within 2 steps. The Pokémon with that marker are knocked out 5 turns later.",
+   "figures": [
+    1574
+   ],
+   "alternatives": []
+  },
+  "1689": {
+   "name": "Volt Tackle",
+   "note": "This Pokémon and its battle opponent become parlyzed.",
+   "figures": [
+    1557
+   ],
+   "alternatives": []
+  },
+  "1700": {
+   "name": "Backtrack",
+   "note": "This Pokémon may move to the bench. If it does, its battle opponent moves to the bench and returns to the figure it was at the start of the duel.",
+   "figures": [
+    1567
+   ],
+   "alternatives": []
+  },
+  "1726": {
+   "name": "Fairy Wind",
+   "note": "*If the battle opponent is a Dragon-type Pokémon, this Pokémon and the battle opponent take no damage, and the battle opponent moves to the bench. The battle opponent gains Wait.",
+   "figures": [
+    1534
+   ],
+   "alternatives": []
+  },
+  "1764": {
+   "name": "Yawn",
+   "note": "The battle opponent falls asleep.",
+   "figures": [
+    1608
+   ],
+   "alternatives": []
+  },
+  "1776": {
+   "name": "Moon Twinkle",
+   "note": "Deals +20 damage for each [CTRL QL Moonblast][Pokémon] that knows Moonblast on the field.",
+   "figures": [
+    1531
+   ],
+   "alternatives": []
+  },
+  "1777": {
+   "name": "Dark Moon",
+   "note": "Reduces the opponent's Z-Move gauge by two thirds of its max value.",
+   "figures": [
+    1531
+   ],
+   "alternatives": []
+  },
+  "1780": {
+   "name": "4-D Drive",
+   "note": "*Moves the battle opponent to its P.C. The battle opponent is not knocked out.",
+   "figures": [
+    1554,
+    1555
+   ],
+   "alternatives": []
+  }
+ },
+ "abilities": {
+  "1043": {
+   "name": "Time Travel",
+   "note": "If this Pokémon is not affected by a special condition, it can MP move over opposing non-Flying-type Pokémon on the field. You may use this Ability at the start of your turn. If you do, return the duel to the start of your previous turn, and exclude this Pokémon from the duel. Neither player's remaining time changes. Until the end of your opponent's next turn, neither player can use Time Travel.",
+   "figures": [
+    1567
+   ]
+  },
+  "1048": {
+   "name": "Oblivious",
+   "note": "This Pokémon cannot be paralyzed. This Pokémon is not affected by Taunt.",
+   "figures": [
+    1608
+   ]
+  },
+  "1346": {
+   "name": "Frost Tag",
+   "note": "If this Pokémon is on the field and not affected by a special condition, opposing Ice-type Pokémon next to your Ice-type Pokémon get MP-1. This effect does not stack.",
+   "figures": [
+    1473
+   ]
+  },
+  "1369": {
+   "name": "Snow Cloak",
+   "note": "If this Pokémon is attacked, it may move under the attacking Pokémon to a point next to it. (A battle does not occur.) This Pokémon can MP move past Ice-type Pokémon on the field.",
+   "figures": [
+    1475,
+    1496
+   ]
+  },
+  "1383": {
+   "name": "Billows of the Fell Dragon",
+   "note": "When this Pokémon moves from the bench to the field, or appears as an Evolution, it removes the burned condition from your Pokémon. While this Pokémon is on the field, your Pokémon cannot be burned. Your Water-type and Dark-type Pokémon each deal +10 damage.",
+   "figures": [
+    1413
+   ]
+  },
+  "1405": {
+   "name": "Psychic Arrow",
+   "note": "This Pokémon can MP move through your Pokémon and opposing Fighting-type and Poison-type Pokémon. If there are opposing Pokémon on all entry points, this Pokémon games +1 MP.",
+   "figures": [
+    1530
+   ]
+  },
+  "1406": {
+   "name": "Dark Arrow",
+   "note": "This Pokémon can MP move through your Pokémon and opposing Psychic-type [CTRL NOTE][Pokémon] and Ghost-type Pokémon. If there are opposing Pokémon on all of your entry points, this Pokémon gains +1 MP.",
+   "figures": [
+    1531
+   ]
+  },
+  "1415": {
+   "name": "Electrical Charge",
+   "note": "If this Pokémon is paralyzed, it gains +1 MP and deals +30 damage.",
+   "figures": [
+    1557
+   ]
+  },
+  "1424": {
+   "name": "Mystic Arrow",
+   "note": "This Pokémon can MP move through your Pokémon and opposing Dragon-type [CTRL NOTE][Pokémon] and Dark-type Pokémon. If there are opposing Pokémon on all your entry points, this Pokémon gains +1MP.",
+   "figures": [
+    1534
+   ]
+  },
+  "1432": {
+   "name": "Bonfire",
+   "note": "At the start of your turn, instead of an MP move, this Pokémon may move over an adjacent Pokémon to a point 1 step away from that Pokémon. If the Pokémon it moved over is an opposing Pokémon, that Pokémon becomes burned. Your turn ends.",
+   "figures": [
+    1573
+   ]
+  },
+  "1443": {
+   "name": "Parallel Arithmetic",
+   "note": "When this Pokémon is on the field, your Pokémon deal +1 damage for each Pokémon on the field. While this Pokémon is on the bench, it gains +1 MP.",
+   "figures": [
+    1397
+   ]
+  },
+  "1445": {
+   "name": "Frost Arrow",
+   "note": "This Pokémon can MP move through your Pokémon and opposing Ground-type and Flying-type Pokémon. If there are opposing Pokémon on all of your entry points, this Pokémon gains +1MP.",
+   "figures": [
+    1533
+   ]
+  },
+  "1451": {
+   "name": "Soar: Aerodactyl",
+   "note": "[CTRL QL Restored Pokémon][Restored Pokémon]. This Pokémon may MP move over Pokémon on the field that don't have [CTRL QL Soar][Soar].",
+   "figures": [
+    1596
+   ]
+  },
+  "1477": {
+   "name": "Mummy",
+   "note": "Your Pokémon on the field can MP move through this Pokémon. If this Pokémon is not affected by a special condition, attach a Mummy marker to non-Ghost, non-Dark-type Pokémon that battle it. The Ability of the Pokémon with that marker becomes Mummy (the effects of its original Ability are nullified).",
+   "figures": [
+    1600
+   ]
+  },
+  "1482": {
+   "name": "Time Slide",
+   "note": "This Pokémon cannot have Wait while it is on the field. If this Pokémon is knocked out by damage in battle, the next turn will always be yours.",
+   "figures": [
+    1554
+   ]
+  },
+  "1483": {
+   "name": "Space Slide",
+   "note": "When this Pokémon is knocked out by damage in battle, it recovers from any special conditions, and it moves to one of your entrypoints if possible. If it does, this Pokémon gains Wait.",
+   "figures": [
+    1555
+   ]
+  },
+  "1485": {
+   "name": "Memories of the Past",
+   "note": "This Pokémon may MP move through other Pokémon on the field. Your Pokémon next to this Pokémon cannot be affected by any new special conditions.",
+   "figures": [
+    1613
+   ]
+  }
+ }
+}

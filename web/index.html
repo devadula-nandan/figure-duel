@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<title>Figure Duel</title>
+<style>
+  :root { --bg:#0a0a0a; --bar:#111; --panel:#161616; --ctl:#1f1f1f; --ctl2:#2b2b2b; --line:#333; --ink:#f2f2f2; --dim:#9a9a9a; --accent:#f2f2f2; --err:#ff8a94; --p0:#2f8cff; --p0d:#0f3fa8; --p1:#ff4658; --p1d:#a3122a; --ok:#39d98a; --gold:#ffd23f; }
+  :root[data-theme=light] { --bg:#f1f1f1; --bar:#fff; --panel:#fff; --ctl:#f3f3f3; --ctl2:#e4e4e4; --line:#cfcfcf; --ink:#111; --dim:#666; --accent:#111; --err:#c62828; }
+  * { box-sizing:border-box; } [hidden] { display:none !important; }
+  body { height:100dvh; display:flex; flex-direction:column; margin:0; color:var(--ink); font:14px/1.45 "Segoe UI",system-ui,Roboto,sans-serif;
+    background:var(--bg); }
+  .top { display:flex; align-items:center; background:var(--bar); border-bottom:1px solid var(--line); } .top button { margin:3px 8px; padding:3px 12px; } .top .ticker { flex:1; min-width:0; border-bottom:0; }
+  header { display:flex; align-items:center; gap:14px; padding:10px 20px; background:linear-gradient(90deg,var(--p0d),#141a36 42%,#141a36 58%,var(--p1d)); border-bottom:2px solid #000; }
+  header h1 { font:900 20px/1 "Segoe UI",system-ui,sans-serif; font-style:italic; margin:0; letter-spacing:.08em; text-shadow:0 2px 0 rgba(0,0,0,.45); } header .sp { flex:1; } header .note { color:#c9d4ff; }
+  .ticker { overflow:hidden; white-space:nowrap; background:var(--bar); color:var(--accent); font-size:12px; padding:5px 0; border-bottom:1px solid var(--line); }
+  .ticker span { display:inline-block; padding-left:100%; animation:tick 70s linear infinite; } .ticker:hover span { animation-play-state:paused; }
+  @keyframes tick { to { transform:translateX(-100%); } }
+  @media (prefers-reduced-motion:reduce) { .ticker { white-space:normal; padding:6px 16px; } .ticker span { animation:none; padding-left:0; } }
+  button, select, input { font:inherit; color:var(--ink); background:var(--ctl); border:1px solid var(--line); border-radius:10px; padding:7px 14px; }
+  select option { background:var(--ctl); }
+  button { cursor:pointer; text-align:left; font-weight:600; transition:background .12s,border-color .12s,transform .05s; } button:hover:not(:disabled) { background:var(--ctl2); border-color:var(--dim); } button:active:not(:disabled) { transform:translateY(1px); } button:disabled { opacity:.4; cursor:default; }
+  button.primary { background:var(--ink); border-color:var(--ink); color:var(--bg); } button.primary:hover:not(:disabled) { background:var(--ink); border-color:var(--ink); opacity:.85; }
+  header button { background:rgba(0,0,0,.35); border-color:rgba(255,255,255,.35); }
+  main { display:grid; gap:18px; padding:18px; max-width:1260px; width:100%; margin:0 auto; flex:1; min-height:0; overflow:auto; align-content:start; }
+  #game { grid-template-columns:minmax(320px, calc((100dvh - 215px) * .6)) minmax(280px,420px); grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:10px 18px; padding:10px 18px; overflow:hidden; }
+  #sideBtn, #sideHome { display:none; }
+  @media (max-width:860px) { #game, #setup, #home { grid-template-columns:1fr !important; }
+    #sideBtn { display:block; position:fixed; right:0; top:50%; z-index:4; padding:14px 6px; border-radius:10px 0 0 10px; writing-mode:vertical-rl; }
+    .side { position:fixed; top:0; right:0; bottom:0; z-index:3; width:min(88vw,380px); padding:12px; background:var(--bar); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .2s; }
+    body:has(#game:not([hidden])) .top { display:none; } #sideHome { display:block; width:100%; margin-bottom:12px; text-align:center; }
+    #game { padding:0; } .arena { border:0; border-radius:0; outline:0; }
+    .side.open { transform:none; box-shadow:-20px 0 60px rgba(0,0,0,.7); } }
+  .arena { display:flex; flex-direction:column; gap:8px; min-height:0; } .side { min-height:0; overflow:auto; }
+  .panel { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,.18); }
+  .panel h2 { font:800 12px/1 "Segoe UI",system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:var(--accent); margin:0 0 10px; }
+  /* HUD and table are one card */
+  .arena { gap:0 !important; border:2px solid #000; border-radius:18px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.5); outline:1px solid var(--line); }
+  .arena .hud, .arena .table { border:0 !important; border-radius:0 !important; box-shadow:none !important; }
+  /* HUD: you in blue on the left, the opponent in red on the right */
+  .hud { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:14px; overflow:hidden; border:2px solid #000; box-shadow:0 6px 18px rgba(0,0,0,.45); background:var(--bar); }
+  .hud .pl { display:flex; flex-wrap:wrap; align-items:center; gap:3px 8px; min-width:0; padding:8px 12px; position:relative; opacity:.62; transition:opacity .15s; }
+  .hud #hudBottom { background:linear-gradient(180deg,#4aa0ff,var(--p0d)); clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%); margin-right:-7px; }
+  .hud #hudTop { background:linear-gradient(180deg,#ff6b7a,var(--p1d)); clip-path:polygon(14px 0,100% 0,100% 100%,0 100%); margin-left:-7px; justify-content:flex-end; }
+  .hud .pl.turn { opacity:1; box-shadow:inset 0 -4px 0 var(--gold); }
+  .hud .who { flex:1 1 100%; min-width:0; font:900 15px/1.1 "Segoe UI",system-ui,sans-serif; font-style:italic; letter-spacing:.04em; text-shadow:0 2px 0 rgba(0,0,0,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .hud .pl.right .who { text-align:right; order:-1; } .hud .dot { display:none; }
+  .hud .z { font-size:11px; font-weight:700; color:#fff; background:rgba(0,0,0,.35); border-radius:999px; padding:1px 8px; white-space:nowrap; }
+  .clock { padding:1px 10px; border-radius:999px; background:rgba(0,0,0,.45); border:2px solid rgba(255,255,255,.35); font-variant-numeric:tabular-nums; font-weight:800; color:#fff; } .clock.on { border-color:var(--gold); color:var(--gold); }
+  .banner { grid-column:1 / -1; grid-row:2; text-align:center; color:var(--dim); font-size:12px; font-weight:600; padding:5px 8px; background:var(--bar); } .banner b { color:var(--ink); }
+  /* the table: red end at the top, blue end at the bottom */
+  .table { flex:1; min-height:0; display:flex; padding:0; border-radius:18px; border:2px solid #000; box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px rgba(255,255,255,.08);
+    background:radial-gradient(ellipse at 50% 0%, rgba(255,70,88,.55), rgba(255,70,88,0) 55%), radial-gradient(ellipse at 50% 100%, rgba(47,140,255,.6), rgba(47,140,255,0) 55%), linear-gradient(180deg,#3a0d1c 0%,#161233 50%,#0b1f5a 100%); }
+  #board3d { flex:1; min-width:0; min-height:0; } #board3d canvas { display:block; }
+  .top a { color:var(--ink); font-weight:600; text-decoration:none; padding:3px 12px; border:1px solid var(--line); border-radius:10px; background:var(--ctl); }
+  svg#board { width:100%; height:100%; display:block; user-select:none; }
+  .edge { stroke:#dfe6ff; stroke-width:4; stroke-linecap:round; opacity:.55; }
+  .pt { fill:#0c1230; stroke:#dfe6ff; stroke-width:2; } .pt.goal0 { stroke:var(--p0); stroke-width:5; fill:#0f2a6b; } .pt.goal1 { stroke:var(--p1); stroke-width:5; fill:#5a1020; }
+  .pt.entry { stroke-dasharray:4 3; } .pt.mv { fill:var(--gold); stroke:#fff; cursor:pointer; }
+  .slot { fill:rgba(0,0,0,.28); stroke:rgba(223,230,255,.4); stroke-dasharray:3 4; } .lbl { fill:#dfe6ff; font-size:10px; font-weight:700; letter-spacing:.14em; opacity:.8; }
+  .tok { cursor:pointer; } .tok:has(image) .nm { display:none; } .tok:has(image) .bg { fill:transparent; } .tok:has(image) .ring { stroke-width:3; } .pics { display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .row img { width:32px; height:32px; margin:-6px 0; } .tok text { pointer-events:none; text-anchor:middle; font-weight:800; }
+  .tok .ring { fill:none; stroke-width:5; } .tok.sel .ring { stroke:#fff; } .tok.atk .halo { stroke:var(--gold); }
+  .tok .halo { fill:none; stroke:transparent; stroke-width:3; stroke-dasharray:5 4; } .tok.dim { opacity:.55; }
+  .bar { display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
+  .chip { display:inline-block; padding:0 8px; border-radius:999px; font-size:11px; font-weight:700; background:var(--ctl2); color:var(--ink); margin-right:4px; } .chip.w { background:var(--ink); color:var(--bg); }
+  .atkrow { display:grid; grid-template-columns:14px 1fr auto; gap:6px; padding:5px 0; border-top:1px solid var(--line); align-items:start; }
+  .sw { width:12px; height:12px; border-radius:50%; margin-top:4px; border:1px solid rgba(255,255,255,.4); } .desc { color:var(--dim); font-size:12px; grid-column:2 / 4; }
+  #log { height:200px; overflow:auto; font-size:12px; color:var(--dim); } #log b, .ink { color:var(--ink); font-weight:700; }
+  #list, #plist { height:300px; overflow:auto; } .row { display:flex; gap:8px; padding:6px 8px; border-radius:8px; cursor:pointer; align-items:center; }
+  .row:hover { background:var(--ctl2); } .row .n { flex:1; } .team .row { background:var(--ctl); margin-bottom:4px; border:1px solid var(--line); }
+  .chip.rar1 { background:#8a8f98; color:#fff; } .chip.rar2 { background:#2e9e5b; color:#fff; } .chip.rar3 { background:#2f7fe0; color:#fff; } .chip.rar4 { background:#d9a514; color:#111; } .chip.rar5 { background:#c0392b; color:#fff; }   /* rarity: C, UC, R, EX, UX */
+  /* deck builder: figures, plates and the team as cards */
+  #setup { grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr); }
+  .cards { display:grid; grid-template-columns:repeat(auto-fill,minmax(116px,1fr)); gap:10px; overflow:auto; padding:2px; align-content:start; }
+  #list.cards { height:min(58dvh,560px); } #plist.cards { height:250px; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); }
+  .card { position:relative; display:flex; flex-direction:column; align-items:center; justify-content:flex-start; gap:4px; padding:26px 8px 10px; margin:0 !important; border:1px solid var(--line); border-radius:12px; background:var(--ctl); cursor:pointer; text-align:center; transition:transform .1s,background .12s,border-color .12s; }
+  .card:hover { background:var(--ctl2); border-color:var(--dim); transform:translateY(-2px); }
+  .card img { width:84px; height:84px; margin:0; } .card .nopic { height:84px; display:grid; place-items:center; color:var(--dim); font-size:12px; }
+  .card .chip { position:absolute; top:6px; left:6px; margin:0; } .card .chip.r { left:auto; right:6px; min-width:18px; padding:0 6px; text-align:center; background:var(--ink); color:var(--bg); }
+  .card .nm { font-weight:700; font-size:13px; line-height:1.2; } .card .note { line-height:1.25; }
+  .card.plate { align-items:flex-start; text-align:left; padding:30px 10px 10px; } .card.plate .note { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  #team.cards { grid-template-columns:repeat(3,minmax(0,1fr)); overflow:visible; margin-bottom:10px; } #team .card { min-height:124px; justify-content:center; padding:26px 6px 8px; }
+  #team .card img { width:64px; height:64px; } #team .pics { justify-content:center; gap:2px; } .dots { display:flex; gap:6px; justify-content:center; } .dot { position:relative; width:10px; height:10px; border-radius:50%; background:var(--dim); } .dot.form { background:none; border:2px solid var(--dim); } .dot:hover { background:var(--ink); }
+  #team .dot img { display:none; position:absolute; bottom:16px; left:50%; transform:translateX(-50%); width:72px; height:72px; padding:4px; background:var(--panel); border:1px solid var(--dim); border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,.4); z-index:3; } #team .dot:hover img { display:block; }
+  #team .card.empty { border-style:dashed; background:none; cursor:default; color:var(--dim); font-size:22px; } #team .card.empty:hover { transform:none; border-color:var(--line); }
+  .card .x { position:absolute; top:4px; right:6px; width:20px; height:20px; line-height:18px; border-radius:50%; color:var(--dim); font-size:15px; } .card .x:hover { background:var(--line); color:var(--ink); }
+  @media (max-width:860px) { #list.cards { height:46dvh; } .cards { grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); } .card img { width:68px; height:68px; } }
+  #tlist { max-height:230px; overflow:auto; } #tlist .row { border:1px solid var(--line); margin-bottom:4px; background:var(--ctl); } #tlist .row img { width:30px; height:30px; margin:-4px -3px; }
+  #tlist .row .x { position:static; flex:none; text-align:center; cursor:pointer; width:22px; height:22px; line-height:20px; border-radius:50%; color:var(--dim); } #tlist .row .x:hover { background:var(--line); color:var(--ink); }
+  #acts { display:grid; gap:6px; max-height:34dvh; overflow:auto; } #acts button { width:100%; padding:10px 14px; }
+  #acts:empty:before { content:"Nothing to choose right now."; color:var(--dim); font-size:12px; }
+  #modal { position:fixed; inset:0; background:rgba(3,5,12,.8); display:grid; place-items:center; padding:16px; z-index:5; }
+  #modal .box { background:var(--panel); border:2px solid #000; outline:1px solid var(--line); border-radius:16px; padding:20px; width:min(700px,100%); max-height:92vh; overflow:auto; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  .vs { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:16px; text-align:center; } .wheelwrap { position:relative; width:170px; margin:8px auto; }
+  .wheelwrap:before { content:""; position:absolute; left:50%; top:-6px; margin-left:-8px; border:8px solid transparent; border-top:14px solid var(--ink); z-index:1; }
+  .spin { transition:transform 1.5s cubic-bezier(.15,.8,.25,1); } .res { min-height:40px; font-weight:700; }
+  .note { color:var(--dim); font-size:12px; } .err { color:var(--err); }
+</style>
+</head>
+<body>
+<div class="top"><div class="ticker" id="ticker"><span></span></div><button id="themeBtn"></button><a id="viewLink"></a><button id="newBtn">Home</button></div>
+
+<main id="home" style="grid-template-columns:1fr 1fr"></main>
+
+<main id="setup" hidden>
+  <section>
+    <div class="panel"><h2>Figures</h2>
+      <div class="bar"><input id="q" placeholder="search name or type" style="flex:1"><select id="rar"><option value="">any rarity</option><option value="5">UX</option><option value="4">EX</option><option value="3">R</option><option value="2">UC</option><option value="1">C</option></select></div>
+      <div id="list" class="cards"></div></div>
+    <div class="panel"><h2>Plates</h2><input id="pq" placeholder="search plates" style="width:100%;margin-bottom:8px"><div id="plist" class="cards"></div></div>
+  </section>
+  <section>
+    <div class="panel"><h2>Your team (6 figures)</h2><div id="team" class="team cards"></div>
+      <div class="bar"><button id="rnd">Random team</button><button id="clr">Clear</button><label class="note"><input type="checkbox" id="evo" checked> attach evolutions automatically</label></div>
+      <p class="note">Click a team card to edit it: evolution / Mega attachments, level (wheel size) and damage boosts. Hover a picture for its name.</p>
+      <h2>Your plates <span id="pcost" class="note"></span></h2><div id="myplates" class="team"></div></div>
+    <div class="panel"><h2>Saved teams</h2>
+      <div class="bar"><input id="tname" placeholder="name for this team" style="flex:1;min-width:0" maxlength="40"><button id="tsave">Save</button></div>
+      <div id="tlist"></div><div id="tmsg" class="note"></div></div>
+    <div class="panel" id="oppPanel"><h2>Opponent</h2>
+      <div class="bar"><select id="mode"><option value="1:60">Original AI · 60 trials (≈4 s per move)</option><option value="1:300">Original AI · 300 trials (≈20 s per move)</option><option value="1:1500">Original AI · 1500 trials (≈90 s per move)</option><option value="default">Original AI · original default settings (very slow)</option><option value="2:1">Random mover</option><option value="hot">2 players, same screen</option><option value="host">Online · host a room</option><option value="join">Online · join a room</option></select>
+        <input id="room" placeholder="room code" size="8" hidden>
+        <label class="note"><input type="checkbox" id="oplates" checked> opponent gets random plates</label></div>
+      </div><div class="panel"><button id="go" class="primary">Start duel</button> <span id="setupErr" class="err"></span>
+      <p class="note">Every legal move, spin, attack effect, ability, plate and AI decision is computed by the original engine (libTFG.so from your APK), not by a re-implementation.</p></div>
+  </section>
+</main>
+
+<main id="game" hidden>
+  <section class="arena">
+  <div class="hud">
+      <div class="pl" id="hudBottom"><span class="dot" id="d0"></span><span class="who" id="n0"></span><span class="z" id="z0"></span><span class="clock" id="c0"></span></div>
+      <div id="status" class="banner"></div>
+      <div class="pl right" id="hudTop"><span class="clock" id="c1"></span><span class="z" id="z1"></span><span class="who" id="n1"></span><span class="dot" id="d1"></span></div>
+    </div>
+    <div class="table"><svg id="board" viewBox="0 0 420 700" preserveAspectRatio="xMidYMid meet"></svg><div id="board3d" hidden></div></div>
+  </section>
+  <button id="sideBtn" onclick="document.querySelector('.side').classList.toggle('open')">Menu</button>
+  <section class="side">
+    <button id="sideHome" onclick="this.parentNode.classList.remove('open');document.getElementById('newBtn').click()">Home</button>
+    <div class="panel"><h2>Actions</h2><div id="acts"></div></div>
+    <div class="panel" id="card"><span class="note">Select a figure.</span></div>
+    <div class="panel"><h2>Log</h2><div id="log"></div></div>
+  </section>
+</main>
+<div id="modal" hidden><div class="box" id="box"></div></div>
+
+<script src="data.js"></script>
+<script src="board.js"></script>
+<script>
+'use strict';
+const D = DUEL_DATA, $ = id => document.getElementById(id), esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const TYPE_COL = ['#5a5366', '#f4d23c', '#5fbd58', '#f85888', '#c03028', '#a8a878', '#b8b8d0', '#f08030', '#6890f0', '#98d8d8', '#a040a0', '#e0c068', '#a890f0', '#a8b820', '#b8a038', '#705898', '#7038f8', '#ee99ac'];
+const SEG_COL = ['#c8322b', '#eef1f4', '#9050c8', '#f2c230', '#3d8fe8'], RAR = { 1: 'C', 2: 'UC', 3: 'R', 4: 'EX', 5: 'UX' }, P_COL = { black: 'var(--p0)', white: 'var(--p1)' };
+// figure pictures are linked from the PokeAPI sprite set (not copied here); forms without a national dex number borrow the base figure's picture
+const dexByName = new Map(D.figures.filter(f => f.dex <= 1025).map(f => [f.n, f.dex]));
+const PIC_SET = 'other/official-artwork/';
+const sprite = f => { const d = f.dex <= 1025 ? f.dex : dexByName.get(f.n.replace(/^(Alolan|Shiny|Mega) /, '').replace(/ [XY]$/, '')); return d ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${PIC_SET}${d}.png` : ''; };
+const byId = new Map(D.figures.map(f => [f.id, f])), byRule = new Map(), byGroup = new Map(), plateById = new Map(D.plates.map(p => [p.id, p]));
+for (const f of D.figures) { if (!byRule.has(f.rule)) byRule.set(f.rule, f); (byGroup.get(f.g) || byGroup.set(f.g, []).get(f.g)).push(f); }
+const typeNames = f => f.t.map(t => D.types[t]).join(' / ');
+const sleep = ms => new Promise(r => setTimeout(r, ms)), pickRandom = a => a[Math.floor(Math.random() * a.length)];
+const PLATE_MAX = 6, COST_MAX = 8; // original deck limits (Monaco.DeckCost.UpperLimit = 8)
+
+// ---------- deck building: the original deck screen's rules (DeckItemEvo / GameData / ItemListManager / Player record builder) ----------
+// 6 figures. Each has up to 3 attachments placed by evolution-tree depth (a Mega is one more level of the same tree; stages may be skipped)
+// and, when its FormMax > 0, that many form figures. At most 3 figures of one species per deck (unless the figure is exempt).
+// Level L gives L-1 wheel points (levels 6-10 are the Pokenium levels), each +1 size taken from the piece with the lowest negative priority;
+// up to 10 boosts of +1 damage on White / Gold attacks. 6 plates, total cost 8.
+const T = D.tree, depthOf = g => T[g] ? T[g][1] : 0, EVO_SLOTS = 3, LEVEL_MAX = 10, BOOST_MAX = 10, SAME_SPECIES_MAX = 3;
+const isUnder = (g, anc) => { for (let x = g; T[x]; x = T[x][0]) if (x === anc) return true; return false; };
+const rootOf = g => { let x = g; while (T[x] && T[x][0] !== -1 && T[T[x][0]]) x = T[x][0]; return x; };
+const isMega = f => f.g >= 10000 && T[f.g] && !T[f.g][2];
+const mutualForm = f => f.fr.length > 0 && f.fr.length === f.to.length && f.fr.every(g => f.to.includes(g));   // GetMutualRelationshipForm
+const FORM_GROUPS = new Set(D.figures.filter(f => f.fmx > 0).map(f => f.g));
+// ItemListManager.RemoveFormChangeItems: a form of another figure is not offered as a figure of its own
+const BASES = D.figures.filter(f => !(f.fr.length && f.rm !== 0 && !mutualForm(f) && FORM_GROUPS.has(f.fr[0])));
+let team = [], myPlates = [];
+function candidates(slot, k) { // evolution slot k: tree depth = base depth + k, on the same branch as the other stages
+  const base = byId.get(slot.st[0]);
+  if (!T[base.g]) return [];
+  return D.figures.filter(f => T[f.g] && !T[f.g][2] && depthOf(f.g) === depthOf(base.g) + k && slot.st.every((id, j) => {
+    if (id == null || j === k) return true;
+    const o = byId.get(id); return j < k ? isUnder(f.g, o.g) : isUnder(o.g, f.g);
+  }));
+}
+function formCandidates(slot) { // GameData.SetEvoGroupIdsFilter (what may be attached at all) + FindIndex4Form (which of those are forms)
+  const base = byId.get(slot.st[0]);
+  if (!base.fmx || !T[base.g]) return [];
+  const root = rootOf(base.g), mutualRoot = base.g !== root && mutualForm(base);
+  return D.figures.filter(f => f.g !== base.g && T[f.g] && rootOf(f.g) === root && (T[f.g][2] > 0 || (f.g === root && mutualRoot)));
+}
+const blankMod = f => ({ lv: 1, ext: f.w.map(() => 0), boost: f.w.map(() => 0), inc: f.w.map(() => 0), dec: f.w.map(() => 0) });
+const EXP_LEVEL_MAX = 5, PIECE_MIN = 4;   // ConstFigureLevelMax, Monaco.SkillRange.ConstPieceMinimum
+const slotIds = slot => slot.st.concat(slot.forms).filter(id => id != null);
+const speciesCount = (dex, skipSlot) => team.reduce((n, sl) => n + (sl === skipSlot ? 0 : slotIds(sl).filter(id => byId.get(id).dex === dex).length), 0);
+const overLimit = (f, slot, extra) => !f.n3 && speciesCount(f.dex, slot) + (slot ? slotIds(slot).filter(id => byId.get(id).dex === f.dex).length : 0) + (extra || 0) >= SAME_SPECIES_MAX; // GameData.CheckEditFigureUseLimit
+function newSlot(id, auto) {
+  const base = byId.get(id), slot = { st: [id, null, null, null], mod: [blankMod(base), null, null, null], forms: Array(base.fmx).fill(null), fmod: Array(base.fmx).fill(null) };
+  const tag = (base.n.match(/^(Shiny|Alolan) /) || [''])[0];
+  if (auto) for (let k = 1; k <= EVO_SLOTS; k++) {
+    const c = candidates(slot, k).filter(f => !isMega(f));
+    const f = c.find(o => tag && o.n.startsWith(tag)) || c.sort((a, b) => b.r - a.r || a.id - b.id)[0];
+    if (f) { slot.st[k] = f.id; slot.mod[k] = blankMod(f); }
+  }
+  return slot;
+}
+// UserFigureExtension.CalcSkillRanges: every extension point is taken from the pieces with negative priority, lowest first
+function wheelRows(f, m) {
+  const rows = f.w.map(([id, range, val, prio], i) => ({ id, prio, i, range: range + m.ext[i], val: val + m.boost[i] }));
+  const carmonite = () => { rows.forEach(r => { r.range += (m.inc ? m.inc[r.i] : 0) - (m.dec ? m.dec[r.i] : 0); }); return rows.some(r => r.range < 0) ? null : rows; };
+  let need = m.ext.reduce((a, b) => a + b, 0);
+  for (const r of rows.filter(r => r.prio < 0).sort((a, b) => a.prio - b.prio || a.i - b.i)) { const d = Math.min(r.range, need); r.range -= d; need -= d; }
+  return need > 0 ? null : carmonite();
+}
+const colourOf = id => (D.skills[id] || [0, 0, 0])[2], sum = a => a.reduce((x, y) => x + y, 0);
+function drawList() {
+  const q = $('q').value.toLowerCase(), r = $('rar').value;
+  $('list').innerHTML = BASES.filter(f => (!ownedMode || profile.items[f.id] > 0) && (!r || f.r == r) && (f.n + ' ' + typeNames(f)).toLowerCase().includes(q)).slice(0, 300)
+    .map(f => `<div class="row card" data-id="${f.id}"><span class="chip rar${f.r}">${RAR[f.r] || '?'}</span><span class="chip r" title="MP ${f.mp}">${f.mp}</span>${sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="" onerror="this.outerHTML='<div class=nopic>no picture</div>'">` : '<div class="nopic">no picture</div>'}<span class="nm">${esc(f.n)}</span><span class="note">${typeNames(f)}</span></div>`).join('');
+  const pq = $('pq').value.toLowerCase();
+  $('plist').innerHTML = D.plates.filter(p => (!ownedMode || (profile.plates || {})[p.id] > 0) && (p.n + ' ' + p.d).toLowerCase().includes(pq))
+    .map(p => `<div class="row card plate" data-id="${p.id}" title="${esc(p.d)}"><span class="chip">cost ${p.c}</span><span class="nm">${esc(p.n)}</span><span class="note">${esc(p.d)}</span></div>`).join('');
+}
+const figText = (id, m) => esc(byId.get(id).n) + (m.lv > 1 || sum(m.boost) ? ` <span class="note">Lv${m.lv}${sum(m.boost) ? ' +' + sum(m.boost) : ''}</span>` : '');
+const pic = (id, mod) => { const f = byId.get(id), tip = esc(figText(id, mod).replace(/<[^>]+>/g, '')); return sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="${esc(f.n)}" title="${tip}" onerror="this.replaceWith(this.alt)">` : `<span title="${tip}">${esc(f.n)}</span>`; };
+const dot = (id, mod, form) => { const f = byId.get(id), tip = esc(figText(id, mod).replace(/<[^>]+>/g, '')); return `<span class="dot${form ? ' form' : ''}" title="${tip}">${sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="${esc(f.n)}">` : ''}</span>`; };
+function teamPics(slot) {   // the figure that starts the duel is the card's picture; its evolutions (and form changes) are dots under it that show their picture on hover
+  const st = slot.st.map((id, k) => [id, slot.mod[k]]).filter(x => x[0] != null), first = st.shift();
+  const dots = st.map(x => dot(x[0], x[1])).join('') + slot.forms.map((id, k) => id == null ? '' : dot(id, slot.fmod[k], true)).join('');
+  return `<span class="pics">${pic(first[0], first[1])}</span>${dots ? `<span class="dots">${dots}</span>` : ''}`;
+}
+const slotText = slot => slot.st.map((id, k) => id == null ? null : figText(id, slot.mod[k])).filter(Boolean).join(' → ') + slot.forms.map((id, k) => id == null ? '' : ' ⇄ ' + figText(id, slot.fmod[k])).join('');
+// ---------- saved teams ----------
+// Six figures (with their attachments, levels and boosts) and the plates, kept on this device under a name. The list starts with a few themed teams.
+const TEAMS_KEY = 'figureduel.teams.v1';
+const STARTER_TEAMS = [
+  ['Dragons', ['Rayquaza', 'Latias', 'Latios', 'Dialga', 'Palkia', 'Reshiram'], ['Draco Power', 'Dragon Fang', 'Hurdle Jump', 'Goal Block', 'Double Chance']],
+  ['Ghosts', ['Mimikyu', 'Gengar', 'Sableye', 'Chandelure', 'Lunala', 'Marshadow'], ['Spooky Power', 'Phantom Energy', 'Goal Block', 'Max Revive', 'Scoop Up']],
+  ['Electric rush', ['Tapu Koko', 'Zapdos', 'Raikou', 'Pikachu', 'Zekrom', 'Magearna'], ['Zap Power', 'Electro Energy', 'Hurdle Jump', 'X Attack', 'Double Chance', 'Swap Spot']],
+  ['Water control', ['Manaphy', 'Kyogre', 'Suicune', 'Greninja', 'Vaporeon', 'Empoleon'], ['Splash Power', 'Mystic Water', 'Goal Block', 'Max Revive', 'Full Heal']],
+  ['Ultra Beasts', ['Buzzwole', 'Pheromosa', 'Kartana', 'Nihilego', 'Necrozma', 'Solgaleo'], ['Cosmo Energy', 'Hurdle Jump', 'Goal Block', 'Max Revive', 'X Attack']],
+  ['Legendary wall', ['Lugia', 'Ho-Oh', 'Registeel', 'Regirock', 'Regice', 'Regigigas'], ['Goal Block', 'Max Revive', 'Focus Band', 'Full Heal', 'Pokémon Switch']],
+];
+function starterTeams() {   // names -> ids; evolutions are attached the same way "attach evolutions automatically" does
+  const keep = team, out = [];
+  for (const [name, figs, plates] of STARTER_TEAMS) {
+    const fs = figs.map(n => BASES.find(f => f.n === n)), ps = plates.map(n => D.plates.find(p => p.n === n));
+    if (fs.includes(undefined) || ps.includes(undefined) || cost(ps.map(p => p.id)) > COST_MAX) continue;
+    team = []; for (const f of fs) team.push(newSlot(f.id, true)); out.push({ name, team, plates: ps.map(p => p.id) });
+  }
+  team = keep; return out;
+}
+let savedTeams = null;
+function loadSaved() { try { savedTeams = JSON.parse(localStorage.getItem(TEAMS_KEY)); } catch (e) {} if (!Array.isArray(savedTeams)) { savedTeams = starterTeams(); storeSaved(); } }
+function storeSaved() { try { localStorage.setItem(TEAMS_KEY, JSON.stringify(savedTeams)); } catch (e) {} }
+function drawSaved(msg) {
+  if (!savedTeams) loadSaved();
+  $('tmsg').textContent = msg || '';
+  $('tlist').innerHTML = savedTeams.map((t, i) => `<div class="row" data-i="${i}" title="Load this team"><span class="n"><b>${esc(t.name)}</b><div class="note">${t.plates.length} plate${t.plates.length === 1 ? '' : 's'}</div></span><span class="pics">${t.team.map(sl => byId.has(sl.st[0]) ? pic(sl.st[0], blankMod(byId.get(sl.st[0]))) : '').join('')}</span><span class="x" data-x="${i}" title="Delete">×</span></div>`).join('') || '<p class="note">No saved teams yet.</p>';
+}
+$('tsave').onclick = () => {
+  if (team.length !== 6) return drawSaved('Pick six figures before saving.');
+  const name = $('tname').value.trim() || 'Team ' + (savedTeams.length + 1), entry = { name, team: JSON.parse(JSON.stringify(team)), plates: myPlates.slice() }, at = savedTeams.findIndex(t => t.name === name);
+  if (at >= 0) savedTeams[at] = entry; else savedTeams.unshift(entry);
+  storeSaved(); $('tname').value = ''; drawSaved(at >= 0 ? `Replaced "${name}".` : `Saved "${name}".`);
+};
+$('tlist').onclick = e => {
+  const r = e.target.closest('.row'); if (!r) return; const i = +r.dataset.i, t = savedTeams[i];
+  if (e.target.dataset.x) { if (!confirm(`Delete the saved team "${t.name}"?`)) return; savedTeams.splice(i, 1); storeSaved(); return drawSaved(`Deleted "${t.name}".`); }
+  const ids = t.team.flatMap(sl => sl.st.concat(sl.forms).filter(id => id != null));
+  if (ids.some(id => !byId.has(id)) || t.plates.some(id => !plateById.has(id))) return drawSaved(`"${t.name}" uses figures or plates this version does not have.`);
+  if (ownedMode) {   // a league deck can only use what the collection holds, at the levels the collection has
+    const need = {}; for (const id of t.plates) need[id] = (need[id] || 0) + 1;
+    if (ids.some(id => !(profile.items[id] > 0)) || Object.keys(need).some(id => ((profile.plates || {})[id] || 0) < need[id])) return drawSaved(`"${t.name}" needs figures or plates that are not in your collection.`);
+    team = t.team.map(slotFrom);
+  } else team = JSON.parse(JSON.stringify(t.team));
+  myPlates = t.plates.slice(); drawTeam(); drawSaved(`Loaded "${t.name}".`);
+};
+
+function drawTeam() {
+  $('team').innerHTML = team.map((slot, i) => `<div class="row card" data-i="${i}"><span class="chip rar${byId.get(slot.st[0]).r}">${RAR[byId.get(slot.st[0]).r]}</span>${teamPics(slot)}<span class="x" data-x="${i}" title="remove">×</span></div>`).join('') + '<div class="card empty">+</div>'.repeat(6 - team.length);
+  $('myplates').innerHTML = myPlates.map((id, i) => `<div class="row" data-i="${i}"><span class="chip">cost ${plateById.get(id).c}</span><span class="n">${esc(plateById.get(id).n)}</span><span class="note">remove</span></div>`).join('') || '<p class="note">Optional. Click plates on the left.</p>';
+  $('pcost').textContent = `${myPlates.length}/${PLATE_MAX} plates · cost ${cost(myPlates)}/${COST_MAX}`;
+  $('go').disabled = team.length !== 6;
+}
+function editSlot(si) {
+  const slot = team[si];
+  // every editable place in the slot: the base, 3 evolution stages, then the form places
+  const own = (ids, k) => o => o.id === ids[k] || ownedLeft(o.id);
+  const places = () => slot.st.map((_, k) => ({ key: 's' + k, label: k ? 'Stage +' + k : 'Base', ids: slot.st, mods: slot.mod, k, opts: k ? candidates(slot, k).filter(own(slot.st, k)) : null }))
+    .concat(slot.forms.map((_, k) => ({ key: 'f' + k, label: 'Form ' + (k + 1), ids: slot.forms, mods: slot.fmod, k, opts: formCandidates(slot).filter(o => !slot.forms.some((id, j) => j !== k && id === o.id)).filter(own(slot.forms, k)) })));
+  const draw = () => {
+    $('box').innerHTML = `<h2 style="margin-top:0">Team slot ${si + 1}</h2>` + places().map(pl => {
+      const id = pl.ids[pl.k], f = id != null ? byId.get(id) : null, m = pl.mods[pl.k], rows = f && wheelRows(f, m);
+      const head = !pl.opts ? `<b>${esc(f.n)}</b>` : `<select data-pl="${pl.key}"><option value="">${pl.opts.length ? '— nothing attached —' : '— nothing can be attached here —'}</option>${pl.opts.map(o => `<option value="${o.id}" ${o.id === id ? 'selected' : ''}>${esc(o.n)} (${RAR[o.r] || ''})</option>`).join('')}</select>`;
+      if (!f) return pl.opts && !pl.opts.length ? '' : `<div class="panel"><div class="bar"><span class="note">${pl.label}</span>${head}</div></div>`;
+      return `<div class="panel"><div class="bar"><span class="note">${pl.label}</span>${head}<span style="flex:1"></span>Level <select data-lv="${pl.key}">${Array.from({ length: lvMax() }, (_, x) => `<option ${m.lv === x + 1 ? 'selected' : ''}>${x + 1}</option>`).join('')}</select>
+          <span class="note">wheel points ${sum(m.ext)}/${Math.min(m.lv, EXP_LEVEL_MAX) - 1}${m.lv > EXP_LEVEL_MAX ? ` · Carmonite +${sum(m.inc)}/${m.lv - EXP_LEVEL_MAX} −${sum(m.dec)}/${m.lv - EXP_LEVEL_MAX}` : ''} · chain ${sum(m.boost)}/${boostMax()}</span></div>
+        <div style="display:flex;gap:12px;align-items:flex-start">${wheelSvg(rows.filter(r => r.range > 0).map(r => ({ id: r.id, range: r.range, speed_or_damage: r.val })), 110)}<div style="flex:1">
+        ${rows.map(r => { const c = colourOf(r.id), dmg = (c === 1 || c === 3) && f.w[r.i][2] > 0; return `<div class="atkrow" style="grid-template-columns:14px 1fr auto auto"><span class="sw" style="background:${SEG_COL[c]}"></span><span>${esc((D.skills[r.id] || ['Attack'])[0])}</span>
+          <span>${c ? `<button data-e="${pl.key}:${r.i}:-1">−</button> ` : ''}size ${r.range}${c ? ` <button data-e="${pl.key}:${r.i}:1">+</button>` : ''}${m.lv > EXP_LEVEL_MAX ? ` <button title="Carmonite: grow this segment" data-ci="${pl.key}:${r.i}">▲${m.inc[r.i] || ''}</button><button title="Carmonite: shrink this segment (must be larger than 4)" data-cd="${pl.key}:${r.i}">▼${m.dec[r.i] || ''}</button>` : ''}</span>
+          <span>${dmg ? `<button data-b="${pl.key}:${r.i}:-1">−</button> ${r.val} <button data-b="${pl.key}:${r.i}:1">+</button>` : c === 2 ? '★'.repeat(r.val) : ''}</span></div>`; }).join('')}</div></div></div>`;
+    }).join('') + '<div class="bar"><button class="primary" data-done="1">Done</button><span id="editErr" class="err"></span></div>';
+  };
+  const at = key => places().find(pl => pl.key === key);
+  $('box').onchange = e => {
+    const t = e.target;
+    if (t.dataset.pl) {
+      const pl = at(t.dataset.pl), f = t.value ? byId.get(+t.value) : null, before = pl.ids[pl.k];
+      pl.ids[pl.k] = null;
+      if (f && overLimit(f, slot)) { pl.ids[pl.k] = before; draw(); $('editErr').textContent = 'A deck can hold at most 3 figures of the same species.'; return; }
+      pl.ids[pl.k] = f ? f.id : null; pl.mods[pl.k] = f ? blankMod(f) : null;
+      for (let j = 1; j <= EVO_SLOTS; j++) if (slot.st[j] != null && !candidates(slot, j).some(o => o.id === slot.st[j])) { slot.st[j] = null; slot.mod[j] = null; }
+    }
+    if (t.dataset.lv) { const pl = at(t.dataset.lv), m = pl.mods[pl.k]; m.lv = +t.value; while (sum(m.ext) > Math.min(m.lv, EXP_LEVEL_MAX) - 1) m.ext[m.ext.findIndex(x => x > 0)]--;
+      for (const arr of [m.inc, m.dec]) while (sum(arr) > Math.max(0, m.lv - EXP_LEVEL_MAX)) arr[arr.findIndex(x => x > 0)]--; }
+    draw();
+  };
+  $('box').onclick = e => {
+    const t = e.target;
+    if (t.dataset.done) { $('modal').hidden = true; return drawTeam(); }
+    for (const key of ['ci', 'cd']) if (t.dataset[key]) {   // a tap adds a Carmonite point; tapping a full allocation clears that segment
+      const [pk, i] = t.dataset[key].split(':'), pl = at(pk), m = pl.mods[pl.k], arr = key === 'ci' ? m.inc : m.dec, f = byId.get(pl.ids[pl.k]);
+      if (sum(arr) >= m.lv - EXP_LEVEL_MAX) arr[+i] = 0;
+      else if (key === 'cd' && wheelRows(f, m)[+i].range <= PIECE_MIN) return;
+      else if (key === 'ci' && !colourOf(f.w[+i][0])) return;
+      else { arr[+i]++; if (!wheelRows(f, m)) arr[+i]--; }
+      return draw();
+    }
+    for (const key of ['e', 'b']) if (t.dataset[key]) {
+      const [pk, i, d] = t.dataset[key].split(':'), pl = at(pk), m = pl.mods[pl.k], arr = key === 'e' ? m.ext : m.boost;
+      if (arr[+i] + +d < 0 || (+d > 0 && sum(arr) >= (key === 'e' ? Math.min(m.lv, EXP_LEVEL_MAX) - 1 : boostMax()))) return;
+      arr[+i] += +d;
+      if (!wheelRows(byId.get(pl.ids[pl.k]), m)) arr[+i] -= +d;      // nothing left to shrink
+      draw();
+    }
+  };
+  draw(); $('modal').hidden = false;
+}
+const cost = ids => ids.reduce((s, id) => s + plateById.get(id).c, 0);
+function randomTeam(pool) { const out = [], saved = team; team = out; while (out.length < 6) { const f = pickRandom(pool || BASES); if (!overLimit(f, null)) out.push(newSlot(f.id, true)); } team = saved; return out; }
+function randomPlates() { const out = []; for (let i = 0; i < 40 && out.length < PLATE_MAX; i++) { const p = pickRandom(D.plates); if (cost(out) + p.c <= COST_MAX) out.push(p.id); } return out; }
+$('q').oninput = $('rar').onchange = $('pq').oninput = drawList;
+$('list').onclick = e => { const r = e.target.closest('.row'); if (!r || team.length >= 6) return; const f = byId.get(+r.dataset.id);
+  if (overLimit(f, null)) { $('setupErr').textContent = 'A deck can hold at most 3 figures of the same species.'; return; }
+  if (!ownedLeft(f.id)) { $('setupErr').textContent = 'You have no more copies of that figure.'; return; }
+  $('setupErr').textContent = ''; team.push(newSlot(f.id, $('evo').checked && !ownedMode)); drawTeam(); };
+$('plist').onclick = e => { const r = e.target.closest('.row'); if (r && plateLeft(+r.dataset.id) && myPlates.length < PLATE_MAX && cost(myPlates) + plateById.get(+r.dataset.id).c <= COST_MAX) { myPlates.push(+r.dataset.id); drawTeam(); } };
+$('team').onclick = e => { const r = e.target.closest('.row'); if (!r) return; if (e.target.dataset.x) { team.splice(+r.dataset.i, 1); drawTeam(); } else editSlot(+r.dataset.i); };
+$('myplates').onclick = e => { const r = e.target.closest('.row'); if (r) { myPlates.splice(+r.dataset.i, 1); drawTeam(); } };
+$('rnd').onclick = () => { team = randomTeam(); drawTeam(); };
+$('clr').onclick = () => { team = []; myPlates = []; drawTeam(); };
+$('newBtn').onclick = () => showHome();
+$('go').onclick = () => {
+  if (ownedMode) { profile.deck = team.map(sl => ({ st: sl.st.slice(), forms: sl.forms.slice() })); profile.deckPlates = myPlates.slice(); saveProfile(); return showHome(); }
+  start().catch(e => { $('setupErr').textContent = e.message; });
+};
+
+// ---------- league mode: the original's league ladder and reward boosters ----------
+// Data: ArenaLeagueMaster (rating thresholds, stars per win / loss, booster roulettes, items locked per league), ArenaRewardBox* and ItemSet
+// masters (booster -> reward table -> one weighted draw per item set), constants (starting rating 1150, 10 keys per key booster, at most 4 keys from losses).
+// The original's servers decided matchmaking, rating changes and the starting collection; those three are filled in here and marked as such.
+const PKEY = 'figureduel.profile.v1', LG = D.leagues, CONST = D.consts, TIME_SLOTS = 3;
+let profile = null, ownedMode = false, leagueGame = null, homeTick = 0;
+try { const saved = JSON.parse(localStorage.getItem(PKEY)); if (saved && saved.v === 1) profile = saved; } catch (e) {}
+const saveProfile = () => { try { localStorage.setItem(PKEY, JSON.stringify(profile)); } catch (e) {} };
+const leagueOf = () => LG.find(l => l.id === profile.league) || LG[0];
+const weighted = list => { let r = Math.random() * list.reduce((t, x) => t + x[1], 0); for (const x of list) if ((r -= x[1]) < 0) return x; return list[list.length - 1]; };
+const itemLabel = e => (byId.has(e[0]) ? byId.get(e[0]).n : D.itemNames[e[0]] || 'Item ' + e[0]) + (e[1] > 1 ? ' ×' + e[1] : '');
+function openBox(boxId) { // booster -> one reward table -> one draw from each of its item sets; items locked at this league cannot drop
+  const lg = leagueOf(), got = [];
+  for (const setId of D.tables[weighted(D.boxes[boxId][2])[0]]) {
+    const pool = D.sets[setId].filter(e => !lg.locked.includes(e[0])).map(e => [e, e[2]]);
+    if (!pool.length) continue;
+    const e = weighted(pool)[0];
+    profile.items[e[0]] = (profile.items[e[0]] || 0) + e[1]; got.push(e);
+  }
+  saveProfile(); return got;
+}
+const ownedKinds = () => Object.keys(profile.items).filter(id => byId.has(+id) && BASES.includes(byId.get(+id))).length;
+function newProfile() {
+  profile = { v: 1, rating: CONST.ratingInitial, league: LG[0].id, stars: 0, lossStars: 0, items: {}, plates: {}, boxes: [], deck: null, deckPlates: [], wins: 0, losses: 0 };
+  // The original's starting set was sent by its server and is not preserved. This is the starter one fan reconstruction uses: five figures plus the
+  // tutorial booster's figure (constant Monaco.Tutorial.TimeArenaRewardItemMasterId) in slot 6, and four plates worth the full deck cost of 8.
+  const starter = [1060, 1114, 1161, 1162, 1078, CONST.tutorialFigure].filter(id => byId.has(id));
+  for (const id of starter) profile.items[id] = (profile.items[id] || 0) + 1;
+  profile.plates = { 5306: 1, 5302: 2, 5028: 1 };
+  profile.deck = starter.map(id => ({ st: [id, null, null, null], forms: Array(byId.get(id).fmx).fill(null) }));
+  profile.deckPlates = [5306, 5302, 5302, 5028].filter(id => plateById.has(id));
+  saveProfile();
+}
+const usedCount = id => team.reduce((n, sl) => n + slotIds(sl).filter(x => x === id).length, 0);
+const plateLeft = id => !ownedMode || ((profile.plates || {})[id] || 0) - myPlates.filter(x => x === id).length > 0;   // a plate goes in twice only with two copies
+const ownedLeft = id => !ownedMode || (profile.items[id] || 0) - usedCount(id) > 0;
+const lvMax = () => ownedMode ? 1 : LEVEL_MAX, boostMax = () => ownedMode ? 0 : BOOST_MAX;   // no original level-up tables are available, so owned figures stay at level 1
+const slotFrom = d => ({ st: d.st.slice(), mod: d.st.map(id => id != null ? blankMod(byId.get(id)) : null), forms: d.forms.slice(), fmod: d.forms.map(id => id != null ? blankMod(byId.get(id)) : null) });
+const deckPlates = () => (profile.deckPlates || []).slice();
+const leaguePool = () => BASES.filter(f => !leagueOf().locked.includes(f.id));
+function showHome() {
+  forgetGame();
+  if (net) { try { net.peer.destroy(); } catch (e) {} net = null; }
+  clearInterval(timer); clearInterval(homeTick); gameId++; ownedMode = false;
+  $('game').hidden = $('setup').hidden = $('modal').hidden = true; $('home').hidden = false;
+  if (!profile) newProfile();
+  drawHome(); homeTick = setInterval(() => { if (!$('home').hidden) drawHome(); }, 1000);
+}
+function drawHome() {
+  const lg = leagueOf(), i = LG.indexOf(lg), next = LG[i + 1], now = Date.now();
+  if (profile.boxes[0] && profile.boxes[0].t == null) { profile.boxes[0].t = now + D.boxes[profile.boxes[0].b][0] * 60000; saveProfile(); }   // boosters unlock one at a time
+  const left = b => Math.max(0, Math.ceil((b.t - now) / 1000)), clockText = t => `${Math.floor(t / 3600)}:${String(Math.floor(t / 60) % 60).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
+  const figs = Object.keys(profile.items).map(Number).filter(id => byId.has(id)).sort((a, b) => byId.get(b).r - byId.get(a).r || a - b);
+  const mats = Object.keys(profile.items).map(Number).filter(id => !byId.has(id));
+  $('home').innerHTML = `<section><div class="panel"><h2>League ${i + 1} of ${LG.length}</h2>
+      <div style="font-size:22px">Rating ${Math.floor(profile.rating)}</div>
+      <div class="note">${next ? 'Promotion at ' + next.promo : 'Top league'}${i > 0 ? ' · demotion below ' + lg.demo : ''} · ${profile.wins} wins / ${profile.losses} losses</div>
+      <div style="margin:8px 0">Keys ${profile.stars}/${CONST.keyCost} <span class="note">(${lg.win} per win, ${lg.lose} per loss; a full set opens a key booster)</span></div>
+      <div class="bar"><button class="primary" data-act="league" ${profile.deck ? '' : 'disabled'}>League match</button><button data-act="deck">Edit deck</button><button data-act="free">Free duel (every figure)</button></div>
+      <div class="note">${profile.deck ? 'Deck: ' + profile.deck.map(d => slotText(slotFrom(d))).join(' · ') : 'Build a deck from your collection to play league matches.'}${(profile.deckPlates || []).length ? '<br>Plates: ' + profile.deckPlates.map(id => esc(plateById.get(id).n)).join(' · ') : ''}</div></div>
+    <div class="panel"><h2>Time boosters ${profile.boxes.length}/${TIME_SLOTS}</h2>
+      ${profile.boxes.map((b, k) => `<div class="bar"><span class="chip">${D.boxes[b.b][0]} min</span>${k === 0 ? (left(b) ? `<span>unlocking… ${clockText(left(b))}</span>` : `<button class="primary" data-open="0">Open</button>`) : '<span class="note">waiting</span>'}</div>`).join('') || '<p class="note">Win a league match to earn a time booster.</p>'}
+      <div id="homeMsg" class="note">${esc(drawHome.msg || '')}</div></div></section>
+    <section><div class="panel"><h2>Collection · ${figs.reduce((n, id) => n + profile.items[id], 0)} figures</h2><div style="max-height:330px;overflow:auto">
+      ${figs.map(id => `<div class="row"><img loading="lazy" src="${sprite(byId.get(id))}" alt="" onerror="this.remove()"><span class="chip rar${byId.get(id).r}">${RAR[byId.get(id).r] || ''}</span><span class="n">${esc(byId.get(id).n)}</span><span class="note">×${profile.items[id]}</span></div>`).join('')}</div>
+      ${mats.length ? `<p class="note">Materials: ${mats.map(id => esc(itemLabel([id, profile.items[id]]))).join(' · ')}</p>` : ''}</div>
+    <div class="panel"><button data-act="reset" class="note">Reset profile</button>
+      <p class="note">League matches are played against the original AI with a random deck of figures available in your league. Rating moves by the original's fixed win / loss points.</p></div></section>`;
+}
+$('home').onclick = e => {
+  const t = e.target.closest('[data-act],[data-open]'); if (!t) return;
+  if (t.dataset.open != null) { const b = profile.boxes.shift(); drawHome.msg = 'Opened: ' + openBox(b.b).map(itemLabel).join(', '); saveProfile(); return drawHome(); }
+  const act = t.dataset.act;
+  if (act === 'reset') { if (confirm('Erase your league profile and collection?')) { profile = null; drawHome.msg = ''; showHome(); } return; }
+  clearInterval(homeTick); $('home').hidden = true;
+  if (act === 'league') { $('game').hidden = true; team = profile.deck.map(slotFrom); myPlates = deckPlates(); return start({ league: true }).catch(x => { showHome(); drawHome.msg = x.message; drawHome(); }); }
+  ownedMode = act === 'deck';
+  team = ownedMode && profile.deck ? profile.deck.map(slotFrom) : []; myPlates = ownedMode ? deckPlates() : [];
+  $('oppPanel').hidden = ownedMode; $('go').textContent = ownedMode ? 'Save deck' : 'Start duel'; $('setupErr').textContent = '';
+  $('setup').hidden = false; drawList(); drawTeam();
+};
+function finishLeague() { // MatchResultRank: rating, keys (stars), boosters, league change
+  leagueGame.done = true;
+  const lg = leagueOf(), decided = !!P_COL[over.winner], won = over.winner === me, dr = !decided ? 0 : won ? CONST.winPoint : CONST.losePoint;
+  profile.rating = Math.max(0, profile.rating + dr);
+  let keys = 0;
+  if (won) { keys = lg.win; profile.wins++; } else if (decided) { keys = Math.min(lg.lose, Math.max(0, CONST.keyLoseStock - profile.lossStars)); profile.lossStars += keys; profile.losses++; }
+  profile.stars += keys;
+  const notes = [`Rating ${dr >= 0 ? '+' : ''}${dr} → ${Math.floor(profile.rating)}`, `Keys +${keys} (${Math.min(profile.stars, CONST.keyCost)}/${CONST.keyCost})`];
+  if (won && profile.boxes.length < TIME_SLOTS) { const b = weighted(D.roulettes[lg.time])[0]; profile.boxes.push({ b, t: null }); notes.push(`Time booster won (${D.boxes[b][0]} min)`); }
+  if (profile.stars >= CONST.keyCost) { profile.stars -= CONST.keyCost; profile.lossStars = 0; notes.push('Key booster opened: ' + openBox(weighted(D.roulettes[lg.key])[0]).map(itemLabel).join(', ')); }
+  let i = LG.indexOf(lg);
+  while (LG[i + 1] && profile.rating >= LG[i + 1].promo) i++;
+  while (i > 0 && profile.rating < LG[i].demo) i--;
+  if (LG[i] !== lg) notes.push(i > LG.indexOf(lg) ? `Promoted to league ${i + 1}` : `Demoted to league ${i + 1}`);
+  profile.league = LG[i].id; saveProfile();
+  for (const n of notes) log('<b>' + esc(n) + '</b>');
+}
+
+// ---------- the match record (the original's own format) ----------
+const formIndex = (color, deck, stage) => stage === 0 ? (color === 'black' ? 0 : 6) + deck : (color === 'black' ? 12 : 108) + deck * 16 + stage - 1;
+const colorOf = i => (i <= 5 || (i >= 12 && i <= 107)) ? 'black' : 'white', other = c => c === 'black' ? 'white' : 'black';
+function playerEntry(color, slots, plates) { // the original Player(UserDeck, colour) record builder, line for line
+  const pokemons = [], entry = (f, m, stage, evolution, direct, form) => ({ id: f.rule, pokemon_index: stage, evolution, direct_evolution: direct, form_index: form,
+    pokepower: f.ab || -1, mp: f.mp, skills: wheelRows(f, m).filter(r => r.range > 0).map(r => ({ id: r.id, range: r.range, speed_or_damage: r.val })) });
+  slots.forEach((slot, deck) => {
+    let last = EVO_SLOTS, ci = 0;
+    while (last > 0 && slot.st[last] == null) last--;
+    const base = byId.get(slot.st[0]), baseIndex = formIndex(color, deck, 0), fromChange = D.fromChange[rootOf(base.g)];
+    for (let i = 0; i <= last; i++) {                       // stage indices are compacted; a skipped stage is not a direct evolution
+      if (slot.st[i] == null) continue;
+      const f = byId.get(slot.st[i]), evolves = i !== last;
+      const isFormBase = fromChange != null ? f.g === fromChange : i === 0;
+      pokemons.push(entry(f, slot.mod[i], formIndex(color, deck, ci), evolves ? formIndex(color, deck, ci + 1) : -1, evolves && slot.st[i + 1] != null, isFormBase ? baseIndex : -1));
+      ci++;
+    }
+    slot.forms.filter(id => id != null).forEach((id, n) => { // form figures sit after the stage they change from
+      const f = byId.get(id), from = Math.min(...f.fr);
+      let index = 0;
+      for (let k = 0; k <= last; k++) if (slot.st[k] != null) { index = k; if (byId.get(slot.st[k]).g === from) break; }
+      pokemons.push(entry(f, slot.fmod[slot.forms.indexOf(id)], formIndex(color, deck, index + 1 + n), -1, false, baseIndex));
+    });
+  });
+  return { id: color === 'black' ? '1' : '2', color, plates, pokemons };
+}
+
+// ---------- the rule engine, in the page ----------
+// The original engine (libTFG.so from the 7.0.16 APK) runs in Web Workers under an ARM emulator (tfg.js + unicorn.js). Nothing is installed and
+// nothing runs on a server. The library is taken from "libTFG.so" next to this page when it is there; otherwise the player picks their own
+// copy of the original APK once and the library is read out of it in the browser and remembered on this device.
+const ENGINE_FILE = 'lib/armeabi-v7a/libTFG.so', WORKERS = 3;
+let enginePool = null, engineSeq = 0;
+const idb = (mode, fn) => new Promise((ok, bad) => { const o = indexedDB.open('figure-duel', 1); o.onupgradeneeded = () => o.result.createObjectStore('kv'); o.onerror = () => bad(o.error);
+  o.onsuccess = () => { const r = fn(o.result.transaction('kv', mode).objectStore('kv')); r.onsuccess = () => ok(r.result); r.onerror = () => bad(r.error); }; });
+async function libFromApk(file) { // minimal zip reader: central directory -> the one entry -> inflate
+  const buf = new Uint8Array(await file.arrayBuffer()), v = new DataView(buf.buffer);
+  let e = buf.length - 22; while (e >= 0 && v.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error('That file is not an APK.');
+  let o = v.getUint32(e + 16, true);
+  for (let n = v.getUint16(e + 10, true); n > 0; n--) {
+    const method = v.getUint16(o + 10, true), csize = v.getUint32(o + 20, true), nl = v.getUint16(o + 28, true), xl = v.getUint16(o + 30, true), cl = v.getUint16(o + 32, true), local = v.getUint32(o + 42, true);
+    if (new TextDecoder().decode(buf.subarray(o + 46, o + 46 + nl)) === ENGINE_FILE) {
+      const start = local + 30 + v.getUint16(local + 26, true) + v.getUint16(local + 28, true), raw = buf.subarray(start, start + csize);
+      return method === 0 ? raw.slice().buffer : await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).arrayBuffer();
+    }
+    o += 46 + nl + xl + cl;
+  }
+  throw new Error('That APK does not contain the rule engine (' + ENGINE_FILE + ').');
+}
+async function engineBytes() {
+  try { const cached = await idb('readonly', st => st.get('lib')); if (cached) return cached; } catch (e) {}
+  let bytes = null;
+  try { const r = await fetch('libTFG.so'); if (r.ok && !(r.headers.get('content-type') || '').includes('html')) bytes = await r.arrayBuffer(); } catch (e) {}
+  if (!bytes) bytes = await new Promise(ok => {
+    $('box').innerHTML = `<h2 style="margin-top:0">The rule engine</h2><p>This game does not re-implement the rules. It runs the original game's own rule engine, which is part of the original app.</p>
+      <p>Choose your copy of the original Android app (version 7.0.16, an <b>.apk</b> file). It is read on this device only, nothing is uploaded, and you will not be asked again here.</p>
+      <input type="file" id="apkFile" accept=".apk,application/vnd.android.package-archive"> <div id="apkErr" class="err"></div>`;
+    $('box').onclick = null; $('box').onchange = async ev => { if (ev.target.id !== 'apkFile' || !ev.target.files[0]) return; try { const b = await libFromApk(ev.target.files[0]); $('modal').hidden = true; ok(b); } catch (x) { $('apkErr').textContent = x.message; } };
+    $('modal').hidden = false;
+  });
+  try { await idb('readwrite', st => st.put(bytes, 'lib')); } catch (e) {}
+  return bytes;
+}
+function startEngines() {
+  return enginePool || (enginePool = engineBytes().then(bytes => Promise.all(Array.from({ length: WORKERS }, () => new Promise((ok, bad) => {
+    const w = new Worker('engine-worker.js'), slot = { w, busy: false, wait: new Map() };
+    w.onmessage = e => { if ('ready' in e.data) return e.data.ready ? ok(slot) : bad(new Error('engine: ' + e.data.error)); const cb = slot.wait.get(e.data.id); slot.wait.delete(e.data.id); slot.busy = false; pump(); cb(e.data); };
+    w.onerror = e => bad(new Error('engine worker: ' + e.message));
+    w.postMessage({ lib: bytes.slice(0) });
+  })))).catch(e => { enginePool = null; throw e; }));
+}
+const queue = [];
+function pump() { if (!pump.slots) return; for (const slot of pump.slots) { if (slot.busy || !queue.length) continue; const job = queue.shift(); slot.busy = true; slot.wait.set(job.id, job.cb); slot.w.postMessage({ id: job.id, text: job.text }); } }
+async function engineCmd(text) {
+  pump.slots = await startEngines();
+  return new Promise((ok, bad) => { queue.push({ id: ++engineSeq, text, cb: d => d.error ? bad(new Error('engine: ' + d.error)) : ok(d.out) }); pump(); });
+}
+
+// ---------- online play ----------
+// A duel is fully determined by the record (decks, seed, moves), so two players only have to exchange moves. The host's in-page engine computes
+// every state; the guest receives status / legal moves / effects and answers with the index of the legal move it picks. Transport: PeerJS (WebRTC).
+let net = null;
+const loadPeer = () => window.Peer ? Promise.resolve() : new Promise((ok, bad) => { const t = document.createElement('script'); t.src = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'; t.onload = ok; t.onerror = () => bad(new Error('could not load the connection library')); document.head.appendChild(t); });
+const roomId = code => 'figure-duel-room-' + code.toLowerCase().replace(/[^a-z0-9]/g, '');
+async function hostRoom() { // resolves with the guest's deck
+  await loadPeer();
+  const code = Array.from({ length: 5 }, () => 'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random() * 31)]).join('').toUpperCase();
+  const peer = new Peer(roomId(code));
+  return new Promise((ok, bad) => {
+    peer.on('error', e => bad(new Error('online: ' + e.type)));
+    peer.on('open', () => { $('setupErr').textContent = `Room code ${code} — waiting for your opponent to join…`; });
+    peer.on('connection', conn => {
+      net = { host: true, conn, peer };
+      conn.on('data', d => {
+        if (d.t === 'deck') return ok(d);
+        if (d.t === 'move' && st && !busy && !over && ctrl[st.selective_side] === 'remote' && legal[d.i]) play(legal[d.i]);
+      });
+      conn.on('close', () => { if (!over) log('<b>Your opponent disconnected.</b>'); });
+    });
+  });
+}
+async function joinRoom(code) {
+  await loadPeer();
+  const peer = new Peer();
+  await new Promise((ok, bad) => { peer.on('open', ok); peer.on('error', e => bad(new Error('online: ' + e.type))); });
+  const conn = peer.connect(roomId(code), { reliable: true });
+  await new Promise((ok, bad) => { conn.on('open', ok); peer.on('error', e => bad(new Error('online: ' + e.type))); setTimeout(() => bad(new Error('No room with that code answered.')), 15000); });
+  net = { host: false, conn, peer };
+  me = 'white'; flip = true; ctrl = { black: 'remote', white: 'human' }; ai = null; rec = null; st = null; legal = []; over = null; leagueGame = null; sel = null; logLines = [];
+  clearInterval(timer); clearInterval(homeTick); gameId++;
+  $('setupErr').textContent = ''; $('setup').hidden = $('home').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
+  log('Connected. The host moves first.');
+  let chain = Promise.resolve();
+  conn.on('data', d => { if (d.t === 'state') chain = chain.then(async () => { st = d.st; legal = d.legal; busy = true; render(); await playEffects(d.fx || []); if (d.over) over = d.over; busy = false; render(); }); });
+  conn.on('close', () => { if (!over) log('<b>The host disconnected.</b>'); });
+  conn.send({ t: 'deck', team, plates: myPlates });
+}
+
+// ---------- engine access ----------
+let me = 'black', flip = false, states = [], rewinds = 0, rec, st, legal = [], sel = null, routeChoice = null, busy = false, over = null, ctrl = {}, ai = null, clock = {}, timer = 0, logLines = [], gameId = 0;
+async function api(cmd, extra) {
+  const j = JSON.parse(await engineCmd(JSON.stringify(Object.assign({ cmd, record: rec }, extra))));
+  if (j.error) throw new Error('engine: ' + j.error);
+  return j;
+}
+async function start(opts) {
+  $('setupErr').textContent = 'starting the rule engine…'; await startEngines();
+  const lgMode = !!(opts && opts.league), mode = lgMode ? '1:60' : $('mode').value, seed = 1 + Math.floor(Math.random() * 2147483646);
+  me = mode === 'hot' ? 'black' : pickRandom(['black', 'white']); flip = me === 'white';
+  if (mode === 'join') return joinRoom($('room').value.trim());
+  net = null; const guest = mode === 'host' ? await hostRoom() : null;
+  if (guest) me = 'black', flip = false;
+  ctrl = { black: 'human', white: 'human' }; if (guest) ctrl.white = 'remote'; else if (mode !== 'hot') ctrl[other(me)] = 'ai';
+  ai = mode === 'hot' || guest ? null : mode === 'default' ? { use_plate: true } : { engine_id: +mode.split(':')[0], limit_id: 0, limit_num: +mode.split(':')[1], use_plate: true };
+  const decks = { [me]: [team, myPlates], [other(me)]: guest ? [guest.team, guest.plates || []] : lgMode ? [randomTeam(leaguePool()), []] : [randomTeam(), $('oplates').checked ? randomPlates() : []] };
+  rec = { id: String(seed), first_player: 'black', seed, first_seed: seed, seeds: [], all_moves: [], remaining_turns: 300, pc_limit: -1, gym_additions: [], logs: null,
+    players: ['black', 'white'].map(c => playerEntry(c, decks[c][0], decks[c][1])) };
+  rec.client_ai_name = (await api('name')).name; rec.ai_protocol_version = (await api('protocol_version')).protocol_version;   // as Engine.GameStart does
+  const check = await api('check_record');
+  if (check.errors && check.errors.length) throw new Error('The engine rejected this setup: ' + check.errors.join(', '));
+  leagueGame = lgMode ? { done: false } : null; $('home').hidden = true; states = []; rewinds = 0;
+  sel = null; busy = false; over = null; logLines = []; clock = { black: 300, white: 300 }; gameId++;
+  $('setupErr').textContent = ''; $('setup').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
+  log(`<b style="color:${P_COL[rec.first_player]}">${label(rec.first_player)}</b> goes first.`);
+  startClock();
+  await sync(false);
+}
+function startClock() {
+  clearInterval(timer);
+  timer = setInterval(() => { // 300 s chess clock per player (Monaco.ChessClock.TimeLimit); the engine itself has no clock
+    const side = st && st.selective_side;
+    if (over || missionDuel() || !P_COL[side] || !$('modal').hidden || (busy && ctrl[side] !== 'ai')) return;   // a player is not charged while effects play or the engine works
+    if (--clock[side] <= 0) { over = { winner: other(side), reason: 'timeout' }; log(`<b>${label(over.winner)} wins</b> (timeout)`); render(); } else drawClock();
+  }, 1000);
+}
+
+// ---------- the duel in the address ----------
+// A duel is its record (decks, seed, moves), so it is kept on this device under its seed and the seed is put in the address (#g=seed).
+// Reloading, or switching between the flat and the 3D table, picks the same duel up again. Online duels are not kept: the connection would be gone.
+const GAME_KEY = 'figureduel.game.';
+const viewHref = () => { $('viewLink').href = (VIEW3D ? '../' : '3d/') + location.hash; };
+function saveGame() {
+  if (net || !rec) return;
+  try { for (const k of Object.keys(localStorage)) if (k.startsWith(GAME_KEY) && k !== GAME_KEY + rec.seed) localStorage.removeItem(k);
+    localStorage.setItem(GAME_KEY + rec.seed, JSON.stringify({ rec, me, ctrl, ai, clock, rewinds, league: !!leagueGame, over })); history.replaceState(null, '', location.pathname + location.search + '#g=' + rec.seed); viewHref(); } catch (e) {}
+}
+function forgetGame() {
+  const m = /^#g=(\d+)$/.exec(location.hash); if (!m) return;
+  try { localStorage.removeItem(GAME_KEY + m[1]); } catch (e) {} history.replaceState(null, '', location.pathname + location.search); viewHref();
+}
+async function resumeGame() {
+  const m = /^#g=(\d+)$/.exec(location.hash); let g = null;
+  try { g = JSON.parse(localStorage.getItem(GAME_KEY + (m && m[1]))); } catch (e) {}
+  if (!g) return forgetGame();
+  $('home').hidden = true; $('game').hidden = false; $('status').textContent = 'resuming the duel…';
+  await startEngines();
+  ({ rec, me, ctrl, ai, clock, rewinds, over } = g); flip = me === 'white'; net = null; leagueGame = g.league ? { done: !!over } : null;
+  states = []; sel = null; busy = false; logLines = []; gameId++; $('log').innerHTML = ''; log(`Duel resumed at move ${rec.all_moves.length}.`);
+  startClock(); await sync(false);
+}
+const label = c => ctrl[c] === 'remote' ? 'Opponent' : ctrl.black === 'human' && ctrl.white === 'human' ? (c === 'black' ? 'Player 1' : 'Player 2') : ctrl[c] === 'ai' ? 'Computer' : 'You';
+
+// One step of the original client's loop (Engine.CurrentState): effects of the last move, new status, next legal moves.
+async function sync(played) {
+  const id = gameId;
+  busy = true; render();
+  try {
+    const [fx, s, lm, ss] = await Promise.all([played ? api('output_effects') : null, api('status'), api('legal_moves'), api('selective_side')]);
+    if (id !== gameId) return;
+    st = s.status; legal = lm.legal_moves || [];
+    states[rec.all_moves.length] = { b: !!ss.beginning_of_turn, s: ss.selective_side };   // RewindableRecord.AddState
+    if (ss.game_set && !over) over = { winner: ss.winner, reason: ss.reason }; saveGame();
+    if (net && net.host) net.conn.send({ t: 'state', st, legal, fx: fx ? fx.effect_moves || [] : [], over: ss.game_set ? { winner: ss.winner, reason: ss.reason } : null });
+    if (fx) await playEffects(fx.effect_moves || []);
+    if (id !== gameId) return;
+    const side = st.selective_side;
+    if (!over && ss.game_set) over = { winner: ss.winner, reason: ss.reason };
+    busy = false; render();
+    if (over) return;
+    if (side === 'both') return play(pickRandom(legal));                 // system move (a spin): the original client samples it too
+    if (ctrl[side] === 'ai') { busy = true; render(); const g = await api('go', ai); if (id === gameId) return play(g.move); }
+  } catch (e) { busy = false; $('status').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+}
+function play(move) {
+  if (over) return;
+  if (net && !net.host) { net.conn.send({ t: 'move', i: legal.indexOf(move) }); legal = []; busy = true; sel = null; routeChoice = null; return render(); }
+  rec.all_moves.push(move); rec.seeds.push(rec.seed); sel = null; routeChoice = null;
+  return sync(true);
+}
+
+// ---------- Rewind (the original offers it only in duels against the AI) ----------
+const REWIND_MAX = 10;                                    // Monaco.RewindUsageCount.UpperLimit
+const missionDuel = () => !!ai && !leagueGame && ctrl[me] === 'human';
+function monoRandomNext(seed) { // new System.Random(seed).Next() as the game's Mono runtime computes it (inextp starts at 31)
+  const a = new Array(56).fill(0), MAX = 2147483647;
+  let num = 161803398 - Math.abs(seed), num2 = 1;
+  a[55] = num;
+  for (let i = 1; i < 55; i++) { const k = 21 * i % 55; a[k] = num2; num2 = num - num2; if (num2 < 0) num2 += MAX; num = a[k]; }
+  for (let j = 1; j < 5; j++) for (let k = 1; k < 56; k++) { a[k] -= a[1 + (k + 30) % 55]; if (a[k] < 0) a[k] += MAX; }
+  let v = a[1] - a[32]; if (v < 0) v += MAX;
+  return Math.trunc(v * 4.656612875245797E-10 * 2147483647.0);
+}
+function rewindTarget() { // the number of moves to keep: the latest earlier state that is the start of one of your own turns
+  if (!rec || !missionDuel() || rewinds >= REWIND_MAX || busy) return -1;
+  const n = rec.all_moves.length, cur = states[n] || {}, last = rec.all_moves[n - 1];
+  if (!n || !((cur.b && cur.s === me) || (over && P_COL[over.winner] && over.winner !== me))) return -1;
+  const lost = last && last.value && last.value.lose && [me, 'both'].includes(last.value.lose) ? 1 : 0;
+  for (let i = n - lost - 1; i >= 0; i--) if (states[i] && states[i].b && states[i].s === me) return i;
+  return -1;
+}
+function rewind() {
+  const keep = rewindTarget();
+  if (keep < 0) return;
+  rec.seed = monoRandomNext(rec.seed);                    // a rewind re-seeds the duel, so the same spins do not simply repeat
+  rec.all_moves.length = keep; rec.seeds.length = keep; states.length = keep;
+  over = null; rewinds++; sel = null; routeChoice = null;
+  log(`<span class="note">— rewound to the start of your turn (${REWIND_MAX - rewinds} left) —</span>`);
+  return sync(false);
+}
+
+// ---------- reading the engine's status ----------
+const pk = i => { for (const p of st.players) for (const x of p.pokemons) if (x.pokemon_index === i) return x; };
+const figOf = i => { const p = pk(i); return (p && byRule.get(p.id)) || { n: 'Figure ' + i, t: [5], r: 0 }; };
+const nameOf = i => `<b style="color:${P_COL[colorOf(i)]}">${esc(figOf(i).n)}</b>`;
+const condName = c => D.conds[c] || String(c).replace(/_/g, ' ');
+const place = p => p < 28 ? 'point ' + p : p < 40 ? 'bench' : p < 44 ? 'P.C.' : 'out of play';
+function badges(c) {
+  const m = c.marker || {}, out = [];
+  if (m.circle && m.circle !== 'normal') out.push(condName(m.circle));
+  if (c.wait > 0) out.push('wait ' + c.wait);
+  if (m.triangle && m.triangle !== 'empty') out.push(condName(m.triangle));
+  if (c.effect && c.effect.damage_plus) out.push((c.effect.damage_plus > 0 ? '+' : '') + c.effect.damage_plus + ' dmg');
+  return out;
+}
+
+// ---------- describing moves and effects (generic, so every engine move can be shown and chosen) ----------
+const TITLES = { null_move: 'End turn', resign: 'Resign', declare_battle: 'Battle', mp_move: 'Move', declare_plate: 'Use plate', turn_end: 'Turn ends', knockedout_move: 'Knocked out',
+  put_circle: 'Condition', put_triangle: 'Marker', pokepower_notice: 'Ability', skill_notice: 'Attack effect', sandwich: 'Surrounded', remove_debuff: 'Conditions removed',
+  bench_move: 'To the bench', touch: 'Tag', evolve: 'Evolve', spot_move: 'Move', game_set: 'Game over', declare_pokepower: 'Use ability', use_pokepower: 'Use ability', add_wait: 'Wait' };
+function fmt(k, x) {
+  if (Array.isArray(x)) return k === 'route' ? x.map(place).join(' → ') : x.map(y => fmt(k.replace(/s$/, ''), y)).join(', ');
+  if (x && typeof x === 'object') return describe(x);
+  if (typeof x === 'number') {
+    if (/pokemon|setter|source/.test(k)) return x >= 0 && pk(x) ? nameOf(x) : '';
+    if (k === 'from' || k === 'to') return place(x);
+    if (/plate/.test(k)) return plateById.has(x) ? '<b>' + esc(plateById.get(x).n) + '</b>' : 'plate ' + x;
+    if (/skill/.test(k)) return D.skills[x] ? '<b>' + esc(D.skills[x][0]) + '</b>' : 'attack ' + x;
+    if (k === 'pokepower') return D.abilities[x] ? '<b>' + esc(D.abilities[x][0]) + '</b>' : 'ability ' + x;
+  }
+  if (k === 'condition' || k === 'marker') return condName(x);
+  return esc(String(x));
+}
+function describe(v) {
+  const parts = Object.entries(v).filter(([k]) => k !== 'type').map(([k, x]) => {
+    const t = fmt(k, x); return !t ? '' : /pokemon|route|plate_id|pokepower|^value$|condition|marker|skill/.test(k) ? t : `${k.replace(/_/g, ' ')} ${t}`;
+  }).filter(Boolean);
+  return `<span class="ink">${TITLES[v.type] || esc(String(v.type || '').replace(/_/g, ' '))}</span>${parts.length ? ' · ' + parts.join(' · ') : ''}`;
+}
+const QUIET = new Set(['add_z_gauge', 'battled_after_field_in', 'battle_info', 'declare_spin', 'base_damage_notice', 'declare_battle', 'mp_move', 'spin', 'battle_result']);
+
+// ---------- theme ----------
+const THEME_KEY = 'figureduel.theme';
+const sysLight = matchMedia('(prefers-color-scheme: light)'); let themeMode = 'auto';   // auto follows the device's light / dark setting
+function setTheme(mode) {
+  themeMode = mode; document.documentElement.dataset.theme = mode === 'auto' ? (sysLight.matches ? 'light' : 'dark') : mode;
+  $('themeBtn').textContent = 'Theme: ' + mode[0].toUpperCase() + mode.slice(1); try { localStorage.setItem(THEME_KEY, mode); } catch (e) {}
+}
+{ let t = 'auto'; try { t = localStorage.getItem(THEME_KEY) || t; } catch (e) {} setTheme(['auto', 'light', 'dark'].includes(t) ? t : 'auto'); }
+sysLight.addEventListener('change', () => { if (themeMode === 'auto') setTheme('auto'); });
+$('themeBtn').onclick = () => setTheme({ auto: 'light', light: 'dark', dark: 'auto' }[themeMode]);
+
+// ---------- board ----------
+const VIEW3D = /\/3d\/(index\.html)?$/.test(location.pathname), U = ([x, y]) => [(x - 210) / 54.2, (y - 350) / 54.2];   // /3d/ shows the same duel on a WebGL table (board3d.js)
+$('viewLink').textContent = VIEW3D ? '2D' : '3D'; $('viewLink').href = VIEW3D ? '../' : '3d/';
+if (VIEW3D) { $('board').style.display = 'none'; $('board3d').hidden = false; import(new URL('board3d.js', document.baseURI)).catch(x => { $('board3d').innerHTML = `<p class="err" style="padding:16px">3D view failed to load: ${esc(x.message)}</p>`; }); }
+function xy(p, away) { // engine point ids: 0-27 field, 28-33 / 34-39 benches, 40-41 / 42-43 P.C., above that = out of play
+  if (p < 28) { const q = flip ? 27 - p : p; return [42 + XY[q][0] * 56, 186 + XY[q][1] * 82]; }
+  if (p < 44) { const k = flip ? -54.2 : 54.2; return [210 - SPOT[p][0] * k, 350 + SPOT[p][1] * k]; }
+  return [404, away];
+}
+function render() {
+  if (!st) return;
+  P_COL.black = flip ? 'var(--p1)' : 'var(--p0)'; P_COL.white = flip ? 'var(--p0)' : 'var(--p1)';
+  if (over && leagueGame && !leagueGame.done) finishLeague();
+  const side = st.selective_side, mine = !busy && !over && ctrl[side] === 'human';
+  const me = sel != null ? st.pokemon_conditions.find(c => c.pokemon_index === sel) : null;
+  const routes = new Map(), targets = new Map();
+  if (mine && me) for (const m of legal) {
+    const v = m.value;
+    if (v.type === 'mp_move' && v.route[0] === me.index) { const to = v.route[v.route.length - 1]; (routes.get(to) || routes.set(to, []).get(to)).push(m); }
+    if (v.type === 'declare_battle' && v.from_pokemon === sel) targets.set(v.to_pokemon, m);
+  }
+  render.routes = routes; render.targets = targets;
+  let h = EDGES.map(([a, b]) => { const [x1, y1] = xy(a), [x2, y2] = xy(b); return `<line class="edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; }).join('');
+  for (let p = 0; p < 28; p++) {
+    const [x, y] = xy(p), cls = ['pt', p === (flip ? 3 : 24) ? 'goal0' : p === (flip ? 24 : 3) ? 'goal1' : '', [0, 6, 21, 27].includes(p) ? 'entry' : '', routes.has(p) ? 'mv' : ''].join(' ');
+    h += `<circle class="${cls}" data-pt="${p}" cx="${x}" cy="${y}" r="${p === 3 || p === 24 ? 26 : 23}"/>`;
+    if (p === 3 || p === 24) h += `<text class="lbl" x="${x}" y="${y + ((p === 3) !== flip ? -31 : 39)}" text-anchor="middle">GOAL</text>`;
+  }
+  for (let p = 28; p < 44; p++) { const [x, y] = xy(p); h += p < 40 ? `<circle class="slot" cx="${x}" cy="${y}" r="26"/>` : `<rect class="slot" x="${x - 26}" y="${y - 26}" width="52" height="52" rx="8"/>`; }
+  const z = c => { const g = (st.z_gauge_conditions || []).find(x => x.color === c); return g ? ' · Z ' + g.z_gauge : ''; };
+  const low = flip ? 'white' : 'black', high = other(low);
+  h += `<text class="lbl" x="408" y="16" text-anchor="end">BENCH</text><text class="lbl" x="20" y="60">P.C.</text><text class="lbl" x="12" y="692">BENCH</text><text class="lbl" x="400" y="648" text-anchor="end">P.C.</text>`;
+  for (const [c, k] of [[low, 0], [high, 1]]) {   // HUD bars: who, Z gauge, clock; the side to act is outlined
+    $('n' + k).textContent = label(c); $('d' + k).style.background = P_COL[c]; $('z' + k).textContent = z(c).replace(' · ', '');
+    $(k ? 'hudTop' : 'hudBottom').classList.toggle('turn', !over && st.selective_side === c);
+  }
+  const away = { [low]: 590, [high]: 110 }, toks = [];
+  for (const c of st.pokemon_conditions) {
+    const i = c.pokemon_index, f = figOf(i), col = colorOf(i), p = pk(i) || {}, b = badges(c);
+    const [x, y] = xy(c.index, c.index >= 44 ? (away[col] += col === low ? -44 : 44) : 0), mp = (p.mp || 0) + ((c.effect && c.effect.mp) || 0);
+    toks.push({ i, x: U([x, y])[0], z: U([x, y])[1], team: col === low ? 0 : 1, img: sprite(f), name: f.n, mp: c.index < 40 ? String(mp) : '', badge: b.join(' · '), status: c.marker && c.marker.circle && c.marker.circle !== 'normal' ? c.marker.circle : '', wait: c.wait > 0, mpd: (c.effect && c.effect.mp) || 0, sel: i === sel, atk: targets.has(i), dim: c.index >= 40 });
+    h += `<g class="tok ${i === sel ? 'sel' : ''} ${targets.has(i) ? 'atk' : ''} ${c.index >= 40 ? 'dim' : ''}" data-fig="${i}" transform="translate(${x},${y}) scale(1.3)"><circle class="halo" r="26"/><circle class="bg" r="19" fill="${TYPE_COL[f.t[0]] || '#888'}"/><circle class="ring" r="19" stroke="${P_COL[col]}"/>
+      <text class="nm" y="4" font-size="8.5" fill="#10141a">${esc(f.n.replace(/^(Alolan|Shiny|Mega) /, '').slice(0, 7))}</text><text class="nm" y="-9" font-size="7.5" fill="#10141a">${c.index < 40 ? 'MP' + mp : ''}</text>
+      ${sprite(f) ? `<image href="${sprite(f)}" x="-24" y="-27" width="48" height="48" style="pointer-events:none" onerror="this.remove()"/><text y="18" x="15" font-size="8" fill="#fff" stroke="#000" stroke-width="2.5" paint-order="stroke">${c.index < 40 ? mp : ''}</text>` : ''}
+      ${b.length ? `<rect x="-24" y="12" width="48" height="12" rx="6" fill="#10141a"/><text y="21" font-size="7.5" fill="#ffd88a">${esc(b[0].slice(0, 11))}${b.length > 1 ? '+' : ''}</text>` : ''}</g>`;
+  }
+  $('board').innerHTML = h;
+  if (VIEW3D) {
+    const pts = []; for (let p = 0; p < 28; p++) { const [x, z] = U(xy(p)); pts.push({ k: flip ? 27 - p : p, p, x, z, goal: p === (flip ? 3 : 24) ? 0 : p === (flip ? 24 : 3) ? 1 : null, mv: routes.has(p) }); }
+    const slots = []; for (let p = 28; p < 44; p++) slots.push(U(xy(p)));
+    window.board3dModel = { pts, slots, toks, edges: EDGES.map(([a, b]) => [U(xy(a)), U(xy(b))]) }; if (window.Board3D) Board3D.draw(board3dModel);
+  }
+  $('status').innerHTML = over ? `<b>${over.winner && P_COL[over.winner] ? label(over.winner) + ' wins' : 'Draw'}</b> — ${esc(String(over.reason).replace(/_/g, ' '))}`
+    : `<b style="color:${P_COL[side] || 'inherit'}">${P_COL[side] ? label(side) : '…'}</b>${busy ? ' · working…' : mine ? ' to act' : ''} · ${st.remaining_turns} turns left`;
+  const extra = !mine ? [] : routeChoice ? routeChoice : legal.filter(m => !['mp_move', 'declare_battle', 'resign'].includes(m.value.type));
+  $('acts').innerHTML = (routeChoice && mine ? '<span class="note">Several routes lead there — choose one:</span>' : '') + extra.map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('') +
+    (rewindTarget() >= 0 ? `<button data-rw="1">Rewind to the start of your turn (${REWIND_MAX - rewinds} left)</button>` : '') +
+    (mine ? '<button data-ai="1">Let the AI choose this move</button>' : '') + (mine && legal.some(m => m.value.type === 'resign') ? `<button data-m="${legal.findIndex(m => m.value.type === 'resign')}" class="note">Resign</button>` : '');
+  drawClock(); drawCard(me);
+}
+function drawClock() {
+  $('c0').hidden = $('c1').hidden = missionDuel() || !!(net && !net.host);
+  for (const [c, el] of [[flip ? 'white' : 'black', 'c0'], [flip ? 'black' : 'white', 'c1']]) {
+    $(el).textContent = `${Math.floor(clock[c] / 60)}:${String(clock[c] % 60).padStart(2, '0')}`;
+    $(el).className = 'clock' + (!over && st && st.selective_side === c ? ' on' : '');
+  }
+}
+function wheelSvg(skills, size) {
+  let a = 0, h = '';
+  for (const s of skills) {
+    const col = (D.skills[s.id] || [0, 0, 0])[2], a2 = a + s.range / 96 * 2 * Math.PI, pt = t => [50 + 48 * Math.sin(t), 50 - 48 * Math.cos(t)], [x1, y1] = pt(a), [x2, y2] = pt(a2);
+    h += s.range >= 96 ? `<circle cx="50" cy="50" r="48" fill="${SEG_COL[col]}"/>` : `<path d="M50 50L${x1} ${y1}A48 48 0 ${s.range > 48 ? 1 : 0} 1 ${x2} ${y2}Z" fill="${SEG_COL[col]}" stroke="#10141a" stroke-width=".8"/>`;
+    if (s.range >= 8) h += `<text x="${50 + 30 * Math.sin((a + a2) / 2)}" y="${53 - 30 * Math.cos((a + a2) / 2)}" font-size="8" text-anchor="middle" fill="${col === 1 || col === 3 ? '#10141a' : '#fff'}">${power(s)}</text>`;
+    a = a2;
+  }
+  return `<svg viewBox="0 0 100 100" width="${size}" height="${size}">${h}</svg>`;
+}
+const power = s => { const col = (D.skills[s.id] || [0, 0, 0])[2]; return col === 2 ? '★'.repeat(Math.min(s.speed_or_damage || 0, 5)) : col === 1 || col === 3 ? (s.speed_or_damage || 0) : ''; };
+function drawCard(c) {
+  if (!c) { $('card').innerHTML = '<span class="note">Select a figure.</span>'; return; }
+  const i = c.pokemon_index, p = pk(i), f = figOf(i), ab = D.abilities[p.pokepower];
+  $('card').innerHTML = `<div style="display:flex;gap:12px;align-items:center">${wheelSvg(p.skills, 96)}<div>
+      <div style="font-size:16px">${nameOf(i)} <span class="chip rar${f.r}">${RAR[f.r] || ''}</span></div>
+      <div class="note">MP ${p.mp}${c.effect && c.effect.mp ? ' (' + (c.effect.mp > 0 ? '+' : '') + c.effect.mp + ')' : ''} · ${typeNames(f)} · ${place(c.index)}</div>
+      <div>${badges(c).map(b => `<span class="chip w">${esc(b)}</span>`).join('')}</div></div></div>
+    ${ab ? `<div style="margin:8px 0">Ability: <b>${esc(ab[0])}</b><div class="desc">${esc(ab[1])}</div></div>` : ''}
+    ${p.skills.map(s => { const k = D.skills[s.id] || ['Attack ' + s.id, '', 0]; return `<div class="atkrow"><span class="sw" style="background:${SEG_COL[k[2]]}"></span><span>${esc(k[0])}</span><span>${power(s)} <span class="note">${s.range}</span></span>${k[2] && k[1] ? `<span class="desc">${esc(k[1])}</span>` : ''}</div>`; }).join('')}`;
+}
+
+// ---------- input: every action is one of the engine's legal moves ----------
+window.boardPick = (fig, pt) => {   // a figure index and / or a field point, from either board
+  if (fig != null) { if (render.targets && render.targets.has(fig)) return play(render.targets.get(fig)); sel = fig; routeChoice = null; return render(); }
+  if (pt != null && render.routes && render.routes.has(pt)) { const r = render.routes.get(pt); if (r.length === 1) return play(r[0]); routeChoice = r; render(); }
+};
+$('board').onclick = e => { const g = e.target.closest('[data-fig]'), pt = e.target.closest('[data-pt]'); boardPick(g ? +g.dataset.fig : null, pt ? +pt.dataset.pt : null); };
+$('acts').onclick = e => {
+  if (e.target.closest('[data-rw]')) return rewind();
+  if (e.target.closest('[data-ai]') && !busy) { busy = true; render(); return api('go', { use_plate: false }).then(g => play(g.move)).catch(x => { busy = false; $('status').innerHTML = `<span class="err">${esc(x.message)}</span>`; }); }
+  const b = e.target.closest('[data-m]'); if (b && !busy) { const m = legal[+b.dataset.m]; if (m.value.type !== 'resign' || confirm('Resign this duel?')) play(m); } };
+
+// ---------- playing back the engine's effect list ----------
+function log(html) { logLines.push(html); $('log').innerHTML = logLines.slice(-120).map(l => `<div>${l}</div>`).join(''); $('log').scrollTop = 1e6; }
+function modal(html) { $('box').innerHTML = html; $('modal').hidden = false; return new Promise(res => { $('box').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { $('modal').hidden = true; res(b.dataset.v); } }; }); }
+async function showSpin(e, result) {
+  const spins = e.value.spins || [], RES = { win: 'wins', win_with_effect: 'wins', lose: 'loses', lose_with_effect: 'loses', draw: 'draw', draw_with_effect: 'draw', no_judgement: '' };
+  const done = modal(`<div class="vs">${spins.map((sp, k) => `<div><div>${nameOf(sp.pokemon)}</div><div class="wheelwrap"><div class="spin" id="w${k}">${wheelSvg((pk(sp.pokemon) || { skills: [] }).skills, 170)}</div></div><div class="res" id="r${k}"></div></div>`).join('')}</div>
+    <div style="text-align:center"><button class="primary" data-v="ok" id="okb" disabled>Continue</button></div>`);
+  await sleep(50);
+  spins.forEach((sp, k) => { const r = sp.results[sp.results.length - 1]; $('w' + k).style.transform = `rotate(${1440 - (r.num + .5) / 96 * 360}deg)`; });
+  await sleep(1650);
+  spins.forEach((sp, k) => {
+    const side = result && [result.value.attack, result.value.defence].find(x => x && x.pokemon === sp.pokemon), r = sp.results[sp.results.length - 1];
+    $('r' + k).innerHTML = (side ? `${fmt('skill', side.skill)} ${side.speed_or_damage || ''}<div>${RES[side.result] || esc(side.result)}</div>` : `spin ${r.num}`) +
+      (sp.results.some(x => x.displace) ? '<div class="note">shifted (confused)</div>' : '') + (sp.results.length > 1 ? `<div class="note">${sp.results.length} spins</div>` : '');
+  });
+  $('okb').disabled = false;
+  if (ctrl.black === 'human' || ctrl.white === 'human') await Promise.race([done, sleep(6000)]); else await sleep(600);
+  $('modal').hidden = true;
+}
+async function playEffects(list) {
+  for (let k = 0; k < list.length; k++) {
+    const e = list[k], v = e.value, t = v.type;
+    if (t === 'spin') {
+      const result = list.slice(k + 1).find(x => x.value.type === 'battle_result');
+      await showSpin(e, (v.spins || []).some(s => s.results.some(r => r.type === 'battle')) ? result : null);
+      if (!result) log('Spin · ' + (v.spins || []).map(s => `${nameOf(s.pokemon)} ${s.results.map(r => r.num).join(', ')}`).join(' · '));
+    } else if (t === 'battle_result') {
+      const side = x => `${nameOf(x.pokemon)} ${fmt('skill', x.skill)} ${x.speed_or_damage || ''} (${esc(String(x.result).replace(/_/g, ' '))})`;
+      log(`Battle · ${side(v.attack)} vs ${side(v.defence)}`);
+    } else if (t === 'mp_move') log(`${nameOf(figAt(v.route))} moves ${v.route.map(place).join(' → ')}`);
+    else if (t === 'declare_battle') log(`${nameOf(v.from_pokemon)} attacks ${nameOf(v.to_pokemon)}`);
+    else if (t === 'turn_end') log('<span class="note">— turn ends —</span>');
+    else if (t === 'game_set') { over = { winner: v.win, reason: v.reason }; log(`<b>${P_COL[v.win] ? label(v.win) + ' wins' : 'Draw'}</b> (${esc(String(v.reason).replace(/_/g, ' '))})`); }
+    else if (t === 'sandwich' && !(v.pokemons || []).length) continue;
+    else if (!QUIET.has(t)) log(describe(v));
+  }
+}
+const figAt = route => { const c = st.pokemon_conditions.find(c => c.index === route[route.length - 1]); return c ? c.pokemon_index : -1; };
+
+$('mode').onchange = () => { $('room').hidden = $('mode').value !== 'join'; $('go').textContent = $('mode').value === 'join' ? 'Join duel' : $('mode').value === 'host' ? 'Open room' : 'Start duel'; };
+$('ticker').firstElementChild.textContent = `${D.figures.length} figures · ${D.plates.length} plates · ${Object.keys(D.skills).length} attacks · ${Object.keys(D.abilities).length} abilities ◆ Parity: every legal move, spin, attack effect, ability, plate, evolution and AI decision is computed by the original game's own rule engine, not re-implemented ◆ Deck rules, levels, chain boosts, Rewind, league thresholds and booster odds follow the original client and its master data ◆ Not original: the look, the league opponent (the original AI with a random deck), fixed rating points, the starter set ◆ Missing because their data did not survive: quests, shop, level-up costs ◆ Everything runs in this page: no install, no server ◆ Online: one player opens a room and shares the code, the other joins with it`;
+drawList(); drawTeam(); drawSaved(); viewHref(); if (/^#g=\d+$/.test(location.hash)) resumeGame().catch(x => { showHome(); drawHome.msg = x.message; drawHome(); }); else showHome();
+</script>
+</body>
+</html>

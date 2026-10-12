@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<base href="../">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+<title>Figure Duel · 3D storybook</title>
+<style>
+  :root { --line:#2a3560; --ink:#eef2ff; --dim:#93a0c8; --accent:#ffd23f; }
+  * { box-sizing:border-box; } body { margin:0; height:100dvh; display:grid; grid-template-columns:240px 1fr; background:#000; color:var(--ink); font:14px/1.45 "Segoe UI",system-ui,Roboto,sans-serif; }
+  nav { overflow:auto; border-right:1px solid var(--line); background:#05070f; padding:12px 0; }
+  nav h1 { font:900 15px/1 "Segoe UI",system-ui,sans-serif; font-style:italic; letter-spacing:.06em; margin:0 14px 4px; } nav p { margin:0 14px 10px; color:var(--dim); font-size:12px; } nav p a { color:var(--accent); }
+  nav h2 { font:800 11px/1 "Segoe UI",system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:var(--accent); margin:14px 14px 6px; }
+  nav button { display:block; width:100%; text-align:left; font:inherit; color:var(--ink); background:none; border:0; border-left:3px solid transparent; padding:5px 14px; cursor:pointer; }
+  nav button:hover { background:#1c2648; } nav button.on { background:#1c2648; border-left-color:var(--accent); font-weight:700; }
+  main { display:flex; flex-direction:column; min-width:0; min-height:0; }
+  header { padding:10px 16px; border-bottom:1px solid var(--line); } header b { font-size:16px; } header div { color:var(--dim); font-size:12px; }
+  #board3d { flex:1; min-height:0; background:radial-gradient(ellipse at 50% 0%, rgba(255,70,88,.25), transparent 60%), radial-gradient(ellipse at 50% 100%, rgba(47,140,255,.3), transparent 60%), #0b1020; } #board3d canvas { display:block; }
+  pre { margin:0; padding:10px 16px; border-top:1px solid var(--line); background:#05070f; color:var(--dim); font:12px/1.4 Consolas,monospace; max-height:22dvh; overflow:auto; white-space:pre-wrap; }
+  @media (max-width:700px) { body { grid-template-columns:1fr; grid-template-rows:38dvh 1fr; } nav { border-right:0; border-bottom:1px solid var(--line); } }
+</style>
+</head>
+<body>
+<nav id="nav"><h1>3D STORYBOOK</h1><p>Every state the 3D table can draw. <a href="3d/">Play in 3D</a></p></nav>
+<main><header><b id="title"></b><div id="note"></div></header><div id="board3d"></div><pre id="props"></pre></main>
+<script src="data.js"></script>
+<script src="board.js"></script>
+<script>
+// Each story is a model for board3d.js, the renderer the 3D client uses, so what is shown here is exactly what a duel draws.
+const D = DUEL_DATA, $ = id => document.getElementById(id), cond = k => (D.conds[k] || k).replace(' {0}', '');
+const fig = D.figures.find(f => f.n === 'Pikachu') || D.figures[0];
+const art = f => f.dex <= 1025 ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${f.dex}.png` : '';
+const tok = (over, f = fig) => ({ team: 0, img: art(f), name: f.n, mp: String(f.mp), badge: '', status: '', wait: false, mpd: 0, sel: false, atk: false, dim: false, ...over });
+// figures side by side (rows of `per`), each one a variation
+function row(list, per = 6) {
+  const rows = Math.ceil(list.length / per), toks = list.map((t, i) => { const n = Math.min(per, list.length - Math.floor(i / per) * per); return { ...tok(t), i, x: ((i % per) - (n - 1) / 2) * 1.7, z: (Math.floor(i / per) - (rows - 1) / 2) * 2 }; });
+  return { pts: [], slots: [], edges: [], toks, snap: true, cam: { pos: [0, 2.2 + rows * 1.6, 5 + rows * 1.2].map(v => v * Math.min(1, (Math.min(per, list.length) + 3) / 5)), at: [0, .3, 0], width: Math.min(per, list.length) * 1.7 + 1.2 } };
+}
+// the table as a duel lays it out (bottom player's view)
+const P = p => p < 28 ? [(42 + XY[p][0] * 56 - 210) / 54.2, (186 + XY[p][1] * 82 - 350) / 54.2] : [-SPOT[p][0], SPOT[p][1]];
+function table(mv = [], toks = []) {
+  const pts = []; for (let p = 0; p < 28; p++) pts.push({ k: p, p, x: P(p)[0], z: P(p)[1], goal: p === 24 ? 0 : p === 3 ? 1 : null, mv: mv.includes(p) });
+  const slots = []; for (let p = 28; p < 44; p++) slots.push(P(p));
+  return { pts, slots, edges: EDGES.map(([a, b]) => [P(a), P(b)]), toks: toks.map((t, i) => ({ ...tok(t, t.f || fig), i, x: P(t.at)[0], z: P(t.at)[1] })), snap: true };
+}
+const STATUS = ['poison', 'bad_poison', 'burn', 'paralyze', 'sleep', 'freeze', 'panic', 'curse'], MARKERS = Object.keys(D.conds).filter(k => !D.conds[k].includes('{0}') && !STATUS.includes(k) && !/^mp_|^plus_|faint|melt/.test(k));
+const mpd = d => ({ mp: String(fig.mp + d), mpd: d, badge: d ? 'MP ' + (d > 0 ? '+' : '') + d : 'normal' });
+const some = n => D.figures.filter(f => f.dex <= 1025 && !/ /.test(f.n)).slice(0, n);
+const STORIES = {
+  Figure: {
+    'Blue team (you)': ['A figure on its base. The base carries the team colour; the number is its movement points.', () => row([{}])],
+    'Red team (opponent)': ['', () => row([{ team: 1 }])],
+    'Both teams': ['', () => row([{ badge: 'blue' }, { team: 1, badge: 'red' }])],
+    'Selected': ['Gold ring: the figure you picked.', () => row([{ sel: true }])],
+    'Attack target': ['Red ring: a figure the selected one can battle.', () => row([{ team: 1, atk: true }])],
+    'In the P.C.': ['Faded while it waits in the P.C.', () => row([{ dim: true, mp: '' }])],
+    'No picture': ['Figures without a picture show their name.', () => row([{ img: '', name: 'Wash Rotom' }])],
+    'Interaction states': ['', () => row([{ badge: 'idle' }, { sel: true, badge: 'selected' }, { team: 1, atk: true, badge: 'target' }, { dim: true, mp: '', badge: 'P.C.' }])],
+  },
+  'Status conditions': Object.fromEntries([...STATUS.map(k => [cond(k), ['Coloured aura under the base, with the condition named below.', () => row([{ status: k, badge: cond(k) }])]]),
+    ['All status conditions', ['', () => row(STATUS.map(k => ({ status: k, badge: cond(k) })), 4)]]]),
+  'Movement points': Object.fromEntries([...[-3, -2, -1, 0, 1, 2].map(d => [d ? 'MP ' + (d > 0 ? '+' : '') + d : 'MP unchanged', ['The MP badge turns red when lowered and green when raised.', () => row([mpd(d)])]]),
+    ['All MP changes', ['', () => row([-3, -2, -1, 0, 1, 2].map(mpd))]]]),
+  'Wait and damage': {
+    'Wait 1': ['A waiting figure is greyed and shows the turns left.', () => row([{ wait: true, badge: 'wait 1' }])],
+    'Wait 1 to 3': ['', () => row([1, 2, 3].map(n => ({ wait: true, badge: 'wait ' + n })))],
+    'Damage changes': ['', () => row(['-20 dmg', '+10 dmg', '+20 dmg'].map(b => ({ badge: b })))],
+    'Status with wait': ['Several states at once are listed together.', () => row([{ status: 'sleep', wait: true, badge: 'asleep · wait 2' }, { status: 'burn', mpd: -1, mp: String(fig.mp - 1), badge: 'burned' }])],
+  },
+  'Other markers': { 'All markers': ['Every other marker the engine can put on a figure. They share a white aura.', () => row(MARKERS.map(k => ({ status: k, badge: cond(k) })), 7)] },
+  Table: {
+    'Empty table': ['Field points, routes, both goals, bench rings and P.C. rings.', () => table()],
+    'Movable points': ['Points the selected figure can reach glow gold.', () => table([21, 22, 23, 16, 17, 18, 25, 26, 27, 19, 20], [{ at: 28, sel: true }])],
+    'Opening position': ['Six figures on each bench.', () => table([], some(12).map((f, i) => ({ f, at: i < 6 ? 28 + i : 34 + i - 6, team: i < 6 ? 0 : 1, mp: String(f.mp) })))],
+    'Mid duel': ['', () => table([], some(8).map((f, i) => ({ f, at: [24, 18, 13, 29, 3, 9, 14, 35][i], team: i < 4 ? 0 : 1, mp: String(f.mp), status: i === 1 ? 'burn' : i === 5 ? 'freeze' : '', badge: i === 1 ? 'burned' : i === 5 ? 'frozen' : '' })))],
+  },
+};
+let current = null;
+function show(group, name) {
+  const [note, make] = STORIES[group][name], m = make(); current = m;
+  $('title').textContent = group + ' / ' + name; $('note').textContent = note; location.hash = encodeURIComponent(group + '/' + name);
+  $('props').textContent = m.toks.map(t => JSON.stringify({ team: t.team, mp: t.mp, mpd: t.mpd, status: t.status, wait: t.wait, badge: t.badge, sel: t.sel, atk: t.atk, dim: t.dim })).join('\n') || '(no figures)';
+  for (const b of $('nav').querySelectorAll('button')) b.classList.toggle('on', b.dataset.g === group && b.dataset.n === name);
+  window.board3dModel = m; if (window.Board3D) Board3D.draw(m);
+}
+for (const g in STORIES) { $('nav').insertAdjacentHTML('beforeend', `<h2>${g}</h2>`); for (const n in STORIES[g]) { const b = document.createElement('button'); b.textContent = n; b.dataset.g = g; b.dataset.n = n; b.onclick = () => show(g, n); $('nav').appendChild(b); } }
+window.boardPick = fig => { if (fig == null || !current) return; for (const t of current.toks) t.sel = t.i === fig && !t.sel; Board3D.draw(current); };   // click a figure to toggle its selection ring
+const [g0, n0] = decodeURIComponent(location.hash.slice(1)).split('/'); show(...(STORIES[g0] && STORIES[g0][n0] ? [g0, n0] : ['Figure', 'Interaction states']));
+import(new URL('board3d.js', document.baseURI));
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+<!doctype html>
+<meta charset="utf-8"><title>Figure Duel 3D</title>
+<script>
+// The 3D client is the same game with a WebGL table. Load the one client from the parent folder, resolving its files there.
+fetch('../index.html').then(r => r.text()).then(h => { document.open(); document.write(h.replace('<head>', '<head><base href="../">')); document.close(); });
+</script>

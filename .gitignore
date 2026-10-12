@@ -1,0 +1,8 @@
+# the original game and the remakes are not part of this project and must not be published
+*.apk
+*.exe
+*.lnk
+*.so
+# local tooling
+.claude/
+__pycache__/

@@ -1,0 +1,568 @@
+[
+ {
+  "id": 1531,
+  "rule_id": 1531,
+  "figure_no": 531,
+  "name": "Umbreon",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 531 (original text master has no ItemName for 1531); engine name table: ブラッキー",
+  "types": [
+   "Dark"
+  ],
+  "type_ids": [
+   0
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1406,
+  "ability_name": "Dark Arrow",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1406)",
+  "ability_description": "This Pokémon can MP move through your Pokémon and opposing Psychic-type [CTRL NOTE][Pokémon] and Ghost-type Pokémon. If there are opposing Pokémon on all of your entry points, this Pokémon gains +1 MP.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.15",
+  "engine_name_ja": "ブラッキー",
+  "mp": 3,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 4,
+  "ex_type": 1,
+  "rarity_model": 0,
+  "model_id": 531,
+  "wheel": [
+   {
+    "skill_id": 1777,
+    "size": 28,
+    "value": 3,
+    "color": 2,
+    "name": "Dark Moon",
+    "name_source": "Remake B guide (text master has no entry for skill 1777)",
+    "piece_ext_priority": 1,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1458,
+    "size": 28,
+    "value": 70,
+    "color": 3,
+    "name": "Sucker Punch",
+    "name_source": "original text master SkillMaster.SkillName.1458",
+    "piece_ext_priority": 0,
+    "boost_priority": 1
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1776,
+    "size": 24,
+    "value": 70,
+    "color": 1,
+    "name": "Moon Twinkle",
+    "name_source": "Remake B guide (text master has no entry for skill 1776)",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   },
+   {
+    "skill_id": 1122,
+    "size": 12,
+    "value": 0,
+    "color": 4,
+    "name": "Dodge",
+    "name_source": "original text master SkillMaster.SkillName.1122",
+    "piece_ext_priority": 0,
+    "boost_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "authentic draft row 1531 (same five piece sizes and colours in the same order)",
+  "identical_to": null,
+  "evo_group": 200197,
+  "from_groups": [
+   133,
+   200133
+  ],
+  "to_groups": [],
+  "poke_no": 197,
+  "form_max": 0,
+  "evo_source": "authentic dump row 1531 (only name / MP / pokepower / wheel are replaced)",
+  "authentic_dump_row": {
+   "mp": 2,
+   "pokepower": null,
+   "wheel": [
+    [
+     1009,
+     28,
+     3,
+     1
+    ],
+    [
+     1458,
+     28,
+     70,
+     0
+    ],
+    [
+     1131,
+     4,
+     0,
+     -10
+    ],
+    [
+     1204,
+     24,
+     70,
+     0
+    ],
+    [
+     1122,
+     12,
+     0,
+     0
+    ]
+   ]
+  }
+ },
+ {
+  "id": 1554,
+  "rule_id": 1554,
+  "figure_no": 554,
+  "name": "Dialga",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 554 (original text master has no ItemName for 1554); engine name table: ディアルガ",
+  "types": [
+   "Steel",
+   "Dragon"
+  ],
+  "type_ids": [
+   6,
+   16
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1482,
+  "ability_name": "Time Slide",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1482)",
+  "ability_description": "This Pokémon cannot have Wait while it is on the field. If this Pokémon is knocked out by damage in battle, the next turn will always be yours.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.15",
+  "engine_name_ja": "ディアルガ",
+  "mp": 2,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 4,
+  "ex_type": 1,
+  "rarity_model": 0,
+  "model_id": 554,
+  "wheel": [
+   {
+    "skill_id": 1780,
+    "size": 28,
+    "value": 110,
+    "color": 3,
+    "name": "4-D Drive",
+    "name_source": "Remake B guide (text master has no entry for skill 1780)",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1460,
+    "size": 32,
+    "value": 180,
+    "color": 1,
+    "name": "Roar of Time*",
+    "name_source": "original text master SkillMaster.SkillName.1460",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1092,
+    "size": 28,
+    "value": 1,
+    "color": 2,
+    "name": "Aura Sphere",
+    "name_source": "original text master SkillMaster.SkillName.1092",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 200483,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 483,
+  "form_max": 0,
+  "evo_source": "authentic dump row 1554 (only name / MP / pokepower / wheel are replaced)",
+  "authentic_dump_row": {
+   "mp": 2,
+   "pokepower": null,
+   "wheel": [
+    [
+     1131,
+     48,
+     0,
+     1
+    ],
+    [
+     1131,
+     48,
+     0,
+     -10
+    ]
+   ]
+  }
+ },
+ {
+  "id": 1555,
+  "rule_id": 1555,
+  "figure_no": 555,
+  "name": "Palkia",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 555 (original text master has no ItemName for 1555); engine name table: パルキア",
+  "types": [
+   "Water",
+   "Dragon"
+  ],
+  "type_ids": [
+   8,
+   16
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1483,
+  "ability_name": "Space Slide",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1483)",
+  "ability_description": "When this Pokémon is knocked out by damage in battle, it recovers from any special conditions, and it moves to one of your entrypoints if possible. If it does, this Pokémon gains Wait.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.15",
+  "engine_name_ja": "パルキア",
+  "mp": 2,
+  "rarity": 5,
+  "rarity_name": "UX",
+  "served_rarity": 4,
+  "ex_type": 1,
+  "rarity_model": 0,
+  "model_id": 555,
+  "wheel": [
+   {
+    "skill_id": 1780,
+    "size": 28,
+    "value": 100,
+    "color": 3,
+    "name": "4-D Drive",
+    "name_source": "Remake B guide (text master has no entry for skill 1780)",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1459,
+    "size": 32,
+    "value": 170,
+    "color": 1,
+    "name": "Spacial Rend*",
+    "name_source": "original text master SkillMaster.SkillName.1459",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1092,
+    "size": 28,
+    "value": 1,
+    "color": 2,
+    "name": "Aura Sphere",
+    "name_source": "original text master SkillMaster.SkillName.1092",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 200484,
+  "from_groups": [],
+  "to_groups": [],
+  "poke_no": 484,
+  "form_max": 0,
+  "evo_source": "authentic dump row 1555 (only name / MP / pokepower / wheel are replaced)",
+  "authentic_dump_row": {
+   "mp": 2,
+   "pokepower": null,
+   "wheel": [
+    [
+     1131,
+     48,
+     0,
+     1
+    ],
+    [
+     1131,
+     48,
+     0,
+     -10
+    ]
+   ]
+  }
+ },
+ {
+  "id": 1600,
+  "rule_id": 1600,
+  "figure_no": 600,
+  "name": "Cofagrigus",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 600 (original text master has no ItemName for 1600); engine name table: デスカーン",
+  "types": [
+   "Ghost"
+  ],
+  "type_ids": [
+   15
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1477,
+  "ability_name": "Mummy",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1477)",
+  "ability_description": "Your Pokémon on the field can MP move through this Pokémon. If this Pokémon is not affected by a special condition, attach a Mummy marker to non-Ghost, non-Dark-type Pokémon that battle it. The Ability of the Pokémon with that marker becomes Mummy (the effects of its original Ability are nullified).",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.15",
+  "engine_name_ja": "デスカーン",
+  "mp": 1,
+  "rarity": 3,
+  "rarity_name": "R",
+  "served_rarity": 3,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 600,
+  "wheel": [
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1529,
+    "size": 32,
+    "value": 140,
+    "color": 1,
+    "name": "Hex",
+    "name_source": "original text master SkillMaster.SkillName.1529",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1745,
+    "size": 32,
+    "value": 2,
+    "color": 2,
+    "name": "Shadow Ball",
+    "name_source": "original text master SkillMaster.SkillName.1745",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 4,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1099,
+    "size": 20,
+    "value": 1,
+    "color": 2,
+    "name": "Eerie Light",
+    "name_source": "Remake B guide (text master has no entry for skill 1099)",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 563,
+  "from_groups": [
+   562
+  ],
+  "to_groups": [],
+  "poke_no": 563,
+  "form_max": 0,
+  "evo_source": "authentic dump row 1600 (only name / MP / pokepower / wheel are replaced)",
+  "authentic_dump_row": {
+   "mp": 2,
+   "pokepower": null,
+   "wheel": [
+    [
+     1131,
+     48,
+     0,
+     1
+    ],
+    [
+     1131,
+     48,
+     0,
+     -10
+    ]
+   ]
+  }
+ },
+ {
+  "id": 1613,
+  "rule_id": 1613,
+  "figure_no": 613,
+  "name": "Yamask",
+  "name_source": "Remake B duel_guide_figures_en.json figure_id 613 (original text master has no ItemName for 1613); engine name table: デスマス",
+  "types": [
+   "Ghost"
+  ],
+  "type_ids": [
+   15
+  ],
+  "types_source": "original engine in-memory table id -> (type0,type1), identical to authentic Type0/Type1 on all 564 dumped figures; Remake B guide agrees",
+  "ability_id": 1485,
+  "ability_name": "Memories of the Past",
+  "ability_name_source": "Remake B guide (text master has no entry for pokepower 1485)",
+  "ability_description": "This Pokémon may MP move through other Pokémon on the field. Your Pokémon next to this Pokémon cannot be affected by any new special conditions.",
+  "engine_accepts": true,
+  "engine_checks": {
+   "pokemon_id": true,
+   "rule_id": true,
+   "skills": true,
+   "pokepower": true,
+   "full_row_check_record": true
+  },
+  "notes": "",
+  "released": true,
+  "first_appear": "7.0.15",
+  "engine_name_ja": "デスマス",
+  "mp": 2,
+  "rarity": 2,
+  "rarity_name": "UC",
+  "served_rarity": 2,
+  "ex_type": 0,
+  "rarity_model": 0,
+  "model_id": 613,
+  "wheel": [
+   {
+    "skill_id": 1224,
+    "size": 32,
+    "value": 60,
+    "color": 1,
+    "name": "Night Shade",
+    "name_source": "original text master SkillMaster.SkillName.1224",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1131,
+    "size": 8,
+    "value": 0,
+    "color": 0,
+    "name": "Miss",
+    "name_source": "original text master SkillMaster.SkillName.1131",
+    "piece_ext_priority": -10
+   },
+   {
+    "skill_id": 1099,
+    "size": 32,
+    "value": 1,
+    "color": 2,
+    "name": "Eerie Light",
+    "name_source": "Remake B guide (text master has no entry for skill 1099)",
+    "piece_ext_priority": 0
+   },
+   {
+    "skill_id": 1745,
+    "size": 24,
+    "value": 2,
+    "color": 2,
+    "name": "Shadow Ball",
+    "name_source": "original text master SkillMaster.SkillName.1745",
+    "piece_ext_priority": 0
+   }
+  ],
+  "piece_ext_priority_source": "heuristic: -10 on the largest Miss piece (matches 550/554 authentic rows); the +1 (auto-extend) piece and BoostPriority are UNKNOWN",
+  "identical_to": null,
+  "evo_group": 562,
+  "from_groups": [],
+  "to_groups": [
+   563
+  ],
+  "poke_no": 562,
+  "form_max": 0,
+  "evo_source": "authentic dump row 1613 (only name / MP / pokepower / wheel are replaced)",
+  "authentic_dump_row": {
+   "mp": 2,
+   "pokepower": null,
+   "wheel": [
+    [
+     1131,
+     48,
+     0,
+     1
+    ],
+    [
+     1131,
+     48,
+     0,
+     -10
+    ]
+   ]
+  }
+ }
+]
