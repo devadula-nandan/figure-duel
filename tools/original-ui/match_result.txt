@@ -1,0 +1,46 @@
+== e56ddf4c774218f4c8f84ff01db3cbe0
+MatchResultPrefab  p=(0, 0)
+    [MatchResult] 
+    [AssignParent] 
+    [TutorialMatchResult] 
+  MatchResult  p=(0, 0)
+      [UIPanel] mDepth=5 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+    RootContainer  p=(0, 0)
+        [UIWidget] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+        [AnchorRoot] 
+      Bg  p=(0, 0)
+          [UISprite] mWidth=1001 mHeight=1334 mPivot=4 mColor='#646464/1.00' mSpriteName='BackgroundTile' mDepth=0 mType=2
+      Obj  p=(0, 0)
+          [UIPanel] mDepth=6 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        Result  p=(0, 516)
+            [UIPanel] mDepth=6 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+          ResultLabel  p=(0, 72)
+              [UILabel] mWidth=10 mHeight=28 mPivot=4 mColor='#ffffff/1.00' mText='' mFontSize=27 mDepth=4 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=6 mSpacingY=0 mMaxLineCount=0
+        Next  p=(0, -580)
+            [BoxCollider] size=(234.0, 86.0, 0.0) center=(0.0, 0.0, 0.0)
+            [UIButton] 
+            [UIWidget] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+            [DownButtonAnimation] 
+          Background  p=(0, 0)
+              [UISprite] mWidth=234 mHeight=86 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Yellow_M' mDepth=1 mType=1
+          Label  p=(-1, 0)
+              [UILabel] mWidth=200 mHeight=60 mPivot=4 mColor='#5c2a0c/1.00' mText='' mFontSize=30 mDepth=1000 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=10 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=16)' rightAnchor='anchor(rel=1.0 abs=-18)' bottomAnchor='anchor(rel=0.0 abs=13)' topAnchor='anchor(rel=1.0 abs=-13)'
+        ConfirmL (off)  p=(-160, -580)
+            [BoxCollider] size=(234.0, 86.0, 0.0) center=(0.0, 0.0, 0.0)
+            [UIButton] 
+            [UIWidget] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+          Background  p=(0, 0)
+              [UISprite] mWidth=234 mHeight=86 mPivot=4 mColor='#ffffff/1.00' mSpriteName='ButtonYellowMiddle' mDepth=1 mType=1
+          Label  p=(-1, 0)
+              [UILabel] mWidth=200 mHeight=50 mPivot=4 mColor='#5c2a0c/1.00' mText='' mFontSize=30 mDepth=1000 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=1 mSpacingY=0 mMaxLineCount=0
+        ConfirmR (off)  p=(160, -580)
+            [BoxCollider] size=(234.0, 86.0, 0.0) center=(0.0, 0.0, 0.0)
+            [UIButton] 
+            [UIWidget] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+          Background  p=(0, 0)
+              [UISprite] mWidth=234 mHeight=86 mPivot=4 mColor='#ffffff/1.00' mSpriteName='ButtonYellowMiddle' mDepth=1 mType=1
+          Label  p=(-1, 0)
+              [UILabel] mWidth=200 mHeight=50 mPivot=4 mColor='#5c2a0c/1.00' mText='' mFontSize=30 mDepth=1000 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=1 mSpacingY=0 mMaxLineCount=0
+        ListFullLabel  p=(0, -658)
+            [UILabel] mWidth=750 mHeight=30 mPivot=7 mColor='#f5e800/1.00' mText='' mFontSize=20 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+        Effect (off)  p=(0, 650)

@@ -1,0 +1,261 @@
+== sharedassets4.assets
+TurnEndButton (off)  p=(0, 0)
+    [UIPanel] mDepth=0 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+    [TableButton] 
+    [BoxCollider] size=(3.0, 0.3, 1.0) center=(0.0, 0.15, 0.0)
+  te_switch_root  p=(0, 0)
+      [TweenScale] 
+    button_AI_eff02_mdl  p=(0, 0)
+        [TweenShaderFloat] 
+        [SetRenderQueue] 
+    button_AI_eff03_mdl  p=(0, 0)
+        [TweenShaderAlpha] 
+    button_light_guide_mdl  p=(0, 0)
+    name  p=(0, 0.25) s=(0.2, 0.2)
+        [UILabel] mWidth=14 mHeight=2 mPivot=4 mColor='#ffffff/1.00' mText='' mFontSize=60 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=1 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+  button_AI_eff01_mdl  p=(0, 0) s=(1, 1.6)
+      [TweenShaderFloat] 
+      [SetRenderQueue] 
+  turnend_eff1_wave (off)  p=(0, 0)
+      [UvScrollAnimation] 
+    turnend_prizring  p=(0, 0)
+    turnend_dust  p=(0, 0)
+    turnend_flash  p=(0, 0)
+== sharedassets4.assets
+AIButton (off)  p=(0, 0)
+    [UIPanel] mDepth=0 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+    [TableButton] 
+    [BoxCollider] size=(3.0, 0.3, 1.0) center=(0.0, 0.15, 0.0)
+  ai_switch_root  p=(0, 0)
+      [TweenScale] 
+    button_AI_eff02_mdl  p=(0, 0)
+        [TweenShaderFloat] 
+    button_AI_eff03_mdl  p=(0, 0)
+        [TweenShaderAlpha] 
+    button_light_guide_mdl  p=(0, 0)
+    button_AI_count_mdl (off)  p=(0, 0)
+        [UvScrollAnimation] 
+        [SetSortingLayer] 
+    name  p=(0, 0.25) s=(0.25, 0.25)
+        [UILabel] mWidth=8 mHeight=2 mPivot=4 mColor='#ffffff/1.00' mText='' mFontSize=60 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=1 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+    RemainTurn  p=(1.17, 0.31) s=(0.15, 0.15)
+        [UILabel] mWidth=5 mHeight=2 mPivot=4 mColor='#7e4100/1.00' mText='' mFontSize=20 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+    AddIcon (off)  p=(0, 0)
+      AddText (off)  p=(-1.05, 0.25) s=(0.17, 0.17)
+          [UILabel] mWidth=8 mHeight=2 mPivot=4 mColor='#ffffff/1.00' mText='＋' mFontSize=20 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=1 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+  button_AI_eff01_mdl  p=(0, 0) s=(1, 1.6)
+      [TweenShaderFloat] 
+  AIbutton_eff1_wave (off)  p=(0, 0)
+      [UvScrollAnimation] 
+    aibutton_prizring  p=(0, 0)
+    aibutton_dust  p=(0, 0)
+    aibutton_flash  p=(0, 0)
+  ItemRoot (off)  p=(0, 0)
+    BG  p=(0, 0) s=(0.02, 0.02)
+        [UISprite] mWidth=142 mHeight=26 mPivot=4 mColor='#000000/0.75' mSpriteName='DuelContentsCircle' mDepth=0 mType=1
+    Ticket  p=(0, 0)
+      Icon  p=(0.59, 0) s=(0.005, 0.005)
+          [UISprite] mWidth=60 mHeight=60 mPivot=4 mColor='#ffffff/0.75' mSpriteName='TicketIcon9008' mDepth=1 mType=1
+      Num  p=(0.37, 0) s=(0.1, 0.1)
+          [UILabel] mWidth=14 mHeight=2 mPivot=3 mColor='#ffffff/1.00' mText='999999' mFontSize=20 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+    Gem (off)  p=(0, 0)
+      Icon  p=(-0.17, 0) s=(0.005, 0.005)
+          [UISprite] mWidth=60 mHeight=60 mPivot=4 mColor='#ffffff/0.75' mSpriteName='DiaIcon' mDepth=1 mType=1
+      Num  p=(-0.38, 0) s=(0.1, 0.1)
+          [UILabel] mWidth=14 mHeight=2 mPivot=3 mColor='#ffffff/1.00' mText='999999' mFontSize=20 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+== sharedassets4.assets
+ZSkillButton (off)  p=(0, 0)
+    [UIPanel] mDepth=0 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+    [TableButton] 
+    [BoxCollider] size=(3.0, 0.3, 1.0) center=(0.0, 0.15, 0.0)
+  z_switch_root  p=(0, 0)
+      [TweenScale] 
+    button_AI_eff02_mdl  p=(0, 0)
+        [TweenShaderFloat] 
+    button_AI_eff03_mdl  p=(0, 0)
+        [TweenShaderAlpha] 
+    button_light_guide_mdl  p=(0, 0)
+    button_AI_count_mdl (off)  p=(0, 0)
+        [UvScrollAnimation] 
+        [SetSortingLayer] 
+    name  p=(0, 0.25) s=(0.22, 0.22)
+        [UILabel] mWidth=14 mHeight=4 mPivot=4 mColor='#ffffff/1.00' mText='' mFontSize=60 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=1 mSpacingX=0 mSpacingY=0 mMaxLineCount=2
+    RemainTurn  p=(1.17, 0.31) s=(0.15, 0.15)
+        [UILabel] mWidth=5 mHeight=2 mPivot=4 mColor='#7e4100/1.00' mText='' mFontSize=20 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+    AddIcon (off)  p=(0, 0)
+      AddText (off)  p=(-1.05, 0.25) s=(0.17, 0.17)
+          [UILabel] mWidth=8 mHeight=2 mPivot=4 mColor='#ffffff/1.00' mText='＋' mFontSize=20 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=1 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+  button_AI_eff01_mdl  p=(0, 0) s=(1, 1.6)
+      [TweenShaderFloat] 
+  AIbutton_eff1_wave (off)  p=(0, 0)
+      [UvScrollAnimation] 
+    aibutton_prizring  p=(0, 0)
+    aibutton_dust  p=(0, 0)
+    aibutton_flash  p=(0, 0)
+  ItemRoot (off)  p=(0, 0)
+    BG  p=(0, 0) s=(0.02, 0.02)
+        [UISprite] mWidth=142 mHeight=26 mPivot=4 mColor='#000000/0.75' mSpriteName='DuelContentsCircle' mDepth=0 mType=1
+    Ticket  p=(0, 0)
+      Icon  p=(0.59, 0) s=(0.005, 0.005)
+          [UISprite] mWidth=60 mHeight=60 mPivot=4 mColor='#ffffff/0.75' mSpriteName='TicketIcon9008' mDepth=1 mType=1
+      Num  p=(0.37, 0) s=(0.1, 0.1)
+          [UILabel] mWidth=14 mHeight=2 mPivot=3 mColor='#ffffff/1.00' mText='999999' mFontSize=20 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+    Gem (off)  p=(0, 0)
+      Icon  p=(-0.17, 0) s=(0.005, 0.005)
+          [UISprite] mWidth=60 mHeight=60 mPivot=4 mColor='#ffffff/0.75' mSpriteName='DiaIcon' mDepth=1 mType=1
+      Num  p=(-0.38, 0) s=(0.1, 0.1)
+          [UILabel] mWidth=14 mHeight=2 mPivot=3 mColor='#ffffff/1.00' mText='999999' mFontSize=20 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+== 8f49bc80d896d554781646c53f01a30b
+PlateObject  p=(-2.55, 0) s=(0.006, 0.006)
+    [MatchPlateObjects] 
+    [UIPanel] mDepth=0 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+  PlateBase_Front  p=(0, 0)
+      [MeshObject] 
+  PlateBase_Back  p=(0, 0)
+      [MeshObject] 
+  Rare  p=(-46, 90) s=(0.4, 0.4)
+      [MeshObject] 
+  TypeIcon  p=(25, 71) s=(1.8, 1.8)
+      [MeshObject] 
+  Cost00  p=(58.5, -108) s=(0.27, 0.2)
+      [MeshObject] 
+  Cost01  p=(34.5, -108) s=(0.27, 0.2)
+      [MeshObject] 
+  Cost02  p=(11, -108) s=(0.27, 0.2)
+      [MeshObject] 
+  Cost03  p=(-12.5, -108) s=(0.27, 0.2)
+      [MeshObject] 
+  Cost04  p=(-36, -108) s=(0.27, 0.2)
+      [MeshObject] 
+  Cost05  p=(-60, -108) s=(0.27, 0.2)
+      [MeshObject] 
+  Panel  p=(0, 0)
+    Name  p=(68, -29) s=(1.6, 1.6)
+        [UILabel] mWidth=84 mHeight=50 mPivot=3 mColor='#ff532b/1.00' mText='name' mFontSize=10 mDepth=0 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+  Panel  p=(0, 0)
+    Text (off)  p=(68, -7) s=(1.12, 1.12)
+        [UILabel] mWidth=120 mHeight=83 mPivot=0 mColor='#ffffff/1.00' mText='123456789012345678901\n123456789012345678901\n123456789012345678901\n123456789012345678901\n123456789012345678901\n123456789012345678901\n123456789012345678901' mFontSize=10 mDepth=0 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=3 mMaxLineCount=0
+  Panel  p=(0, 0)
+    Damage  p=(25, 71) s=(2.5, 2.5)
+        [UILabel] mWidth=18 mHeight=10 mPivot=4 mColor='#ffffff/1.00' mText='×2' mFontSize=10 mDepth=0 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+== sharedassets0.assets
+PlateThumbnailLL  p=(0, 0)
+    [PlateThumbnail] 
+    [UIDragScrollView] 
+    [BoxCollider] size=(530.0, 774.0, 1.0) center=(0.0, 0.0, 0.0)
+    [UIButton] 
+    [UIButtonLongTapComponent] 
+    [ButtonArgs] 
+  Root  p=(0, 0)
+    Plate  p=(0, 0)
+      Base  p=(0, 0)
+          [UISprite] mWidth=530 mHeight=776 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Base' mDepth=30 mType=0
+      Rare  p=(153, 307)
+          [UISprite] mWidth=92 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Rare03' mDepth=32 mType=0
+      Type  p=(-87, 236)
+          [UISprite] mWidth=230 mHeight=230 mPivot=4 mColor='#ffffff/1.00' mSpriteName='TypeIcon04' mDepth=33 mType=0
+        NumLabel  p=(0, -5)
+            [UILabel] mWidth=150 mHeight=150 mPivot=4 mColor='#fef3f1/1.00' mText='' mFontSize=80 mDepth=34 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=-4 mSpacingY=0 mMaxLineCount=0
+      NameLabel  p=(-224, 106)
+          [UILabel] mWidth=460 mHeight=120 mPivot=0 mColor='#ffffff/1.00' mText='' mFontSize=43 mDepth=33 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-3 mSpacingY=17 mMaxLineCount=0
+      DescriptionLabel  p=(-225, -31)
+          [UILabel] mWidth=450 mHeight=320 mPivot=0 mColor='#ffffff/1.00' mText='' mFontSize=30 mDepth=34 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=14 mMaxLineCount=0
+      IdLabel (off)  p=(-261, 376)
+          [UILabel] mWidth=50 mHeight=32 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=32 mDepth=31 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=1 mSpacingY=0 mMaxLineCount=0
+      IdNumLabel (off)  p=(-213, 376)
+          [UILabel] mWidth=44 mHeight=32 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=32 mDepth=32 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+      Cost  p=(-233, -359)
+          [UISprite] mWidth=2 mHeight=58 mPivot=3 mColor='#ffffff/1.00' mSpriteName='Cost' mDepth=36 mType=2
+      Edge  p=(0, 0)
+          [UISprite] mWidth=530 mHeight=776 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Edge_n' mDepth=31 mType=0
+      BackButton  p=(0, -500)
+          [BoxCollider] size=(190.0, 85.0, 0.0) center=(0.0, 0.0, 0.0)
+          [UIWidget] mWidth=190 mHeight=85 mPivot=4 mColor='#ffffff/1.00' mDepth=2
+          [UIButton] 
+          [OnBackKeyFire] 
+          [DownButtonAnimation] 
+        ButtonBase  p=(0, -0)
+            [UISprite] mWidth=190 mHeight=85 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Blue_M' mDepth=2 mType=1
+        Label  p=(0, 0)
+            [UILabel] mWidth=150 mHeight=50 mPivot=4 mColor='#002b54/1.00' mText='' mFontSize=30 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=20)' rightAnchor='anchor(rel=1.0 abs=-20)' bottomAnchor='anchor(rel=0.0 abs=18)' topAnchor='anchor(rel=1.0 abs=-17)'
+            [SetTextMasterToLabel] 
+  DebugLabel  p=(-64, 75)
+      [UILabel] mWidth=127 mHeight=16 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=16 mDepth=50 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+== sharedassets0.assets
+PlateThumbnailM  p=(0, 0)
+    [PlateThumbnail] 
+    [UIDragScrollView] 
+    [BoxCollider] size=(216.0, 258.0, 1.0) center=(0.0, 0.0, 0.0)
+    [UIButton] 
+    [UIButtonLongTapComponent] 
+    [ButtonArgs] 
+  Root  p=(0, 0)
+    Plate (off)  p=(0, 0) s=(0.3, 0.3)
+      Base  p=(0, 0) s=(3.333, 3.333)
+          [UISprite] mWidth=160 mHeight=234 mPivot=4 mColor='#ffffff/1.00' mSpriteName='BaseM' mDepth=30 mType=0
+      Rare  p=(155, 302)
+          [UISprite] mWidth=84 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Rare01' mDepth=32 mType=0
+      Type  p=(-87, 236)
+          [UISprite] mWidth=148 mHeight=146 mPivot=4 mColor='#ffffff/1.00' mSpriteName='TypeIcon01' mDepth=33 mType=0
+        NumLabel  p=(0, -5)
+            [UILabel] mWidth=150 mHeight=150 mPivot=4 mColor='#1a1a1a/1.00' mText='' mFontSize=100 mDepth=39 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=-5 mSpacingY=0 mMaxLineCount=0
+      NameLabel  p=(-230, 0)
+          [UILabel] mWidth=450 mHeight=210 mPivot=0 mColor='#ffffff/1.00' mText='' mFontSize=80 mDepth=40 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-12 mSpacingY=15 mMaxLineCount=0
+      IdLabel (off)  p=(-260, 360)
+          [UILabel] mWidth=400 mHeight=120 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=70 mDepth=44 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=0 mSpacingY=15 mMaxLineCount=0
+      IdNumLabel (off)  p=(-139.2, 366)
+          [UILabel] mWidth=200 mHeight=82 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=60 mDepth=1000 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=15 mMaxLineCount=0
+      Cost  p=(-233, -363)
+          [UISprite] mWidth=2 mHeight=58 mPivot=3 mColor='#ffffff/1.00' mSpriteName='Cost' mDepth=34 mType=2
+      Edge  p=(0, 0) s=(3.333, 3.333)
+          [UISprite] mWidth=160 mHeight=234 mPivot=4 mColor='#ffffff/1.00' mSpriteName='EdgeM_n' mDepth=31 mType=0
+    Select (off)  p=(0, 0)
+        [UISprite] mWidth=52 mHeight=52 mPivot=4 mColor='#ffffff/1.00' mSpriteName='SelectIcon' mDepth=48 mType=0
+    Value  p=(0, -70)
+      CategoryIcon (off)  p=(-46, 4)
+          [UISprite] mWidth=22 mHeight=22 mPivot=4 mColor='#ffffff/1.00' mSpriteName='CoinIcon' mDepth=45 mType=1
+      CategoryLabel (off)  p=(-25, 0)
+          [UILabel] mWidth=40 mHeight=28 mPivot=4 mColor='#eeeeee/1.00' mText='' mFontSize=18 mDepth=46 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+      ValueLabel  p=(8, 0)
+          [UILabel] mWidth=90 mHeight=28 mPivot=4 mColor='#eeeeee/1.00' mText='' mFontSize=27 mDepth=47 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+    InfoRoot  p=(0, 0)
+      LockIcon (off)  p=(85, -105)
+          [UISprite] mWidth=34 mHeight=40 mPivot=4 mColor='#ffffff/1.00' mSpriteName='ItemLock' mDepth=47 mType=0
+      UseIcon (off)  p=(62, 124)
+          [UISprite] mWidth=62 mHeight=25 mPivot=4 mColor='#ffffff/1.00' mSpriteName='DeckUsed' mDepth=48 mType=0
+        Label  p=(-1, -1)
+            [UILabel] mWidth=60 mHeight=26 mPivot=4 mColor='#ffffff/1.00' mText='DECK' mFontSize=16 mDepth=49 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+      NewIcon  p=(62, 124)
+          [UISprite] mWidth=62 mHeight=25 mPivot=4 mColor='#ffffff/0.00' mSpriteName='NewBase' mDepth=48 mType=0
+        Label  p=(0, -1)
+            [UILabel] mWidth=60 mHeight=26 mPivot=4 mColor='#1ea2e6/1.00' mText='NEW' mFontSize=19 mDepth=49 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+  DebugLabel (off)  p=(-64, 108)
+      [UILabel] mWidth=127 mHeight=16 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=16 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+== sharedassets0.assets
+PlateThumbnailL  p=(0, 0)
+    [PlateThumbnail] 
+    [UIDragScrollView] 
+    [BoxCollider] size=(530.0, 774.0, 1.0) center=(0.0, 0.0, 0.0)
+    [UIButton] 
+    [UIButtonLongTapComponent] 
+    [ButtonArgs] 
+  Root  p=(0, 0)
+    Plate (off)  p=(0, 0) s=(0.65, 0.65)
+      Base  p=(0, 0)
+          [UISprite] mWidth=530 mHeight=774 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Base' mDepth=30 mType=0
+      Rare  p=(155, 302)
+          [UISprite] mWidth=84 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Rare01' mDepth=32 mType=0
+      Type  p=(-87, 236)
+          [UISprite] mWidth=230 mHeight=230 mPivot=4 mColor='#ffffff/1.00' mSpriteName='TypeIcon04' mDepth=33 mType=0
+        NumLabel  p=(0, -5)
+            [UILabel] mWidth=150 mHeight=150 mPivot=4 mColor='#fef3f1/1.00' mText='' mFontSize=80 mDepth=34 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=-4 mSpacingY=0 mMaxLineCount=0
+      NameLabel  p=(-230, 119)
+          [UILabel] mWidth=460 mHeight=120 mPivot=0 mColor='#ffffff/1.00' mText='' mFontSize=44 mDepth=33 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-3 mSpacingY=15 mMaxLineCount=0
+      DescriptionLabel  p=(-225, -17)
+          [UILabel] mWidth=450 mHeight=320 mPivot=0 mColor='#ffffff/1.00' mText='' mFontSize=32 mDepth=34 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-2 mSpacingY=12 mMaxLineCount=0
+      Cost  p=(-232, -358)
+          [UISprite] mWidth=2 mHeight=58 mPivot=3 mColor='#ffffff/1.00' mSpriteName='Cost' mDepth=36 mType=2
+      Edge  p=(0, 0)
+          [UISprite] mWidth=530 mHeight=776 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Edge_n' mDepth=31 mType=0
+  DebugLabel  p=(-64, 75)
+      [UILabel] mWidth=127 mHeight=16 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=16 mDepth=50 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0

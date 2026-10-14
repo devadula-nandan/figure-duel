@@ -1,0 +1,121 @@
+== e0a10414172e2134f937ef8372b24006
+MatchResultRankPrefab  p=(0, 0)
+    [MatchResultRank] 
+    [AssignParent] 
+    [TutorialMatchResultRank] 
+  MatchResultRank  p=(0, 0)
+      [UIPanel] mDepth=6 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+    RootContainer  p=(0, 0)
+        [UIWidget] mWidth=750 mHeight=1334 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+        [AnchorRoot] 
+      RankRoot  p=(0, 0) s=(0, 0)
+      Anchors  p=(0, 0)
+        Top  p=(0, 667)
+        Bottom  p=(0, -667)
+        Left  p=(-375, 0)
+        Right  p=(375, 0)
+      InfoRoot  p=(0, 0)
+          [UIWidget] mWidth=750 mHeight=1334 mPivot=4 mColor='#ffffff/1.00' mDepth=0 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+        MonthlyPointBalloon1 (off)  p=(250, 482)
+            [UISprite] mWidth=220 mHeight=136 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Balloon_blue' mDepth=2 mType=0
+          ShieldIcon  p=(-58.2, 15.4)
+              [UISprite] mWidth=50 mHeight=60 mPivot=4 mColor='#ffffff/1.00' mSpriteName='IconReward' mDepth=3 mType=0
+          Label  p=(-32, 18)
+              [UILabel] mWidth=130 mHeight=60 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=30 mDepth=4 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+              [SetTextMasterToLabel] 
+        iMonthlyPointBalloon2 (off)  p=(120, -45)
+            [UISprite] mWidth=130 mHeight=80 mPivot=4 mColor='#ffffff/1.00' mSpriteName='BalloonThornRed' mDepth=5 mType=0
+          Label  p=(0, 0)
+              [UILabel] mWidth=176 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mText='2倍!!' mFontSize=28 mDepth=6 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+        Table  p=(0, 420)
+            [UITable] 
+          Rating  p=(0, -75)
+            Bg  p=(0, -4)
+                [UISprite] mWidth=686 mHeight=154 mPivot=4 mColor='#ffffff/1.00' mSpriteName='DialogBase' mDepth=0 mType=1
+            Rating  p=(0, 21)
+              LeftLabel  p=(-20, 0)
+                  [UILabel] mWidth=300 mHeight=40 mPivot=5 mColor='#ffffff/1.00' mText='' mFontSize=28 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+              RightLabel  p=(-20, 0)
+                  [UILabel] mWidth=300 mHeight=40 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=30 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+              Label  p=(-20, -52)
+                  [UILabel] mWidth=600 mHeight=38 mPivot=4 mColor='#ffffff/1.00' mText='' mFontSize=24 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+          Reward  p=(-28.25, -253.75)
+            Box  p=(-127, 0) s=(0.75, 0.75)
+                [UITexture] mWidth=300 mHeight=250 mPivot=4 mColor='#ffffff/1.00' mDepth=1001 mType=0
+            NameLabel  p=(-6, 61)
+                [UILabel] mWidth=300 mHeight=50 mPivot=3 mColor='#f5e800/1.00' mText='' mFontSize=36 mDepth=1000 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+            ItemsLabel  p=(-4, 25)
+                [UILabel] mWidth=300 mHeight=110 mPivot=0 mColor='#ffffff/1.00' mText='' mFontSize=24 mDepth=1000 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=12 mMaxLineCount=0
+          Key  p=(0, -424.5)
+            Bg  p=(0, 73)
+                [UISprite] mWidth=686 mHeight=108 mPivot=1 mColor='#ffffff/1.00' mSpriteName='DialogBase' mDepth=0 mType=1
+            Base  p=(0, 21)
+                [ResultRankingText] 
+              Key  p=(0, 0)
+                LeftLabel  p=(-20, 0)
+                    [UILabel] mWidth=300 mHeight=40 mPivot=5 mColor='#ffffff/1.00' mText='' mFontSize=28 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+                RightLabel  p=(-20, 0)
+                    [UILabel] mWidth=300 mHeight=40 mPivot=3 mColor='#f5e800/1.00' mText='' mFontSize=30 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+              LeftLabel (off)  p=(82, 0)
+                  [UILabel] mWidth=402 mHeight=40 mPivot=5 mColor='#ffffff/1.00' mText='' mFontSize=28 mDepth=1000 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+              RightLabel (off)  p=(82, 0)
+                  [UILabel] mWidth=238 mHeight=40 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=30 mDepth=1000 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+          Ranking  p=(0, -536.5)
+            Bg  p=(0, 73)
+                [UISprite] mWidth=686 mHeight=150 mPivot=1 mColor='#ffffff/1.00' mSpriteName='DialogBase' mDepth=0 mType=1
+            Base  p=(0, 20)
+                [ResultRankingText] 
+              LeftLabel  p=(-20, 0)
+                  [UILabel] mWidth=300 mHeight=40 mPivot=5 mColor='#ffffff/1.00' mText='' mFontSize=24 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+                  [SetTextMasterToLabel] 
+              RightLabel  p=(-20, 0)
+                  [UILabel] mWidth=210 mHeight=40 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=30 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+              RewardListButton  p=(250, 0)
+                  [UISprite] mWidth=140 mHeight=60 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Blue_M' mDepth=2 mType=1
+                  [DownButtonAnimation] 
+                  [BoxCollider] size=(140.0, 60.0, 0.0) center=(0.0, 0.0, 0.0)
+                  [UIButton] 
+                  [SetTextMasterToLabel] 
+                Label  p=(0, 0)
+                    [UILabel] mWidth=110 mHeight=28 mPivot=4 mColor='#354a7e/1.00' mText='' mFontSize=20 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=15)' rightAnchor='anchor(rel=1.0 abs=-15)' bottomAnchor='anchor(rel=0.5 abs=-14)' topAnchor='anchor(rel=0.5 abs=14)'
+                    [SetTextMasterToLabel] 
+              MonthlyPointBalloon2Point  p=(120, 55)
+            Base  p=(0, -23)
+                [ResultRankingText] 
+              LeftLabel  p=(-20, 0)
+                  [UILabel] mWidth=300 mHeight=40 mPivot=5 mColor='#ffffff/1.00' mText='' mFontSize=24 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+              RightLabel  p=(-20, 0)
+                  [UILabel] mWidth=300 mHeight=40 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=30 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+          TournamentRating  p=(0, -690.5)
+            Bg  p=(0, 73)
+                [UISprite] mWidth=686 mHeight=108 mPivot=1 mColor='#ffffff/1.00' mSpriteName='DialogBase' mDepth=0 mType=1
+            Base  p=(0, 21)
+                [ResultRankingText] 
+              LeftLabel  p=(-20, 0)
+                  [UILabel] mWidth=300 mHeight=40 mPivot=5 mColor='#ffffff/1.00' mText='' mFontSize=28 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+              RightLabel  p=(-20, 0)
+                  [UILabel] mWidth=300 mHeight=40 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=30 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=-1 mSpacingY=0 mMaxLineCount=0
+          OnlineMatch  p=(0, -802.5)
+            Bg  p=(0, 73)
+                [UISprite] mWidth=686 mHeight=108 mPivot=1 mColor='#ffffff/1.00' mSpriteName='DialogBase' mDepth=0 mType=1
+            Label  p=(-239, 19)
+                [UILabel] mWidth=142 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mText='' mFontSize=24 mDepth=2 mOverflow=0 mAlignment=1 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=33)' rightAnchor='anchor(rel=1.0 abs=-511)' bottomAnchor='anchor(rel=0.0 abs=16)' topAnchor='anchor(rel=1.0 abs=-16)'
+                [SetTextMasterToLabel] 
+            Label  p=(-174, 20)
+                [UILabel] mWidth=25 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mText=':' mFontSize=24 mDepth=1 mOverflow=0 mAlignment=2 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=157)' rightAnchor='anchor(rel=1.0 abs=-504)' bottomAnchor='anchor(rel=0.0 abs=16)' topAnchor='anchor(rel=1.0 abs=-14)'
+            OnlineMatchID  p=(7, 19)
+                [UILabel] mWidth=336 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mText='' mFontSize=28 mDepth=2 mOverflow=0 mAlignment=1 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=182)' rightAnchor='anchor(rel=1.0 abs=-168)' bottomAnchor='anchor(rel=0.0 abs=16)' topAnchor='anchor(rel=1.0 abs=-16)'
+            Button  p=(249, 21)
+                [UISprite] mWidth=122 mHeight=60 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Blue_M' mDepth=2 mType=1
+                [DownButtonAnimation] 
+                [BoxCollider] size=(122.0, 60.0, 0.0) center=(0.0, 0.0, 0.0)
+                [UIButton] 
+              Label  p=(0, 0)
+                  [UILabel] mWidth=122 mHeight=28 mPivot=4 mColor='#354a7e/1.00' mText='' mFontSize=24 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.5 abs=-14)' topAnchor='anchor(rel=0.5 abs=14)'
+                  [SetTextMasterToLabel] 
+          UserInfo  p=(0, -841.5)
+          League (off)  p=(0, -920.5)
+            Bg  p=(0, 0)
+                [UISprite] mWidth=686 mHeight=150 mPivot=4 mColor='#ffffff/1.00' mSpriteName='DialogBase' mDepth=0 mType=1
+            Icon  p=(-173, 0)
+                [UISprite] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mSpriteName='icon_grade_01' mDepth=1 mType=0

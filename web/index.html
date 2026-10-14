@@ -10,7 +10,7 @@
 <script src="sound.js"></script>
 <style>
   body { height:100dvh; display:flex; flex-direction:column; }
-  .top { display:flex; align-items:center; background:var(--bar); border-bottom:1px solid var(--line); } .top button { margin:3px 3px; } .top .ticker { flex:1; min-width:0; border-bottom:0; }
+  .top { display:flex; align-items:center; gap:6px; padding:6px; background:var(--bar); border-bottom:1px solid var(--line); } .top button { margin:0; }   /* one even 6px gap between everything in the bar */ .top .ticker { flex:1; min-width:0; border-bottom:0; -webkit-mask-image:linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); mask-image:linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%); }   /* the scrolling text fades in and out at both ends instead of being cut off */
   .ticker { overflow:hidden; white-space:nowrap; background:var(--bar); color:var(--accent); font-size:12px; padding:5px 0; border-bottom:1px solid var(--line); }
   .ticker span { display:inline-block; padding-left:100%; animation:tick 70s linear infinite; } .ticker:hover span { animation-play-state:paused; }
   @keyframes tick { to { transform:translateX(-100%); } }
@@ -20,9 +20,9 @@
     grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:10px 18px; padding:10px 18px; overflow:hidden; }
   #sideBtn, #sideHome { display:none; } #camBar { margin-bottom:14px; } #camBar:empty { display:none; } #camBar button { flex:1; }
   @media (max-width:860px) { #game, #setup, #home { grid-template-columns:1fr !important; }
-    #sideBtn { display:inline-flex; position:fixed; right:8px; top:89px; z-index:4; width:36px; height:36px; padding:0; border:0; border-radius:0; }   /* top right of the board, under the score bar; it stays put over the open menu and closes it */
-    #sideBtn .c, body:has(.side.open) #sideBtn .m { display:none; } body:has(.side.open) #sideBtn .c { display:block; } body:has(.side.open) #sideBtn { top:8px; }
-    .side { position:fixed; top:0; right:0; bottom:0; z-index:3; width:min(88vw,380px); padding:12px; padding-top:52px; background:var(--bar); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .2s; }
+    #sideBtn { display:inline-flex; grid-column:4; } #game .ibar { grid-template-columns:1fr auto 1fr auto; }   /* the menu button sits at the right end of the bottom bar and opens and closes the menu, which slides in over the table only (between the score bar and this bar) */
+    #sideBtn .c, body:has(.side.open) #sideBtn .m { display:none; } body:has(.side.open) #sideBtn .c { display:block; }
+    .side { position:fixed; top:var(--side-top,0); right:0; bottom:var(--side-bottom,0); z-index:3; width:min(88vw,380px); padding:12px; background:var(--bar); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .2s; }
     body:has(#game:not([hidden])) .top { display:none; } #sideHome { display:block; width:100%; margin-bottom:12px; text-align:center; }
     #game { padding:0; } .arena, .side, #board3d button, .hud .z, .clock { border:0 !important; border-radius:0 !important; outline:0 !important; }   /* the plain rules come later in this sheet, hence !important */
     .side.open { transform:none; box-shadow:-20px 0 60px rgba(0,0,0,.7); } }
@@ -30,25 +30,32 @@
   .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,.18); }
   .panel h2 { font:800 12px/1 "Segoe UI",system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:var(--accent); margin:0 0 10px; }
   /* HUD and table are one card */
-  .arena { gap:0 !important; border:1px solid var(--line); border-radius:8px; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.5); outline:1px solid var(--line); }
+  .arena { gap:0 !important; border:1px solid var(--line); border-radius:8px; overflow:hidden; box-shadow:0 2px 10px rgba(0,0,0,.18); }   /* the same border and shadow as every panel */
   .arena .hud, .arena .table { border:0 !important; border-radius:0 !important; box-shadow:none !important; }
-  /* HUD: you in blue on the left, the opponent in red on the right */
-  .hud { display:grid; grid-template-columns:1fr 1fr; gap:0; border-radius:8px; overflow:hidden; border:1px solid var(--line); box-shadow:0 6px 18px rgba(0,0,0,.45); background:var(--bar); }
-  .hud .pl { display:flex; flex-wrap:wrap; align-items:center; gap:3px 8px; min-width:0; padding:8px 12px; position:relative; opacity:.62; transition:opacity .15s; }
-  .hud #hudBottom { background:linear-gradient(180deg,#4aa0ff,var(--p0d)); clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%); margin-right:-7px; }
-  .hud #hudTop { background:linear-gradient(180deg,#ff6b7a,var(--p1d)); clip-path:polygon(14px 0,100% 0,100% 100%,0 100%); margin-left:-7px; justify-content:flex-end; }
-  .hud .pl.turn { opacity:1; box-shadow:inset 0 -4px 0 var(--gold); }
-  .hud .who { flex:1 1 100%; min-width:0; font:900 15px/1.1 "Segoe UI",system-ui,sans-serif; font-style:italic; letter-spacing:.04em; text-shadow:0 2px 0 rgba(0,0,0,.4); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-  .hud .pl.right .who { text-align:right; order:-1; } .hud .dot { display:none; }
-  .hud .z { font-size:11px; font-weight:700; color:#fff; background:rgba(0,0,0,.35); border-radius:4px; padding:1px 8px; white-space:nowrap; }
-  .clock { padding:1px 10px; border-radius:4px; background:rgba(0,0,0,.45); border:2px solid rgba(255,255,255,.35); font-variant-numeric:tabular-nums; font-weight:800; color:#fff; } .clock.on { border-color:var(--gold); color:var(--gold); }
-  .banner { grid-column:1 / -1; grid-row:2; text-align:center; color:var(--dim); font-size:12px; font-weight:600; padding:5px 8px; background:var(--bar); } .banner b { color:var(--ink); }
+  /* Player HUD, built as the original's BattlerContainer is: your panel left in blue and the opponent's right in red, each with picture, name
+     and clock (the clock sits on the inner side); the turns left in a badge where the panels meet; under them one Z gauge each, out of 100,
+     reading MAX and glowing when full. The side that is not to act is masked black at 35% over 0.3 s (TurnChangeUi). */
+  .hud { position:relative; display:grid; grid-template-columns:1fr 1fr; background:var(--bar); }
+  .hud .pl { position:relative; display:flex; align-items:center; gap:8px; min-width:0; height:44px; padding:0 34px 0 8px; color:#fff; background:linear-gradient(90deg, var(--p0d), var(--p0)); }
+  .hud .pl.right { justify-content:flex-end; padding:0 8px 0 34px; background:linear-gradient(90deg, var(--p1), var(--p1d)); }
+  .hud .pl::after { content:""; position:absolute; inset:0; background:#000; opacity:.35; transition:opacity .3s; pointer-events:none; } .hud .pl.turn::after { opacity:0; }
+  .hud .av { flex:none; width:30px; height:30px; border-radius:4px; display:grid; place-items:center; font-weight:800; font-size:14px; line-height:1; color:#fff; border:2px solid rgba(255,255,255,.75); box-shadow:0 1px 4px rgba(0,0,0,.4); }
+  .hud .who { min-width:0; font-weight:700; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-shadow:0 1px 2px rgba(0,0,0,.4); }
+  .clock { margin-left:auto; font-variant-numeric:tabular-nums; font-weight:800; font-size:15px; color:#fff; opacity:.75; } .hud .pl.right .clock { margin:0 auto 0 0; } .clock.on { opacity:1; color:var(--gold); }
+  .hud .turns { position:absolute; left:50%; top:22px; transform:translate(-50%,-50%); z-index:1; min-width:50px; height:30px; padding:0 10px; border-radius:15px; display:grid; place-items:center; background:var(--bar); border:1px solid var(--line); color:var(--gold); font-weight:800; font-size:15px; font-variant-numeric:tabular-nums; box-shadow:0 2px 8px rgba(0,0,0,.35); }
+  :root[data-theme=light] .hud .turns { color:var(--ink); }
+  .zrow { grid-column:1 / -1; display:grid; grid-template-columns:1fr 26px 1fr; align-items:center; background:var(--bar); border-bottom:1px solid var(--line); }
+  .zg { position:relative; height:16px; background:#0c0909; overflow:hidden; } .zg i { position:absolute; top:0; bottom:0; left:0; width:var(--v,0%); background:#00ee27; transition:width .5s; } .zg.right i { left:auto; right:0; }   /* the original's bar: green #00ee27 on near-black, sampled from its z_gauge / z_bg sprites */
+  .zg span { position:absolute; inset:0 8px; font-size:10px; font-weight:700; line-height:16px; color:#fff; text-shadow:0 0 3px #000, 0 0 3px #000; } .zg.right span { text-align:right; }
+  .zg.max i { background:#67ff0c; animation:zmax 1.2s ease-in-out infinite alternate; } @keyframes zmax { from { filter:brightness(.8); } to { filter:brightness(1.2); } } .zg.max span { color:#06240a; text-shadow:none; }   /* full: its z_light glow, #67ff0c, pulsing */
+  .zi { text-align:center; font-weight:900; font-style:italic; font-size:13px; color:#00ee27; } :root[data-theme=light] .zi { color:#009900; }
+  .banner { grid-column:1 / -1; text-align:center; color:var(--dim); font-size:10px; font-weight:700; line-height:16px; height:16px; padding:0 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; background:var(--bar); }   /* as thick as the Z gauge above it */ .banner b { color:var(--ink); }
   /* the table: red end at the top, blue end at the bottom */
   .table { flex:1; min-height:0; display:flex; padding:0; border-radius:8px; border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px color-mix(in srgb, var(--bd-line) 10%, transparent);
     /* a fine grain, a faint weave, then the slate itself */
     background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .28 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"), repeating-linear-gradient(45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), repeating-linear-gradient(-45deg, color-mix(in srgb, var(--bd-line) 5%, transparent) 0 1px, transparent 1px 9px), linear-gradient(180deg,var(--bd2),var(--bd)); }
   #board3d { flex:1; min-width:0; min-height:0; } #board3d canvas { display:block; }
-  .top a { margin:3px 3px; border:1px solid var(--line); border-radius:4px; background:var(--ctl); } .top a:hover { background:var(--ctl2); border-color:var(--dim); } .top .iconbtn:last-child { margin-right:8px; }
+  .top a { margin:0; border:1px solid var(--line); border-radius:4px; background:var(--ctl); } .top a:hover { background:var(--ctl2); border-color:var(--dim); }
   svg#board { width:100%; height:100%; display:block; user-select:none; }
   /* the flat board uses the 3D table's shapes: thin routes, dots, rings, team-coloured goal discs */
   .edge { stroke:var(--bd-line); stroke-width:3.2; stroke-linecap:round; }
@@ -62,13 +69,13 @@
   .chip { display:inline-block; padding:0 8px; border-radius:4px; font-size:11px; font-weight:700; background:var(--ctl2); color:var(--ink); margin-right:4px; } .chip.w { background:var(--ink); color:var(--bg); }
   .atkrow { display:grid; grid-template-columns:14px 1fr auto; gap:6px; padding:5px 0; border-top:1px solid var(--line); align-items:start; }
   .sw { width:12px; height:12px; border-radius:50%; margin-top:4px; border:1px solid rgba(255,255,255,.4); } .desc { color:var(--dim); font-size:12px; grid-column:2 / 4; }
-  #log { height:160px; overflow:auto; font-size:12px; color:var(--dim); } #log b, .ink { color:var(--ink); font-weight:700; }
+  #log { height:160px; overflow:auto; font-size:12px; color:var(--dim); } #log > div { padding:1px 6px; border-radius:3px; background:color-mix(in srgb, var(--dim) 12%, transparent); }   /* neutral lines are grey; the two below tint a player's lines */ #log > .me { background:color-mix(in srgb, var(--p0) 11%, transparent); } #log > .op { background:color-mix(in srgb, var(--p1) 11%, transparent); } #log b, .ink { color:var(--ink); font-weight:700; }
   #list, #plist { height:300px; overflow:auto; } .row { display:flex; gap:8px; padding:6px 8px; border-radius:8px; cursor:pointer; align-items:center; }
   .row:hover { background:var(--ctl2); } .row .n { flex:1; } .team .row { background:var(--ctl); margin-bottom:4px; border:1px solid var(--line); }
   .chip.rar1 { background:#8a8f98; color:#fff; } .chip.rar2 { background:#2e9e5b; color:#fff; } .chip.rar3 { background:#2f7fe0; color:#fff; } .chip.rar4 { background:#d9a514; color:#111; } .chip.rar5 { background:#c0392b; color:#fff; }   /* rarity: C, UC, R, EX, UX */
   .tok image, .card img, .row img, .dot img { filter:drop-shadow(0 2px 2px rgba(0,0,0,.4)); }   /* a soft shadow under every figure picture */
   .paths { display:none; }
-  @media (min-width:861px) { .paths { display:flex; gap:4px; margin:0 6px; } .top .paths a { margin:0; padding:4px 10px; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; }
+  @media (min-width:861px) { .paths { display:flex; gap:6px; margin:0; } .top .paths a { margin:0; display:inline-flex; align-items:center; height:30px; padding:0 10px; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; }
     .top .paths a.on { background:var(--ink); border-color:var(--ink); color:var(--bg); } .top #viewLink { display:none; } }
   /* deck builder: figures, plates and the team as cards */
   #setup { grid-template-columns:minmax(0,1.7fr) minmax(320px,1fr); }
@@ -79,6 +86,11 @@
   .card img { width:84px; height:84px; margin:0; } .card .nopic { height:84px; display:grid; place-items:center; color:var(--dim); font-size:12px; }
   .card .chip { position:absolute; top:8px; left:8px; margin:0; height:18px; line-height:18px; padding:0 6px; } .card .chip.r { left:auto; right:8px; min-width:18px; text-align:center; background:var(--ink); color:var(--bg); }
   .card .nm { font-weight:700; font-size:13px; line-height:1.2; } .card .note { line-height:1.25; }
+  .card.plate .info { position:absolute; right:8px; top:6px; }
+  /* plates are shown inverted everywhere (list, chosen chips, Home), so they never read as figures */
+  #plist .card.plate { background:var(--ink); border-color:var(--ink); color:var(--bg); } #plist .card.plate:hover { background:var(--ink); border-color:var(--ink); opacity:.9; }
+  #plist .card.plate .note { color:color-mix(in srgb, var(--bg) 72%, var(--ink)); } #plist .card.plate .chip { background:var(--bg); color:var(--ink); }
+  #plist .card.plate .info { border-color:color-mix(in srgb, var(--bg) 35%, var(--ink)); color:color-mix(in srgb, var(--bg) 72%, var(--ink)); } #plist .card.plate .info:hover { background:var(--bg); border-color:var(--bg); color:var(--ink); }
   .card.plate { align-items:flex-start; text-align:left; gap:4px; } .card.plate .note { display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
   .teamcards.cards { grid-template-columns:repeat(3,minmax(0,1fr)); overflow:visible; margin-bottom:8px; } .teamcards .card { min-height:124px; justify-content:center; }
   .teamcards .card img { width:64px; height:64px; } .teamcards .pics { justify-content:center; gap:2px; } .dots { display:flex; gap:4px; justify-content:center; } .dots:empty { display:none; } .card .txt > .dots { position:absolute; left:8px; top:34px; flex-direction:column; overflow:visible; }   /* evolutions and forms: a column down the card's left edge, under the rarity badge */ .dot { position:relative; width:10px; height:10px; border-radius:50%; background:var(--dim); } .dot.form { background:none; border:2px solid var(--dim); } .dot:hover { background:var(--ink); }
@@ -89,8 +101,8 @@
   .card .info, .card .x, #figpop > .x { flex:none; width:24px; height:24px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; border:1px solid var(--line); background:none; color:var(--dim); cursor:pointer; } .card .info svg, .card .x svg, #figpop > .x svg { width:14px; height:14px; }
   .card .info:hover, .card .x:hover, #figpop > .x:hover { background:var(--line); color:var(--ink); } .card .x:hover { background:var(--danger); border-color:var(--danger); color:#fff; }   /* remove: the theme's red */
   /* the details panel of a figure card */
-  #figpop { position:fixed; z-index:8; width:500px; max-height:calc(100dvh - 16px); overflow:auto; padding:16px; border:1px solid var(--dim); border-radius:8px; background:var(--panel); box-shadow:0 10px 30px rgba(0,0,0,.5); pointer-events:none; }
-  #figpop.pin { pointer-events:auto; } #figpop > .x { position:absolute; top:12px; right:12px; display:none; } #figpop.pin > .x { display:inline-flex; }
+  #figpop { position:fixed; z-index:8; width:420px; max-height:calc(100dvh - 16px); overflow:auto; padding:16px; border:1px solid var(--dim); border-radius:8px; background:var(--panel); box-shadow:0 10px 30px rgba(0,0,0,.5); pointer-events:none; }
+  #figpop.pl { width:300px; } #figpop.pin { pointer-events:auto; } #figpop > .x { position:absolute; top:12px; right:12px; display:none; } #figpop.pin > .x { display:inline-flex; }
   .fp-head { display:flex; gap:12px; align-items:center; padding-right:36px; } .fp-head img { width:56px; height:56px; } .fp-name { display:flex; gap:8px; align-items:center; flex-wrap:wrap; } .fp-name b { font-size:18px; line-height:1.2; } .fp-name .chip { margin:0; }
   .fp-line { display:flex; align-items:center; gap:4px; margin-top:12px; overflow-x:auto; } .fp-line button { flex:none; display:flex; align-items:center; gap:6px; padding:4px 8px 4px 4px; font-size:12px; } .fp-line img { width:28px; height:28px; } .fp-line .on { border-color:var(--ink); background:var(--ctl2); }
   .fp-side { display:grid; gap:12px; justify-items:center; } .fp-body { display:grid; grid-template-columns:180px minmax(0,1fr); gap:16px; align-items:start; margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
@@ -99,8 +111,16 @@
   .fp-body + .fp-ab { margin-top:12px; } .fp-ab { justify-self:stretch; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); } .fp-ab .h { margin-bottom:4px; } .fp-ab .desc { margin-top:4px; }
   @media (max-width:860px) { #figpop { left:0; right:0; bottom:0; width:auto; max-height:72dvh; border-width:1px 0 0; border-radius:0; } .fp-body { grid-template-columns:minmax(0,1fr); } .fp-side { display:contents; } .fp-wheel { justify-self:center; } .fp-ab { order:3; } }
   @media (max-width:860px) { #list.cards { height:46dvh; } .cards { grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); } .card img { width:68px; height:68px; } }
-  #tlist { max-height:230px; overflow:auto; } #tlist .row .n { min-width:0; } #tlist .row .n b { display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; } #tlist .row .pics { flex:none; flex-wrap:nowrap; gap:2px; } #tlist .row .pics span { max-width:54px; font-size:10px; line-height:1.1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--dim); } #tlist .row { border:1px solid var(--line); margin-bottom:4px; background:var(--ctl); } #tlist .row img { width:30px; height:30px; margin:-4px -3px; }
-  #tlist .row .x { position:static; flex:none; text-align:center; cursor:pointer; width:22px; height:22px; line-height:20px; border-radius:50%; color:var(--dim); } #tlist .row .x:hover { background:var(--line); color:var(--ink); }
+  /* Saved teams: a strip of small cards that scrolls sideways (name, plate count and delete on one line, the six figures under it), so the
+     panel is the same height however many teams there are. The name box and Save sit on the heading's line. */
+  #tlist { display:flex; gap:8px; overflow-x:auto; overflow-y:hidden; padding:2px 2px 4px !important; -webkit-mask-image:none !important; mask-image:none !important; scroll-snap-type:x proximity; }
+  .tcard { flex:0 0 196px; min-width:0; scroll-snap-align:start; display:flex; flex-direction:column; gap:4px; padding:6px 8px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); cursor:pointer; transition:background .12s, border-color .12s; }
+  .tcard:hover { background:var(--ctl2); border-color:var(--dim); } .tcard .th { display:flex; align-items:center; gap:6px; min-width:0; } .tcard .th b { flex:1; min-width:0; font-size:12px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tcard .th .chip { margin:0; flex:none; } .tcard .x { flex:none; width:22px; height:22px; padding:0; display:grid; place-items:center; border:1px solid transparent; border-radius:4px; background:none; color:var(--dim); } .tcard .x svg { width:13px; height:13px; }
+  .tcard .x:hover { background:var(--danger); border-color:var(--danger); color:#fff; }
+  .tcard.on { background:var(--ink); border-color:var(--ink); color:var(--bg); } .tcard.on .chip { background:var(--bg); color:var(--ink); } .tcard.on .x { color:color-mix(in srgb, var(--bg) 70%, var(--ink)); } .tcard.on .x:hover { color:#fff; } .tcard.on .tp .ph { background:color-mix(in srgb, var(--bg) 22%, var(--ink)); color:var(--bg); }
+  .tcard .tp { display:grid; grid-template-columns:repeat(6,1fr); gap:2px; } .tcard .tp img, .tcard .tp .ph { width:100%; aspect-ratio:1; object-fit:contain; } .tcard .tp .ph { display:grid; place-items:center; border-radius:4px; background:var(--ctl2); color:var(--dim); font-size:9px; font-weight:700; }
+  .tsave { display:flex; gap:6px; flex:1; min-width:0; max-width:260px; } .tsave input { flex:1; min-width:0; padding:3px 10px; font-size:12px; }
   /* home: league summary, deck, boosters and collection */
   .big { font:900 46px/1 "Segoe UI",system-ui,sans-serif; letter-spacing:-.01em; } .big small { font-size:13px; font-weight:600; color:var(--dim); letter-spacing:0; margin-left:8px; }
   .meter { height:8px; border-radius:4px; background:var(--ctl2); overflow:hidden; margin:10px 0 4px; } .meter i { display:block; height:100%; border-radius:4px; background:var(--ink); }
@@ -111,33 +131,54 @@
   .boosters { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; } .booster { border:1px solid var(--line); border-radius:8px; background:var(--ctl); padding:12px 8px; text-align:center; min-height:86px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; } .booster.empty { border-style:dashed; background:none; color:var(--dim); font-size:12px; }
   #home .cards { max-height:min(62dvh,560px); } #home .card { cursor:default; } #home .card:hover { transform:none; background:var(--ctl); border-color:var(--line); } #home [data-act] .card { cursor:pointer; }
   #card:empty { display:none; }
-  #list.cards, #plist.cards, #tlist, #home .cards, #log, #acts { padding-top:14px; padding-bottom:14px; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+  /* Home is laid out as the original's league lobby is (RatingMatchPrefab, a 750-wide portrait screen): rating at the top, the deck (here a
+     plain row of six cards, not the original's fan round a lead figure), the row of time boosters under it, and the League match button at the bottom, flanked by
+     two smaller ones. One centred column, nothing stretched. */
+  #home { grid-template-columns:minmax(0,600px); justify-content:center; padding:12px; } #home .panel { margin-bottom:0; padding:12px 14px; } #home .panel h2 { margin-bottom:8px; }
+  .hlg { display:grid; grid-template-columns:auto 1fr; gap:4px 18px; align-items:center; } .hlg .big { font-size:40px; } .hlg .stats { margin:0; } .hlg .stat { padding:6px 8px; } .hlg .stat b { font-size:16px; } .hlg .wide { grid-column:1 / -1; }
+  .hhead { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; } .hhead h2, #home .hhead h2 { margin:0; } .hhead button { padding:3px 12px; font-size:12px; } .hhead .hbtns { display:flex; gap:6px; } .hhead h2, .hhead label { white-space:nowrap; } #clr { color:var(--err); border-color:var(--danger); } #clr:hover:not(:disabled) { background:var(--danger); border-color:var(--danger); color:#fff; }   /* the theme's red, as on Resign */
+  .hfig { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; cursor:pointer; }   /* the deck: one row of six figure cards */
+  .hfig > div { position:relative; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:0; padding:22px 4px 8px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); text-align:center; } .hfig:hover > div { border-color:var(--dim); }
+  .hfig img { width:100%; max-width:72px; aspect-ratio:1; object-fit:contain; filter:drop-shadow(0 2px 2px rgba(0,0,0,.4)); } .hfig .chip { position:absolute; left:6px; top:6px; margin:0; font-size:10px; padding:0 5px; } .hfig .chip.r { left:auto; right:6px; background:var(--ink); color:var(--bg); }
+  .hfig b, .hfig .note { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .hfig b { font-size:12px; } .hfig .note { font-size:10px; }
+  @media (max-width:520px) { .hfig { grid-template-columns:repeat(3,minmax(0,1fr)); } .hlg { grid-template-columns:1fr; } }
+  .hpl { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin-top:6px; cursor:pointer; }   /* the deck's plates in full: rarity, cost, name, text */
+  .hpl > div { position:relative; display:flex; flex-direction:column; gap:4px; min-width:0; padding:8px 10px; border:1px solid var(--ink); border-radius:8px; background:var(--ink); color:var(--bg); } .hpl:hover > div { opacity:.9; }   /* inverted, like the primary button, so the plates stand apart from the figures */
+  .hpl .note { color:color-mix(in srgb, var(--bg) 72%, var(--ink)); } .hpl .ct i { box-shadow:0 0 0 1px rgba(0,0,0,.35); }
+  .hpl .chip { align-self:flex-start; margin:0; } .hpl .ct { position:absolute; right:10px; top:11px; display:flex; gap:3px; } .hpl .ct i { width:8px; height:8px; border-radius:50%; background:var(--gold); }
+  .hpl b { font-size:13px; line-height:1.2; } .hpl .note { font-size:11px; line-height:1.35; }   /* all of the plate's text; the row is as tall as its longest text needs, no taller */
+  #home .boosters { grid-template-columns:repeat(3,1fr); gap:8px; } #home .booster { aspect-ratio:1; min-height:0; padding:6px; }   /* square slots, as the original's booster boxes are */
+  .hrow { display:grid; grid-template-columns:2fr 1fr; gap:10px; }   /* boosters in two thirds, the three buttons stacked in the last third */
+  .hgo { display:flex; flex-direction:column; gap:8px; } .hgo button { flex:1; text-align:center; padding:8px 10px; } .hgo .primary { flex:2; font-size:16px; font-weight:800; }
   /* chosen plates: chips in a wrapping row. The popover is placed against the whole block (not the chip), so it is never cut off at the sides. */
   #myplates { position:relative; display:flex; flex-wrap:wrap; gap:6px; } #myplates > p { margin:0; }
-  .pchip { display:inline-flex; align-items:center; gap:6px; padding:3px 6px 3px 3px; border:1px solid var(--line); border-radius:4px; background:var(--ctl); font-size:12px; font-weight:600; cursor:pointer; }
-  .pchip:hover, .pchip:focus-visible { background:var(--ctl2); border-color:var(--dim); } .pchip > b { min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:4px; background:var(--ink); color:var(--bg); font-size:11px; }
-  .pchip > i { font-style:normal; color:var(--dim); font-size:14px; line-height:1; } .pchip:hover > i { color:var(--ink); }
-  .pchip .pop { display:none; position:absolute; left:0; right:0; bottom:calc(100% + 8px); z-index:5; padding:10px 12px; border:1px solid var(--dim); border-radius:8px; background:var(--panel); box-shadow:0 8px 22px rgba(0,0,0,.45); font-weight:400; line-height:1.4; cursor:default; }
-  .pchip:hover .pop, .pchip:focus .pop { display:block; }
+  .pchip { display:inline-flex; align-items:center; gap:6px; padding:3px 6px 3px 3px; border:1px solid var(--ink); border-radius:4px; background:var(--ink); color:var(--bg); font-size:12px; font-weight:600; cursor:pointer; }   /* inverted, like the plates on Home */
+  .pchip:hover, .pchip:focus-visible { opacity:.88; } .pchip > b { min-width:18px; height:18px; line-height:18px; text-align:center; border-radius:4px; background:var(--bg); color:var(--ink); font-size:11px; }
+  .pchip > i { font-style:normal; color:color-mix(in srgb, var(--bg) 70%, var(--ink)); font-size:14px; line-height:1; margin:-3px -6px -3px -2px; padding:5px 7px; border-radius:0 3px 3px 0; } .pchip > i:hover { background:var(--danger); color:#fff; }
   /* Deck builder layout. Wide screen: it fills the window with no page scroll; the two lists on the left stretch to the height there is, and
      the right column (team, saved teams, opponent) scrolls by itself with the Start button pinned at its foot. Narrow screen: one scrolling
      column with the team first, then figures, plates, saved teams and opponent, and the Start button pinned to the bottom of the screen. */
+  /* opponent and Start on one line: the picker, then the button */
+  .gobar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; } .gobar #oppPanel { display:contents; } .gobar #mode { flex:1 1 150px; min-width:0; } .gobar #room { flex:0 1 96px; min-width:0; } .gobar #go { order:1; } .gobar #setupErr { order:3; flex:1 1 100%; } .gobar #setupErr:empty { display:none; }
   #setup > section:last-child > .panel:last-child { padding:10px 12px; } #setup > section:last-child > .panel:last-child p.note { display:none; }
   @media (min-width:861px) {
     #setup { grid-template-rows:minmax(0,1fr); align-content:stretch; overflow:hidden; }
     #setup > section { display:flex; flex-direction:column; gap:14px; min-width:0; min-height:0; overflow:auto; } #setup > section > .panel { margin-bottom:0; flex:none; }
     #setup > section:first-child > .panel { display:flex; flex-direction:column; } #setup > section:first-child > .panel:nth-child(1) { flex:1.7 1 0; min-height:230px; } #setup > section:first-child > .panel:nth-child(2) { flex:1 1 0; min-height:170px; }
     #list.cards, #plist.cards { height:auto; flex:1 1 0; min-height:0; }
-    #game .side { margin:-14px 0; }   /* its fade padding hangs outside the row, so its first panel lines up with the board's top edge */
+    #game .side { margin:-14px -12px; padding-left:12px; padding-right:12px; }   /* its fade padding hangs outside the row, so its first panel lines up with the board's top edge */
     #setup > section, #game .side { padding-top:14px; padding-bottom:14px; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
     #setup { padding-top:4px; padding-bottom:4px; }
-    #setup > section:last-child { padding-right:2px; } #setup > section:last-child > .panel:last-child { position:sticky; bottom:0; z-index:2; box-shadow:0 -10px 14px -6px var(--bg); }
+    /* the right column is kept short enough to fit the window (compact team cards, the saved teams as one strip); it scrolls only when the window is too short */
+    #setup > section:last-child > .panel:first-child { flex:1 0 auto; } #tmsg { min-height:18px; }   /* the team panel takes the height that is left, so plates arriving from a saved team fill space it already has instead of pushing the panels under it; the message line under the saved teams is always there for the same reason */
+    #team .card { height:146px; min-height:0; padding-top:28px; gap:4px; } #team .card img { width:52px; height:52px; }   /* one fixed height, empty or filled, so loading a team does not move the page */
+    #setup > section { padding-left:12px; padding-right:12px; margin-left:-12px; margin-right:-12px; }   /* room inside each scrolling column for the panels' shadows, which its edges would otherwise cut off */ #setup > section:last-child > .panel:last-child { position:sticky; bottom:0; z-index:2; box-shadow:0 2px 10px rgba(0,0,0,.18), 0 8px 0 6px var(--bg);   /* the panels' own shadow, over a band of page colour beside and below the pinned panel that hides whatever scrolls behind it; it stops at the panel's top edge so the shadow of the panel above still shows */ }
   }
   @media (max-width:860px) {
     #setup { gap:12px; padding:12px; overflow-x:hidden; } #setup > section { display:contents; } #setup .panel { margin-bottom:0; min-width:0; padding:12px; }
     #setup > section:last-child > .panel:nth-child(1) { order:1; } #setup > section:first-child > .panel:nth-child(1) { order:2; } #setup > section:first-child > .panel:nth-child(2) { order:3; }
-    #setup > section:last-child > .panel:nth-child(2) { order:4; } #setup > section:last-child > .panel:nth-child(3) { order:5; }
-    #setup > section:last-child > .panel:nth-child(4) { order:6; position:sticky; bottom:0; z-index:2; box-shadow:0 -10px 14px -6px var(--bg); }
+    #setup > section:last-child > .panel:nth-child(2) { order:4; }
+    #setup > section:last-child > .panel:nth-child(3) { order:5; position:sticky; bottom:0; z-index:2; box-shadow:0 2px 10px rgba(0,0,0,.18), 0 8px 0 6px var(--bg); }   /* opponent + Start, pinned: the panels' own shadow over a ring of page colour that hides whatever scrolls behind it */
     #list.cards { height:52dvh; } #plist.cards { height:40dvh; grid-template-columns:1fr; } .teamcards .card { min-height:96px; } .teamcards .card img { width:52px; height:52px; }
     #setup .bar select, #setup .bar input:not([type=checkbox]) { min-width:0; max-width:100%; } #mode { width:100%; }
   }
@@ -149,7 +190,7 @@
   .ed-foot { position:sticky; bottom:calc(-1 * var(--pad)); z-index:1; display:flex; justify-content:flex-end; margin:16px calc(-1 * var(--pad)) calc(-1 * var(--pad)); padding:12px var(--pad); background:var(--panel); border-top:1px solid var(--line); }   /* Done stays at the editor's bottom right while it scrolls */ .ed-head h2 { margin:0; }
   .ed-tabs { display:flex; gap:8px; margin-bottom:12px; overflow-x:auto; } .ed-tab { flex:none; display:flex; flex-direction:column; gap:8px; width:136px; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); }
   .ed-tab.on { border-color:var(--ink); background:var(--ctl2); } .ed-tab button { display:flex; flex-direction:column; align-items:center; gap:4px; padding:0; border:0; background:none; font-weight:400; }
-  .ed-tab img { width:64px; height:64px; } .box .plus { height:64px; font-size:28px; line-height:64px; color:var(--dim); } .ed-tab select { width:100%; height:28px; padding:0 8px; font-size:12px; }
+  .ed-tab img { width:64px; height:64px; } .box .plus { height:64px; font-size:28px; line-height:64px; color:var(--dim); } .ed-tab select { width:100%; height:28px; padding:0 26px 0 8px; background-position:right 8px center; font-size:12px; }
   .ed-tab b { height:28px; line-height:28px; text-align:center; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .ed-body { display:grid; grid-template-columns:200px minmax(0,1fr); gap:16px; align-items:start; padding-top:16px; border-top:1px solid var(--line); } .ed-fig { display:grid; justify-items:center; }
   .box .h, #figpop .h { display:block; white-space:nowrap; font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--dim); }
@@ -176,7 +217,11 @@
   .bdisk.up { left:calc(var(--w) / 2 + var(--d) * .2035 - var(--d) / 2); top:calc(var(--h) / 2 - var(--d) * .457 - var(--d) / 2); }
   .bdisk.dn { left:calc(var(--w) / 2 - var(--d) * .2035 - var(--d) / 2); top:calc(var(--h) / 2 + var(--d) * .457 - var(--d) / 2); }
   .stage.solo .bdisk.dn { left:calc(var(--w) / 2 - var(--d) / 2); top:calc(var(--h) / 2 + 6px); } .stage.solo .gem, .stage.solo .flare { top:calc(50% + 6px); }
-  .spin { width:100%; height:100%; transition:transform 1.7s cubic-bezier(.12,.75,.2,1); }
+  .spin { position:relative; width:100%; height:100%; } .spin .dimw { position:absolute; inset:0; pointer-events:none; animation:resin .2s; }
+  .bdisk { transition:transform .25s, filter .25s; } .bdisk.won { transform:scale(1.03); filter:drop-shadow(0 0 22px var(--gold)); } .bdisk.lost { filter:brightness(.4) saturate(.5); animation:bshake .4s; }
+  @keyframes bshake { 20% { translate:-10px 4px; } 40% { translate:9px -5px; } 60% { translate:-6px 3px; } 80% { translate:4px -2px; } }
+  .more { position:absolute; left:50%; top:50%; z-index:5; translate:-50% -50%; padding:4px 16px; border-radius:4px; background:#000c; color:var(--gold); font:900 22px/1.2 "Segoe UI",system-ui,sans-serif; font-style:italic; letter-spacing:.08em; animation:more .5s ease-out forwards; pointer-events:none; }
+  @keyframes more { from { scale:.4; opacity:0; } 40% { scale:1.15; opacity:1; } to { scale:1; opacity:1; } }
   .gem { position:absolute; left:50%; top:50%; width:32px; height:44px; transform:translate(-50%,-50%) rotate(24deg); z-index:3; clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
     background:linear-gradient(90deg, rgba(255,255,255,.28) 0 50%, rgba(0,0,0,.18) 50%), linear-gradient(180deg, #ff7b6b 0 50%, #c2140f 50%); background-color:#f0241c; filter:drop-shadow(0 2px 4px rgba(0,0,0,.7)) drop-shadow(0 0 8px rgba(255,170,60,.55)); }
   .flare { position:absolute; left:50%; top:50%; width:170%; height:30px; transform:translate(-50%,-50%) rotate(24deg) scaleX(0); z-index:2; opacity:0; pointer-events:none;
@@ -185,17 +230,70 @@
   .sparks { position:absolute; left:50%; top:50%; z-index:2; pointer-events:none; } .sparks i { position:absolute; left:0; top:0; width:var(--l); height:2px; border-radius:2px; opacity:0; transform-origin:0 50%; background:linear-gradient(90deg, rgba(255,160,40,0), #ffb347 55%, #fff3c4); }
   .sparks.on i { animation:spark .75s var(--t) ease-out forwards; } @keyframes spark { 0% { opacity:0; transform:rotate(var(--a)) translateX(10px) scaleX(.2); } 18% { opacity:1; } 100% { opacity:0; transform:rotate(var(--a)) translateX(var(--far)) scaleX(1); } }
   .cap { position:absolute; z-index:4; display:flex; flex-direction:column; gap:1px; max-width:46%; color:var(--c); text-shadow:0 2px 3px #000, 0 0 10px #000; font-weight:800; line-height:1.15; }
-  .cap.up { left:12px; top:10px; text-align:left; } .cap.dn { right:12px; bottom:10px; text-align:right; } .cap.dn .val { order:-1; } .cap b { font-size:17px; } .cap .val { font-size:34px; font-weight:900; line-height:1; }
+  .cap.up { left:12px; top:10px; text-align:left; transform-origin:0 50%; } .cap.dn { right:12px; bottom:10px; text-align:right; transform-origin:100% 50%; } .cap b { font-size:17px; } .cap .val { font-size:40px; font-weight:900; line-height:1; font-variant-numeric:tabular-nums; }
+  .cap.in { animation:capin .1s linear; } @keyframes capin { from { transform:scaleX(0); } } .cap .add { color:#ffff40; font-size:18px; } .cap .seal { color:#fff; font-size:24px; letter-spacing:.12em; text-transform:uppercase; }
+  .cap .why { font-size:11px; color:#fff; opacity:.85; font-weight:600; } .cap .val.up { color:#39d98a; } .cap .val.down { color:#ff6b7a; }
   .cap .out { font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:#fff; opacity:.9; }
   .skip { position:absolute; right:10px; top:10px; z-index:5; padding:3px 12px; font-size:12px; background:rgba(0,0,0,.55); color:#fff; border-color:rgba(255,255,255,.4); } .skip:hover:not(:disabled) { background:rgba(0,0,0,.8); border-color:#fff; }
-  .verdict { position:absolute; left:12px; bottom:10px; z-index:4; max-width:48%; color:#fff; font:900 16px/1.25 "Segoe UI",system-ui,sans-serif; text-shadow:0 2px 3px #000, 0 0 10px #000; }
+  .verdict { position:absolute; left:50%; top:50%; z-index:6; translate:-50% -50%; max-width:92%; padding:10px 22px; border-radius:8px; background:#000d; color:#fff; text-align:center; font:900 26px/1.2 "Segoe UI",system-ui,sans-serif; font-style:italic; box-shadow:0 8px 30px #000; animation:rbig .3s cubic-bezier(.2,1.4,.4,1); } .verdict:empty { display:none; }
+  /* The original's duel controls. Every position and size here is the original's own: the table objects come from its stage prefab
+     ("square": plate_device01/02) and its AIButton / TurnEndButton / ZSkillButton / PlateObject prefabs; the bar and the plate list come
+     from the 750 x 1334 "UI Root" of its match scene, so lengths are in --u, one of that screen's units (it fits both width and height).
+     The dumps are in tools/original-ui. Where things are and how big is the original's; how they look is this site's theme. */
+  .arena { container-type:size; --u:min(calc(100cqw / 750), calc(100cqh / 1334)); }
+  .table { position:relative; } #tbl { position:absolute; left:0; right:0; top:8px; display:flex; flex-wrap:wrap; gap:6px; align-items:center; justify-content:center; pointer-events:none; font-size:12px; } #tbl > * { pointer-events:auto; }
+  #tbl button { padding:5px 10px; } #tbl b, #tbl span { padding:2px 8px; border-radius:4px; background:var(--bar); color:var(--ink); }
+  /* on the table: drawn like the board itself (slate cards and a pill outlined in the route colour, filled when it can be pressed) */
+  .pcardT { cursor:pointer; } .pcardT rect { fill:var(--bd-pt); stroke:var(--bd-line); stroke-width:1; } .pcardT rect.sh { fill:#000; stroke:none; opacity:.35; } .pcardT rect.re { stroke:none; } .pcardT rect.fr { fill:none; stroke-width:.6; opacity:.5; } .pcardT .co { fill:var(--gold); } .pcardT:hover rect:not(.sh):not(.re) { stroke:var(--gold); } .pcardT text { fill:var(--bd-line); font-weight:700; text-anchor:middle; pointer-events:none; }
+  .pmark { fill:none; stroke:var(--gold); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
+  .tbtn .o { fill:var(--bd-pt); stroke:var(--bd-line); stroke-width:1.6; } .tbtn .i { fill:none; } .tbtn text { fill:var(--bd-line); opacity:.45; font-weight:800; letter-spacing:.1em; text-transform:uppercase; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
+  .tbtn.on { cursor:pointer; } .tbtn.on .i { fill:var(--bd-line); } .tbtn.on text { fill:var(--bd); opacity:1; } .tbtn.on:hover .i { fill:var(--gold); }
+  /* the bar along the bottom: the original's three places (Give up left, the one centre button, Wait right), slim like the top bar */
+  .ibar { flex:none; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px; padding:6px 8px; background:var(--bar); border-top:1px solid var(--line); }
+  .ibar button { padding:5px 14px; font-size:13px; text-align:center; white-space:nowrap; }
+  #ibGive { justify-self:start; color:var(--err); border-color:var(--danger); } #ibGive:hover:not(:disabled) { background:var(--danger); border-color:var(--danger); color:#fff; }   /* the theme's red, as on the remove buttons */ #ibWait { grid-column:3; justify-self:end; display:inline-flex; align-items:center; gap:8px; color:var(--dim); }
+  #ibMid { grid-column:2; min-width:140px; background:var(--ink); border-color:var(--ink); color:var(--bg); } #ibMid:hover:not(:disabled) { opacity:.85; } #ibMid:disabled { background:var(--ctl); border-color:var(--line); color:var(--dim); }
+  #ibWait i { min-width:18px; height:18px; padding:0 5px; border-radius:4px; background:var(--ink); color:var(--bg); font:700 11px/18px "Segoe UI",system-ui,sans-serif; }
+  /* the plate list (PlateChoices): a band 468 high across the bottom, plates 178 apart that snap to the centre, a frame round the centre
+     one, that plate large above, Use under the band's middle and Close at its right. Dimmed and blurred behind, like the site's dialogs. */
+  #plates { position:absolute; inset:0; z-index:5; overflow:hidden; background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(3px); } #plates[hidden] { display:none; } #plates > * { position:absolute; }
+  .pband { left:0; right:0; top:calc(50% + 238 * var(--u)); height:calc(468 * var(--u)); background:var(--bar); border-top:1px solid var(--line); }
+  .plist { left:0; right:0; top:calc(50% + 284 * var(--u)); height:calc(240 * var(--u)); display:flex; overflow-x:auto; scroll-snap-type:x mandatory; padding:0 calc(50% - 89 * var(--u)); scrollbar-width:none; } .plist::-webkit-scrollbar { display:none; }
+  .plist > div { flex:none; width:calc(178 * var(--u)); scroll-snap-align:center; display:grid; place-items:center; cursor:pointer; }
+  .psel { left:calc(50% - 88.5 * var(--u)); top:calc(50% + 278.5 * var(--u)); width:calc(177 * var(--u)); height:calc(251 * var(--u)); border:2px solid var(--p0); border-radius:calc(14 * var(--u)); pointer-events:none; } .psel.opp { border-color:var(--p1); }
+  .pbig { left:50%; top:calc(50% + 18 * var(--u)); transform:translate(-50%,-50%); }
+  #plUse { left:calc(50% - 95 * var(--u)); top:calc(50% + 556 * var(--u)); width:calc(190 * var(--u)); height:calc(84 * var(--u)); padding:0; text-align:center; font-size:calc(30 * var(--u)); font-weight:700; color:var(--bg); background:var(--ink); border-color:var(--ink); border-radius:calc(8 * var(--u)); } #plUse:hover { opacity:.85; }
+  #plClose { left:calc(50% + 275 * var(--u)); top:calc(50% + 554 * var(--u)); width:calc(60 * var(--u)); height:calc(60 * var(--u)); padding:0; display:grid; place-items:center; border-radius:calc(8 * var(--u)); } #plClose svg { width:55%; height:55%; }
+  /* a plate, on the original's 530 x 776 plate layout scaled by --k (rarity top right, name, text, cost bottom left), as one of the site's cards */
+  .pl530 { --w:calc(var(--u) * var(--k)); position:relative; width:calc(530 * var(--w)); height:calc(776 * var(--w)); border-radius:calc(26 * var(--w)); background:var(--panel); border:1px solid var(--line); color:var(--ink); overflow:hidden; text-align:left; box-shadow:0 calc(12 * var(--w)) calc(36 * var(--w)) rgba(0,0,0,.3); }
+  .pl530 > * { position:absolute; } .pl530.off { opacity:.4; }
+  .pl530 .rr { right:calc(66 * var(--w)); top:calc(31 * var(--w)); margin:0; font-size:calc(40 * var(--w)); padding:0 calc(14 * var(--w)); border-radius:calc(8 * var(--w)); }
+  .pl530 .nm { left:calc(41 * var(--w)); top:calc(269 * var(--w)); width:calc(460 * var(--w)); font:700 calc(44 * var(--w))/1.3 "Segoe UI",system-ui,sans-serif; }
+  .pl530 .ds { left:calc(40 * var(--w)); top:calc(405 * var(--w)); width:calc(450 * var(--w)); font-size:calc(32 * var(--w)); line-height:1.4; color:var(--dim); }
+  .pl530 .ct { left:calc(33 * var(--w)); top:calc(717 * var(--w)); display:flex; gap:calc(8 * var(--w)); } .pl530 .ct i { width:calc(34 * var(--w)); height:calc(34 * var(--w)); border-radius:50%; background:var(--gold); }
+  .pl530.sm .nm { top:calc(388 * var(--w)); width:calc(450 * var(--w)); font-size:calc(80 * var(--w)); line-height:1.15; } .pl530.sm .ds { display:none; }
+  /* End of the duel, as the original runs it: a bar across the table naming how it ended (EndReasonCutIn: time up, forfeit...), then the
+     RESULT screen (MatchResultPrefab): the word RESULT at the top, WIN or LOSE large, the league table, and at the bottom Next, or two
+     buttons side by side after a room match. */
+  #cutin { position:absolute; left:0; right:0; top:50%; z-index:7; transform:translateY(-50%); padding:16px 12px; text-align:center; font:900 26px/1.2 "Segoe UI",system-ui,sans-serif; font-style:italic; letter-spacing:.04em; color:#fff; text-shadow:0 2px 4px rgba(0,0,0,.5);
+    background:linear-gradient(90deg, transparent, var(--p0d) 18%, var(--p0) 50%, var(--p0d) 82%, transparent); animation:cutin 1.8s ease-out forwards; } #cutin.lose { background:linear-gradient(90deg, transparent, var(--p1d) 18%, var(--p1) 50%, var(--p1d) 82%, transparent); }
+  @keyframes cutin { 0% { opacity:0; transform:translateY(-50%) scaleY(.2); } 12% { opacity:1; transform:translateY(-50%); } 85% { opacity:1; } 100% { opacity:0; } }
+  #result { position:absolute; inset:0; z-index:7; display:flex; flex-direction:column; align-items:center; gap:14px; padding:28px 16px 20px; text-align:center; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(4px); animation:resin .35s ease-out; }
+  @keyframes resin { from { opacity:0; } }
+  #result h2 { margin:0; font:800 13px/1 "Segoe UI",system-ui,sans-serif; text-transform:uppercase; letter-spacing:.3em; color:var(--dim); }
+  .rbig { margin:auto 0 0; font:900 clamp(44px, 17cqw, 104px)/1 "Segoe UI",system-ui,sans-serif; font-style:italic; letter-spacing:.03em; animation:rbig .5s cubic-bezier(.2,1.4,.4,1); } @keyframes rbig { from { transform:scale(.6); opacity:0; } }
+  .rbig.win { color:var(--gold); text-shadow:0 0 28px color-mix(in srgb, var(--gold) 45%, transparent); } :root[data-theme=light] .rbig.win { color:var(--p0); text-shadow:none; } .rbig.lose { color:var(--dim); } .rbig.long { font-size:clamp(28px, 9cqw, 56px); }
+  .rwhy { color:var(--dim); font-size:13px; margin-bottom:auto; }
+  .rrows { width:min(100%, 380px); border:1px solid var(--line); border-radius:8px; background:var(--panel); text-align:left; margin-bottom:auto; } .rrows div { display:flex; justify-content:space-between; gap:12px; padding:9px 14px; border-top:1px solid var(--line); } .rrows div:first-child { border-top:0; } .rrows b { white-space:nowrap; }
+  .rrows:empty { display:none; } .rwhy:has(+ .rrows:not(:empty)) { margin-bottom:0; }
+  .rbtns { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; } .rbtns button { min-width:130px; padding:10px 18px; text-align:center; }
   .note { color:var(--dim); font-size:12px; } .err { color:var(--err); }
 </style>
 </head>
 <body>
 <div class="top"><div class="ticker" id="ticker"><span></span></div><nav class="paths" id="paths" aria-label="Pages"></nav><button id="soundBtn" class="iconbtn"></button><button id="themeBtn" class="iconbtn"></button><a id="viewLink" class="iconbtn"></a><button id="newBtn" class="iconbtn" title="Home" aria-label="Home"></button></div>
 
-<main id="home" style="grid-template-columns:1fr 1fr"></main>
+<main id="home"></main>
 
 <main id="setup" hidden>
   <section>
@@ -205,19 +303,15 @@
     <div class="panel"><h2>Plates</h2><input id="pq" placeholder="search plates" style="width:100%;margin-bottom:8px"><div id="plist" class="cards"></div></div>
   </section>
   <section>
-    <div class="panel"><h2>Your team (6 figures)</h2><div id="team" class="team cards teamcards"></div>
-      <div class="bar"><button id="rnd">Random team</button><button id="clr">Clear</button></div>
+    <div class="panel"><div class="hhead"><h2 title="Point at a card, or press its i, for the data wheel, ability and attacks. Click a team card to edit it: evolution / Mega attachments, level (wheel size) and damage boosts.">Your team (6 figures)</h2><span class="hbtns"><button id="rnd" class="iconbtn" title="Random team" aria-label="Random team"></button><button id="clr" class="iconbtn" title="Clear the team" aria-label="Clear the team"></button></span></div><div id="team" class="team cards teamcards"></div>
       <label class="note" style="display:block;margin:0 0 8px"><input type="checkbox" id="evo" checked> attach evolutions automatically</label>
-      <p class="note">Point at a card, or press its i, for the data wheel, ability and attacks. Click a team card to edit it: evolution / Mega attachments, level (wheel size) and damage boosts.</p>
-      <h2>Your plates <span id="pcost" class="note"></span></h2><div id="myplates" class="team"></div></div>
-    <div class="panel"><h2>Saved teams</h2>
-      <div class="bar"><input id="tname" placeholder="name for this team" style="flex:1;min-width:0" maxlength="40"><button id="tsave">Save</button></div>
+      <h2>Your plates <span id="pcost" class="note"></span></h2>
+      <label class="note" id="oplLabel" style="display:block;margin:0 0 8px"><input type="checkbox" id="oplates" checked> opponent gets random plates</label><div id="myplates" class="team"></div></div>
+    <div class="panel"><div class="hhead"><h2>Saved teams</h2><span class="tsave"><input id="tname" placeholder="name for this team" maxlength="40" aria-label="Name for this team"><button id="tsave">Save</button></span></div>
       <div id="tlist"></div><div id="tmsg" class="note"></div></div>
-    <div class="panel" id="oppPanel"><h2>Opponent</h2>
-      <div class="bar"><select id="mode"><option value="1:60">Original AI · 60 trials (≈4 s per move)</option><option value="1:300">Original AI · 300 trials (≈20 s per move)</option><option value="1:1500">Original AI · 1500 trials (≈90 s per move)</option><option value="default">Original AI · original default settings (very slow)</option><option value="2:1">Random mover</option><option value="hot">2 players, same screen</option><option value="host">Online · host a room</option><option value="join">Online · join a room</option></select>
+    <div class="panel gobar"><div id="oppPanel"><select id="mode" aria-label="Opponent" title="Opponent"><option value="1:60">Original AI · 60 trials (≈4 s per move)</option><option value="1:300">Original AI · 300 trials (≈20 s per move)</option><option value="1:1500">Original AI · 1500 trials (≈90 s per move)</option><option value="default">Original AI · original default settings (very slow)</option><option value="2:1">Random mover</option><option value="hot">2 players, same screen</option><option value="host">Online · host a room</option><option value="join">Online · join a room</option></select>
         <input id="room" placeholder="room code" size="8" hidden>
-        <label class="note"><input type="checkbox" id="oplates" checked> opponent gets random plates</label></div>
-      </div><div class="panel"><button id="go" class="primary">Start duel</button> <span id="setupErr" class="err"></span>
+      </div><button id="go" class="primary">Start duel</button> <span id="setupErr" class="err"></span>
       <p class="note">Every legal move, spin, attack effect, ability, plate and AI decision is computed by the original engine (libTFG.so from your APK), not by a re-implementation.</p></div>
   </section>
 </main>
@@ -225,13 +319,17 @@
 <main id="game" hidden>
   <section class="arena">
   <div class="hud">
-      <div class="pl" id="hudBottom"><span class="dot" id="d0"></span><span class="who" id="n0"></span><span class="z" id="z0"></span><span class="clock" id="c0"></span></div>
+      <div class="pl" id="hudBottom"><span class="av" id="d0"></span><span class="who" id="n0"></span><span class="clock" id="c0"></span></div>
+      <div class="pl right" id="hudTop"><span class="clock" id="c1"></span><span class="who" id="n1"></span><span class="av" id="d1"></span></div>
+      <div class="turns" title="Turns left" id="turns"></div>
+      <div class="zrow"><div class="zg" id="zg0"><i></i><span id="z0"></span></div><b class="zi" title="Z gauge">Z</b><div class="zg right" id="zg1"><i></i><span id="z1"></span></div></div>
       <div id="status" class="banner"></div>
-      <div class="pl right" id="hudTop"><span class="clock" id="c1"></span><span class="z" id="z1"></span><span class="who" id="n1"></span><span class="dot" id="d1"></span></div>
     </div>
-    <div class="table"><svg id="board" viewBox="0 -56 420 812" preserveAspectRatio="xMidYMid meet"></svg><div id="board3d" hidden></div></div>
+    <div class="table"><svg id="board" viewBox="0 -32 420 764" preserveAspectRatio="xMidYMid meet"></svg><div id="board3d" hidden></div><div id="tbl"></div></div>
+    <div class="ibar"><div id="ibar" style="display:contents"></div><button id="sideBtn" class="iconbtn" title="Menu" aria-label="Menu" onclick="toggleSide()"></button></div>
+    <div id="plates" hidden></div>
+    <div id="result" hidden></div>
   </section>
-  <button id="sideBtn" class="iconbtn" title="Menu" aria-label="Menu" onclick="document.querySelector('.side').classList.toggle('open')"></button>
   <section class="side">
     <button id="sideHome" onclick="this.parentNode.classList.remove('open');document.getElementById('newBtn').click()">Home</button>
     <div class="bar" id="camBar"></div>
@@ -249,7 +347,7 @@
 'use strict';
 const D = DUEL_DATA, $ = id => document.getElementById(id), esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const TYPE_COL = ['#5a5366', '#f4d23c', '#5fbd58', '#f85888', '#c03028', '#a8a878', '#b8b8d0', '#f08030', '#6890f0', '#98d8d8', '#a040a0', '#e0c068', '#a890f0', '#a8b820', '#b8a038', '#705898', '#7038f8', '#ee99ac'];
-const SEG_COL = ['#c8322b', '#eef1f4', '#9050c8', '#f2c230', '#3d8fe8'], RAR = { 1: 'C', 2: 'UC', 3: 'R', 4: 'EX', 5: 'UX' }, P_COL = { black: 'var(--p0)', white: 'var(--p1)' };
+const SEG_COL = ['#c8322b', '#eef1f4', '#9050c8', '#f2c230', '#3d8fe8'], RAR = { 1: 'C', 2: 'UC', 3: 'R', 4: 'EX', 5: 'UX' }, RAR_COL = ['', '#8a8f98', '#2e9e5b', '#2f7fe0', '#d9a514', '#c0392b'], P_COL = { black: 'var(--p0)', white: 'var(--p1)' };
 // figure pictures are linked from the PokeAPI sprite set (not copied here); forms without a national dex number borrow the base figure's picture
 const dexByName = new Map(D.figures.filter(f => f.dex <= 1025).map(f => [f.n, f.dex]));
 const PIC_SET = 'other/official-artwork/';
@@ -318,7 +416,7 @@ function drawList() {
     .map(f => figCard(f, { cls: 'row', attrs: `data-id="${f.id}"` })).join('');
   const pq = $('pq').value.toLowerCase();
   $('plist').innerHTML = D.plates.filter(p => (!ownedMode || (profile.plates || {})[p.id] > 0) && (p.n + ' ' + p.d).toLowerCase().includes(pq))
-    .map(p => `<div class="row card plate" data-id="${p.id}" title="${esc(p.d)}"><span class="chip">cost ${p.c}</span><span class="nm">${esc(p.n)}</span><span class="note">${esc(p.d)}</span></div>`).join('');
+    .map(p => `<div class="row card plate" data-id="${p.id}" data-plate="${p.id}"><span class="chip">cost ${p.c}</span><button class="info" aria-label="Details of ${esc(p.n)}">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>')}</button><span class="nm">${esc(p.n)}</span><span class="note">${esc(p.d)}</span></div>`).join('');
 }
 const figText = (id, m) => esc(byId.get(id).n) + (m.lv > 1 || sum(m.boost) ? ` <span class="note">Lv${m.lv}${sum(m.boost) ? ' +' + sum(m.boost) : ''}</span>` : '');
 const pic = (id, mod) => { const f = byId.get(id), tip = esc(figText(id, mod).replace(/<[^>]+>/g, '')); return sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="${esc(f.n)}" title="${tip}" onerror="this.replaceWith(this.alt)">` : `<span title="${tip}">${esc(f.n)}</span>`; };
@@ -329,7 +427,7 @@ const dot = (id, mod, form) => { const f = byId.get(id), tip = esc(figText(id, m
 const X_ICON = icon('<path d="M6 6l12 12M18 6L6 18"/>');
 function figCard(f, o = {}) {
   const img = sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="" onerror="this.outerHTML='<div class=nopic>no picture</div>'">` : '<div class="nopic">no picture</div>';
-  return `<div class="${o.cls || ''} card fig" data-info="${f.id}" ${o.attrs || ''}><span class="chip rar${f.r}">${RAR[f.r] || '?'}</span><span class="chip r" title="MP ${f.mp}">${f.mp}</span>${img}<span class="foot"><span class="txt"><span class="nm">${o.name || esc(f.n)}</span><span class="note">${typeNames(f)}</span>${o.left || ''}</span><span><button class="info" title="Details" aria-label="Details of ${esc(f.n)}">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>')}</button>${o.right || ''}</span></span></div>`;
+  return `<div class="${o.cls || ''} card fig" data-info="${f.id}" ${o.attrs || ''}><span class="chip rar${f.r}">${RAR[f.r] || '?'}</span><span class="chip r" title="MP ${f.mp}">${f.mp}</span>${img}<span class="foot"><span class="txt"><span class="nm">${o.name || esc(f.n)}</span><span class="note">${typeNames(f)}</span>${o.left || ''}</span><span><button class="info" aria-label="Details of ${esc(f.n)}">${icon('<circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/>')}</button>${o.right || ''}</span></span></div>`;
 }
 // a team or deck slot: the figure that starts the duel is the card; its evolutions (and form changes) are dots that show their picture on hover
 const chainOf = slot => [...slot.st.map((id, k) => [id, slot.mod[k]]), ...slot.forms.map((id, k) => [id, slot.fmod[k], true])].filter(x => x[0] != null);
@@ -353,24 +451,27 @@ function figInfo(id, src, at) {
     <div class="fp-body"><div class="fp-side"><div class="fp-wheel">${wheelSvg(skills, 180)}</div>${long ? '' : abBox}</div>
       <div class="fp-atk"><span class="h">Attack</span><span class="h">Size</span><span class="h">Power</span>${skills.filter(x => x.range > 0).map(x => { const k = D.skills[x.id] || ['Attack ' + x.id, '', 0]; return `<span class="an"><span class="sw" style="background:${SEG_COL[k[2]]}"></span><b>${esc(k[0])}</b></span><span>${x.range}</span><span>${power(x) || '–'}</span>${k[2] && k[1] ? `<span class="desc">${esc(k[1])}</span>` : ''}`; }).join('')}</div></div>${long ? abBox : ''}`;
 }
-// Pointing at a card previews its details; its "i" (or, in the collection, the card itself) pins the panel open so it can be read, scrolled
+// Pointing at a card's "i" previews its details; pressing it pins the panel open so it can be read, scrolled
 // and stepped through. A click anywhere else closes it. On a narrow screen the panel is a sheet along the bottom.
 function showInfo(card, pin, at) {
-  const p = $('figpop'); p.innerHTML = figInfo(+card.dataset.info, card.dataset.src, at || 0); p.hidden = false; p.classList.toggle('pin', !!pin); p.scrollTop = 0;
+  const p = $('figpop'); p.innerHTML = card.dataset.plate ? plateInfo(+card.dataset.plate) : figInfo(+card.dataset.info, card.dataset.src, at || 0); p.hidden = false; p.classList.toggle('pin', !!pin); p.classList.toggle('pl', !!card.dataset.plate); p.scrollTop = 0;
   if (at == null) { showInfo.card = card; const r = card.getBoundingClientRect(), wide = innerWidth > 860;
     p.style.left = wide ? (r.right + 8 + p.offsetWidth <= innerWidth ? r.right + 8 : Math.max(8, r.left - 8 - p.offsetWidth)) + 'px' : ''; p.style.top = wide ? Math.max(8, Math.min(r.top, innerHeight - p.offsetHeight - 8)) + 'px' : ''; }
   showInfo.pin = !!pin;
 }
+const plateInfo = id => { const d = plateById.get(id); return `<button class="x" data-close title="Close" aria-label="Close">${X_ICON}</button><div class="fp-name" style="padding-right:36px"><b>${esc(d.n)}</b><span class="chip rar${d.r}">${RAR[d.r] || ''}</span><span class="chip">cost ${d.c}</span><span class="chip">Plate</span></div><p style="margin:12px 0 0;line-height:1.5">${esc(d.d)}</p>`; };
 const hideInfo = () => { clearTimeout(showInfo.wait); $('figpop').hidden = true; showInfo.pin = false; showInfo.card = null; };
 document.addEventListener('click', e => {
-  const p = $('figpop'), b = e.target.closest('.card.fig .info, #home .cards:not([data-act]) > .card.fig'), tab = e.target.closest('#figpop [data-at]');
+  const p = $('figpop'), b = e.target.closest('.card.fig .info, .card.plate .info, #home .cards:not([data-act]) > .card.fig'), tab = e.target.closest('#figpop [data-at]');
   if (b) { e.stopPropagation(); e.preventDefault(); const c = b.closest('.card'); showInfo.pin && showInfo.card === c ? hideInfo() : showInfo(c, true); }
   else if (tab) showInfo(showInfo.card, true, +tab.dataset.at);
   else if (!p.hidden && (!p.contains(e.target) || e.target.closest('[data-close]'))) hideInfo();
 }, true);
 if (matchMedia('(hover: hover)').matches) {
-  document.addEventListener('mouseover', e => { const c = e.target.closest('.card.fig'); if (!c || showInfo.pin || c === showInfo.card) return; clearTimeout(showInfo.wait); showInfo.wait = setTimeout(() => c.isConnected && !showInfo.pin && showInfo(c, false), 350); });
-  document.addEventListener('mouseout', e => { const c = e.target.closest('.card.fig'); if (c && !showInfo.pin && !c.contains(e.relatedTarget)) hideInfo(); });
+  // what previews on hover: a figure card's "i" button (not the whole card, which is for choosing), and the tiles and chips that have no button of their own
+  const HOVER = '.card.fig .info, .card.plate .info, .hfig > div, .hpl > div, .pchip', cardOf = t => t.closest('.card.fig, .card.plate') || t;
+  document.addEventListener('mouseover', e => { const t = e.target.closest(HOVER), c = t && cardOf(t); if (!c || showInfo.pin || c === showInfo.card) return; clearTimeout(showInfo.wait); showInfo.wait = setTimeout(() => c.isConnected && !showInfo.pin && showInfo(c, false), 350); });
+  document.addEventListener('mouseout', e => { const t = e.target.closest(HOVER); if (t && !showInfo.pin && !t.contains(e.relatedTarget)) hideInfo(); });
 }
 const slotText = slot => slot.st.map((id, k) => id == null ? null : figText(id, slot.mod[k])).filter(Boolean).join(' → ') + slot.forms.map((id, k) => id == null ? '' : ' ⇄ ' + figText(id, slot.fmod[k])).join('');
 // ---------- saved teams ----------
@@ -419,10 +520,16 @@ function loadSaved() {
   storeSaved(); try { localStorage.setItem(SEED_KEY, SEED); } catch (e) {}
 }
 function storeSaved() { try { localStorage.setItem(TEAMS_KEY, JSON.stringify(savedTeams)); } catch (e) {} }
+// The saved team that matches what is in the builder right now (same figures, attachments and plates) is shown inverted; editing the team clears it.
+const teamSig = (tm, pl) => JSON.stringify([tm.map(sl => [sl.st, sl.forms]), pl]);
+function markSaved() { if (!savedTeams) return; const now = teamSig(team, myPlates); document.querySelectorAll('#tlist .tcard').forEach(c => { const t = savedTeams[+c.dataset.i]; c.classList.toggle('on', !!t && teamSig(t.team, t.plates) === now); }); }
 function drawSaved(msg) {
   if (!savedTeams) loadSaved();
   $('tmsg').textContent = msg || '';
-  $('tlist').innerHTML = savedTeams.map((t, i) => `<div class="row" data-i="${i}" title="Load this team"><span class="n"><b>${esc(t.name)}</b><div class="note">${t.plates.length} plate${t.plates.length === 1 ? '' : 's'}</div></span><span class="pics">${t.team.map(sl => byId.has(sl.st[0]) ? pic(sl.st[0], blankMod(byId.get(sl.st[0]))) : '').join('')}</span><span class="x" data-x="${i}" title="Delete">×</span></div>`).join('') || '<p class="note">No saved teams yet.</p>';
+  const thumb = sl => { const f = byId.get(sl.st[0]); if (!f) return '<span class="ph">?</span>'; const tip = esc(figText(sl.st[0], blankMod(f)).replace(/<[^>]+>/g, '')), ph = `<span class="ph" title="${tip}">${esc(f.n.replace(/^(Alolan|Shiny|Mega) /, '').slice(0, 3))}</span>`;
+    return sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="${esc(f.n)}" title="${tip}" onerror="this.outerHTML='<span class=ph>'+this.alt.slice(0,3)+'</span>'">` : ph; };
+  $('tlist').innerHTML = savedTeams.map((t, i) => `<div class="tcard" data-i="${i}" title="Load ${esc(t.name)}"><div class="th"><b>${esc(t.name)}</b><span class="chip" title="${t.plates.length} plate${t.plates.length === 1 ? '' : 's'}">${t.plates.length}P</span><button class="x" data-x="${i}" title="Delete" aria-label="Delete ${esc(t.name)}">${icon('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/>')}</button></div><div class="tp">${t.team.map(thumb).join('')}</div></div>`).join('') || '<p class="note" style="margin:0">No saved teams yet.</p>';
+  markSaved();
 }
 $('tsave').onclick = () => {
   if (team.length !== 6) return drawSaved('Pick six figures before saving.');
@@ -431,8 +538,8 @@ $('tsave').onclick = () => {
   storeSaved(); $('tname').value = ''; drawSaved(at >= 0 ? `Replaced "${name}".` : `Saved "${name}".`);
 };
 $('tlist').onclick = e => {
-  const r = e.target.closest('.row'); if (!r) return; const i = +r.dataset.i, t = savedTeams[i];
-  if (e.target.dataset.x) { if (!confirm(`Delete the saved team "${t.name}"?`)) return; savedTeams.splice(i, 1); storeSaved(); return drawSaved(`Deleted "${t.name}".`); }
+  const r = e.target.closest('.tcard'); if (!r) return; const i = +r.dataset.i, t = savedTeams[i];
+  if (e.target.closest('[data-x]')) { if (!confirm(`Delete the saved team "${t.name}"?`)) return; savedTeams.splice(i, 1); storeSaved(); return drawSaved(`Deleted "${t.name}".`); }
   const ids = t.team.flatMap(sl => sl.st.concat(sl.forms).filter(id => id != null));
   if (ids.some(id => !byId.has(id)) || t.plates.some(id => !plateById.has(id))) return drawSaved(`"${t.name}" uses figures or plates this version does not have.`);
   if (ownedMode) {   // a league deck can only use what the collection holds, at the levels the collection has
@@ -444,8 +551,9 @@ $('tlist').onclick = e => {
 };
 
 function drawTeam() {
+  markSaved();
   $('team').innerHTML = team.map((slot, i) => slotCard(slot, 'team:' + i, { cls: 'row', attrs: `data-i="${i}"`, right: `<button class="x" data-x="${i}" title="Remove" aria-label="Remove">${X_ICON}</button>` })).join('') + '<div class="card empty">+</div>'.repeat(6 - team.length);
-  $('myplates').innerHTML = myPlates.map((id, i) => { const pl = plateById.get(id); return `<span class="pchip" data-i="${i}" tabindex="0"><b>${pl.c}</b>${esc(pl.n)}<i title="remove">×</i><span class="pop"><b>${esc(pl.n)}</b> · cost ${pl.c}<br>${esc(pl.d)}</span></span>`; }).join('') || '<p class="note">Optional. Click plates on the left.</p>';
+  $('myplates').innerHTML = myPlates.map((id, i) => { const pl = plateById.get(id); return `<span class="pchip" data-i="${i}" data-plate="${id}" tabindex="0"><b>${pl.c}</b>${esc(pl.n)}<i title="Remove" role="button" aria-label="Remove ${esc(pl.n)}">×</i></span>`; }).join('') || '<p class="note">Optional. Click plates on the left.</p>';
   $('pcost').textContent = `${myPlates.length}/${PLATE_MAX} plates · cost ${cost(myPlates)}/${COST_MAX}`;
   $('go').disabled = team.length !== 6;
 }
@@ -526,7 +634,8 @@ $('list').onclick = e => { const r = e.target.closest('.row'); if (!r || team.le
   $('setupErr').textContent = ''; team.push(newSlot(f.id, $('evo').checked && !ownedMode)); drawTeam(); };
 $('plist').onclick = e => { const r = e.target.closest('.row'); if (r && plateLeft(+r.dataset.id) && myPlates.length < PLATE_MAX && cost(myPlates) + plateById.get(+r.dataset.id).c <= COST_MAX) { myPlates.push(+r.dataset.id); drawTeam(); } };
 $('team').onclick = e => { const r = e.target.closest('.row'); if (!r) return; if (e.target.closest('[data-x]')) { team.splice(+r.dataset.i, 1); drawTeam(); } else editSlot(+r.dataset.i); };
-$('myplates').onclick = e => { const r = e.target.closest('.pchip'); if (r) { myPlates.splice(+r.dataset.i, 1); drawTeam(); } };
+$('myplates').onclick = e => { const r = e.target.closest('.pchip'); if (!r) return;   // the chip opens the plate's details; only its x removes it
+  if (e.target.closest('i')) { hideInfo(); myPlates.splice(+r.dataset.i, 1); drawTeam(); } else showInfo(r, true); };
 $('rnd').onclick = () => {
   if (!ownedMode) { team = randomTeam(); myPlates = randomPlates(); return drawTeam(); }
   const shuffled = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(x => x[1]), copies = owned => Object.keys(owned || {}).flatMap(id => Array(Math.max(0, owned[id] | 0)).fill(+id));
@@ -582,7 +691,7 @@ const slotFrom = d => ({ st: d.st.slice(), mod: d.st.map(id => id != null ? blan
 const deckPlates = () => (profile.deckPlates || []).slice();
 const leaguePool = () => BASES.filter(f => !leagueOf().locked.includes(f.id));
 function showHome() {
-  forgetGame();
+  forgetGame(); $('result').hidden = true;
   if (net) { try { net.peer.destroy(); } catch (e) {} net = null; }
   clearInterval(timer); clearInterval(homeTick); gameId++; ownedMode = false;
   $('game').hidden = $('setup').hidden = $('modal').hidden = true; $('home').hidden = false; if ($('battle')) $('battle').hidden = true;
@@ -593,29 +702,23 @@ function drawHome() {
   const lg = leagueOf(), i = LG.indexOf(lg), next = LG[i + 1], now = Date.now();
   if (profile.boxes[0] && profile.boxes[0].t == null) { profile.boxes[0].t = now + D.boxes[profile.boxes[0].b][0] * 60000; saveProfile(); }   // boosters unlock one at a time
   const left = b => Math.max(0, Math.ceil((b.t - now) / 1000)), clockText = t => `${Math.floor(t / 3600)}:${String(Math.floor(t / 60) % 60).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
-  const figs = Object.keys(profile.items).map(Number).filter(id => byId.has(id)).sort((a, b) => byId.get(b).r - byId.get(a).r || a - b);
   const mats = Object.keys(profile.items).map(Number).filter(id => !byId.has(id));
   const lo = i > 0 ? lg.demo : CONST.ratingInitial, pct = next ? Math.max(0, Math.min(100, (profile.rating - lo) / (next.promo - lo) * 100)) : 100;   // the bar runs from the demotion line (the starting rating in league 1) to promotion
-  const html = `<section><div class="panel"><h2>League ${i + 1} of ${LG.length}</h2>
+  const html = `<section style="display:grid;gap:10px"><div class="panel hlg"><h2 class="wide">League ${i + 1} of ${LG.length}</h2>
       <div class="big">${Math.floor(profile.rating)}<small>rating</small></div>
-      <div class="meter"><i style="width:${pct}%"></i></div>
-      <div class="ends"><span>${i > 0 ? 'demotion below ' + lg.demo : 'league ' + (i + 1)}</span><span>${next ? 'promotion at ' + next.promo : 'top league'}</span></div>
       <div class="stats"><div class="stat"><b>${profile.wins}</b><span>wins</span></div><div class="stat"><b>${profile.losses}</b><span>losses</span></div><div class="stat"><b>${profile.stars}/${CONST.keyCost}</b><span>keys</span></div></div>
-      <div class="pips">${Array.from({ length: CONST.keyCost }, (_, k) => `<i class="${k < profile.stars ? 'on' : ''}"></i>`).join('')}</div>
-      <div class="note">${lg.win} keys per win, ${lg.lose} per loss; a full set opens a key booster.</div>
-      <div class="bar" style="margin:14px 0 0"><button class="primary" data-act="league" ${profile.deck ? '' : 'disabled'}>League match</button><button data-act="deck">Edit deck</button><button data-act="free">Free duel (every figure)</button></div></div>
-    <div class="panel"><h2>Your deck</h2>
-      ${profile.deck ? `<div class="cards teamcards six" data-act="deck" title="Edit deck">${profile.deck.map((d, i) => slotCard(slotFrom(d), 'deck:' + i)).join('')}</div>` : '<p class="note">Build a deck from your collection to play league matches.</p>'}
-      ${(profile.deckPlates || []).length ? `<div>${profile.deckPlates.map(id => `<span class="chip" title="${esc(plateById.get(id).d)}">${esc(plateById.get(id).n)}</span>`).join('')}</div>` : ''}</div>
-    <div class="panel"><h2>Time boosters ${profile.boxes.length}/${TIME_SLOTS}</h2>
+      <div class="wide"><div class="meter"><i style="width:${pct}%"></i></div>
+        <div class="ends"><span>${i > 0 ? 'demotion below ' + lg.demo : 'league ' + (i + 1)}</span><span>${next ? 'promotion at ' + next.promo : 'top league'}</span></div></div>
+      <div class="wide pips" title="${lg.win} keys per win, ${lg.lose} per loss; a full set opens a key booster.">${Array.from({ length: CONST.keyCost }, (_, k) => `<i class="${k < profile.stars ? 'on' : ''}"></i>`).join('')}</div></div>
+    <div class="panel"><div class="hhead"><h2>Your deck</h2><button data-act="deck">Edit deck</button></div>
+      ${profile.deck ? `<div class="hfig" data-act="deck">${profile.deck.map((d, k) => { const f = byId.get(d.st[0]); return `<div data-info="${f.id}" data-src="deck:${k}"><span class="chip rar${f.r}">${RAR[f.r] || ''}</span><span class="chip r" title="MP ${f.mp}">${f.mp}</span>${sprite(f) ? `<img loading="lazy" src="${sprite(f)}" alt="">` : ''}<b>${esc(f.n)}</b><span class="note">${esc(typeNames(f))}</span></div>`; }).join('')}</div>` : '<p class="note">Build a deck from your collection to play league matches.</p>'}
+      ${(profile.deckPlates || []).length ? `<div class="hpl" data-act="deck">${profile.deckPlates.map(id => { const d = plateById.get(id); return `<div data-plate="${id}"><span class="chip rar${d.r}">${RAR[d.r] || ''}</span><span class="ct">${'<i></i>'.repeat(d.c || 0)}</span><b>${esc(d.n)}</b><span class="note">${esc(d.d)}</span></div>`; }).join('')}</div>` : ''}</div>
+    <div class="hrow"><div class="panel"><h2>Time boosters ${profile.boxes.length}/${TIME_SLOTS}</h2>
       <div class="boosters">${profile.boxes.map((b, k) => `<div class="booster"><span class="chip">${D.boxes[b.b][0]} min</span>${k === 0 ? (left(b) ? `<b class="tick">${clockText(left(b))}</b><span class="note">unlocking</span>` : `<button class="primary" data-open="0">Open</button>`) : '<span class="note">waiting</span>'}</div>`).join('')}${'<div class="booster empty">empty slot</div>'.repeat(Math.max(0, TIME_SLOTS - profile.boxes.length))}</div>
-      <p class="note" style="margin-bottom:0">${profile.boxes.length ? 'Boosters unlock one at a time.' : 'Win a league match to earn a time booster.'}</p>
-      <div id="homeMsg" class="note">${esc(drawHome.msg || '')}</div></div></section>
-    <section><div class="panel"><h2>Collection · ${figs.reduce((n, id) => n + profile.items[id], 0)} figures</h2>
-      <div class="cards">${figs.map(id => figCard(byId.get(id), { left: `<b class="own" title="${profile.items[id]} owned">×${profile.items[id]}</b>` })).join('')}</div>
-      ${mats.length ? `<p class="note">Materials: ${mats.map(id => esc(itemLabel([id, profile.items[id]]))).join(' · ')}</p>` : ''}</div>
-    <div class="panel"><p class="note" style="margin-top:0">League matches are played against the original AI with a random deck of figures available in your league. Rating moves by the original's fixed win / loss points.</p>
-      <button data-act="reset" class="note">Reset profile</button></div></section>`;
+      <p class="note" style="margin-bottom:0">${profile.boxes.length ? 'Boosters unlock one at a time.' : 'Win a league match to earn a time booster.'}${mats.length ? ' Materials: ' + mats.map(id => esc(itemLabel([id, profile.items[id]]))).join(' · ') : ''}</p>
+      <div id="homeMsg" class="note">${esc(drawHome.msg || '')}</div></div>
+    <div class="hgo"><button class="primary" data-act="league" ${profile.deck ? '' : 'disabled'}>League match</button><button data-act="free">Free duel</button></div></div>
+    <p class="note" style="margin:0;text-align:center">League matches are played against the original AI with a random deck from your league.</p></section>`;
   // This runs every second for the booster countdown. Rewriting the page each time made every picture blink, so the page is only
   // rewritten when something other than the countdown changed; otherwise just the countdown's text is updated.
   const key = html.replace(/<b class="tick">[^<]*/, ''), tick = (html.match(/<b class="tick">([^<]*)/) || [])[1];
@@ -626,12 +729,11 @@ $('home').onclick = e => {
   const t = e.target.closest('[data-act],[data-open]'); if (!t) return;
   if (t.dataset.open != null) { const b = profile.boxes.shift(); drawHome.msg = 'Opened: ' + openBox(b.b).map(itemLabel).join(', '); saveProfile(); return drawHome(); }
   const act = t.dataset.act;
-  if (act === 'reset') { if (confirm('Erase your league profile and collection?')) { profile = null; drawHome.msg = ''; showHome(); } return; }
   clearInterval(homeTick); $('home').hidden = true;
   if (act === 'league') { $('game').hidden = true; team = profile.deck.map(slotFrom); myPlates = deckPlates(); return start({ league: true }).catch(x => { showHome(); drawHome.msg = x.message; drawHome(); }); }
   ownedMode = act === 'deck';
   team = ownedMode && profile.deck ? profile.deck.map(slotFrom) : []; myPlates = ownedMode ? deckPlates() : [];
-  $('oppPanel').hidden = ownedMode; $('go').textContent = ownedMode ? 'Save deck' : 'Start duel'; $('setupErr').textContent = '';
+  $('oppPanel').hidden = $('oplLabel').hidden = ownedMode; $('go').textContent = ownedMode ? 'Save deck' : 'Start duel'; $('setupErr').textContent = '';
   $('setup').hidden = false; drawList(); drawTeam();
 };
 function finishLeague() { // MatchResultRank: rating, keys (stars), boosters, league change
@@ -650,6 +752,9 @@ function finishLeague() { // MatchResultRank: rating, keys (stars), boosters, le
   if (LG[i] !== lg) notes.push(i > LG.indexOf(lg) ? `Promoted to league ${i + 1}` : `Demoted to league ${i + 1}`);
   profile.league = LG[i].id; saveProfile();
   for (const n of notes) log('<b>' + esc(n) + '</b>');
+  // the result screen's table, with the original's own captions (UiMaster.ArenaResult.*)
+  leagueGame.rows = [['Rating:', `${Math.floor(profile.rating)} (${dr >= 0 ? '+' : ''}${dr})`], ['Key Fragment:', `+${keys}`]].concat(notes.slice(2).map(n => [n, '']),
+    [LG[i + 1] ? ['League promotion in', String(Math.max(0, Math.ceil(LG[i + 1].promo - profile.rating)))] : ['Currently in highest league', '']]);
 }
 
 // ---------- the match record (the original's own format) ----------
@@ -748,11 +853,18 @@ async function hostRoom() { // resolves with the guest's deck
       net = { host: true, conn, peer };
       conn.on('data', d => {
         if (d.t === 'deck') return ok(d);
-        if (d.t === 'move' && st && !busy && !over && ctrl[st.selective_side] === 'remote' && legal[d.i]) play(legal[d.i]);
+        if (d.t === 'move' && st && !over && ctrl[st.selective_side] === 'remote') { net.move = d.i; remoteMove(); }
       });
       conn.on('close', () => { if (!over) log('<b>Your opponent disconnected.</b>'); });
     });
   });
+}
+const HINT = { engine_id: 1, limit_id: 0, limit_num: 60, use_plate: false };   // "Let the AI choose this move": the original AI at 60 trials (its default settings crash the in-page engine)
+function remoteMove() { // the guest can answer while the host is still showing the last move's effects, so its move is kept until the host is ready for it
+  if (!net || net.move == null || !st || busy || over || ctrl[st.selective_side] !== 'remote') return;
+  const i = net.move; net.move = null;
+  if (i === 'ai') { busy = true; render(); return api('go', HINT).then(g => play(g.move)).catch(x => { busy = false; render(); net.conn.send({ t: 'state', st, legal, fx: [], over: null, clock }); }); }   // on an engine error the guest gets its choices back
+  if (legal[i]) play(legal[i]);
 }
 async function joinRoom(code) {
   await loadPeer();
@@ -761,12 +873,22 @@ async function joinRoom(code) {
   const conn = peer.connect(roomId(code), { reliable: true });
   await new Promise((ok, bad) => { conn.on('open', ok); peer.on('error', e => bad(new Error('online: ' + e.type))); setTimeout(() => bad(new Error('No room with that code answered.')), 15000); });
   net = { host: false, conn, peer };
-  me = 'white'; flip = true; ctrl = { black: 'remote', white: 'human' }; ai = null; rec = null; st = null; legal = []; over = null; leagueGame = null; sel = null; logLines = [];
-  clearInterval(timer); clearInterval(homeTick); gameId++;
+  me = 'white'; flip = true; ctrl = { black: 'remote', white: 'human' }; ai = null; rec = null; st = null; legal = []; over = null; leagueGame = null; sel = null; logLines = []; clock = { black: 300, white: 300 };
+  clearInterval(homeTick); gameId++; startClock();
   $('setupErr').textContent = ''; $('setup').hidden = $('home').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
   log('Connected. The host moves first.');
   let chain = Promise.resolve();
-  conn.on('data', d => { if (d.t === 'state') chain = chain.then(async () => { st = d.st; legal = d.legal; busy = true; render(); await playEffects(d.fx || []); if (d.over) over = d.over; busy = false; render(); }); });
+  conn.on('data', d => {
+    if (d.t === 'over') { over = d.over; log(`<b>${wins(over.winner)}</b> (${esc(over.reason)})`); render(); return settle(); }
+    if (d.t === 'state') chain = chain.then(async () => {
+      const hop = d.mv && d.mv.value.type === 'mp_move' && !net.sent; net.sent = false;   // the opponent's move hops here; this player's own move started hopping when it was made
+      if (hop) animateMove(d.mv);
+      logSide = d.played && st ? st.turn : null;
+      arrive(d.st, d.legal, d.played); clock = d.clock; busy = true; render();
+      if (hop && moveAnim) await sleep(moveAnim.dur);
+      await playEffects(d.fx || []); logSide = null; if (d.over) over = d.over; busy = false; render(); settle();
+    });
+  });
   conn.on('close', () => { if (!over) log('<b>The host disconnected.</b>'); });
   conn.send({ t: 'deck', team, plates: myPlates });
 }
@@ -793,7 +915,7 @@ async function start(opts) {
   rec.client_ai_name = (await api('name')).name; rec.ai_protocol_version = (await api('protocol_version')).protocol_version;   // as Engine.GameStart does
   const check = await api('check_record');
   if (check.errors && check.errors.length) throw new Error('The engine rejected this setup: ' + check.errors.join(', '));
-  leagueGame = lgMode ? { done: false } : null; $('home').hidden = true; states = []; rewinds = 0;
+  leagueGame = lgMode ? { done: false } : null; sealed.clear(); $('home').hidden = true; states = []; rewinds = 0;
   sel = null; busy = false; over = null; logLines = []; clock = { black: 300, white: 300 }; gameId++;
   $('setupErr').textContent = ''; $('setup').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
   log(`<b style="color:${P_COL[rec.first_player]}">${label(rec.first_player)}</b> goes first.`);
@@ -805,7 +927,8 @@ function startClock() {
   timer = setInterval(() => { // 300 s chess clock per player (Monaco.ChessClock.TimeLimit); the engine itself has no clock
     const side = st && st.selective_side;
     if (over || missionDuel() || !P_COL[side] || !$('modal').hidden || ($('battle') && !$('battle').hidden) || (busy && ctrl[side] !== 'ai')) return;   // a player is not charged while effects play or the engine works
-    if (--clock[side] <= 0) { over = { winner: other(side), reason: 'timeout' }; log(`<b>${label(over.winner)} wins</b> (timeout)`); render(); } else drawClock();
+    if (net && !net.host) { clock[side] = Math.max(0, clock[side] - 1); return drawClock(); }   // the host's clock decides a timeout
+    if (--clock[side] <= 0) { over = { winner: other(side), reason: 'timeout' }; log(`<b>${wins(over.winner)}</b> (timeout)`); if (net) net.conn.send({ t: 'over', over }); render(); settle(); } else drawClock();
   }, 1000);
 }
 
@@ -839,8 +962,40 @@ async function resumeGame() {
   states = []; sel = null; busy = false; logLines = []; gameId++; $('log').innerHTML = ''; log(`Duel resumed at move ${rec.all_moves.length}.`);
   startClock(); await sync(false);
 }
+const wins = c => label(c) === 'You' ? 'You win' : label(c) + ' wins';
 const label = c => ctrl[c] === 'remote' ? 'Opponent' : ctrl.black === 'human' && ctrl.white === 'human' ? (c === 'black' ? 'Player 1' : 'Player 2') : ctrl[c] === 'ai' ? 'Computer' : 'You';
 
+function arrive(s, lm, played) {   // a new status and its legal moves, with the sounds of what changed
+  const before = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.marker || {}).circle])), mpBefore = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.effect && c.effect.mp) || 0]));
+  st = s; legal = lm;
+  if (played) for (const kind of new Set(st.pokemon_conditions.filter(c => { const now = (c.marker || {}).circle; return now && now !== 'normal' && now !== before.get(c.pokemon_index); }).map(c => c.marker.circle)))
+    statusSfx(kind);
+  if (played) for (const dir of new Set(st.pokemon_conditions.map(c => Math.sign(((c.effect && c.effect.mp) || 0) - (mpBefore.get(c.pokemon_index) || 0))).filter(Boolean))) mpSfx(dir);
+}
+// The end of a duel. EndReasonCutIn shows the bar only for these endings (a goal or a knockout ending goes straight to the result), with the
+// original's own words (UiMaster.GameSet.*: Time Up, Forfeit, Wait, Turn Over + Win / Loss). MatchResult then offers Next, or after a room
+// match two buttons; their original English labels did not survive, so Rematch and Exit are this site's words.
+const END_TEXT = [[/time/, 'Time Up'], [/resign/, 'Forfeit'], [/legal/, 'Wait'], [/turn/, 'Turn Over']];
+async function showResult() {
+  const id = gameId, o = over, solo = !(ctrl.black === 'human' && ctrl.white === 'human'), decided = !!P_COL[o.winner], won = decided && o.winner === me;
+  const why = (END_TEXT.find(([re]) => re.test(String(o.reason))) || [])[1];
+  if (why && decided) { const c = document.createElement('div'); c.id = 'cutin'; c.className = solo && !won ? 'lose' : ''; c.textContent = why + ' · ' + (solo ? (won ? 'Win' : 'Loss') : wins(o.winner));
+    document.querySelector('.arena').appendChild(c); await sleep(1800); c.remove(); }
+  if (id !== gameId || over !== o) return;   // rewound or left meanwhile
+  const word = !decided ? 'DRAW' : solo ? (won ? 'WIN' : 'LOSE') : wins(o.winner), rows = (leagueGame && leagueGame.rows) || [];
+  $('result').innerHTML = `<h2>Result</h2><div class="rbig ${!decided ? 'lose' : solo && !won ? 'lose' : 'win'}${word.length > 5 ? ' long' : ''}">${esc(word)}</div><div class="rwhy">${esc(why || String(o.reason || '').replace(/_/g, ' ').replace(/^./, c => c.toUpperCase()))}</div>
+    <div class="rrows">${rows.map(([a, b]) => `<div><span>${esc(a)}</span><b>${esc(b)}</b></div>`).join('')}</div>
+    <div class="rbtns">${rewindTarget() >= 0 ? '<button data-r="back">Take Back</button>' : ''}${leagueGame || net || team.length !== 6 ? '<button class="primary" data-r="next">Next</button>' : '<button data-r="again">Rematch</button><button class="primary" data-r="next">Exit</button>'}</div>`;
+  $('result').hidden = false;
+}
+$('result').onclick = e => { const b = e.target.closest('[data-r]'); if (!b) return; $('result').hidden = true;
+  if (b.dataset.r === 'back') return rewind();
+  if (b.dataset.r === 'again') return start().catch(x => { showHome(); drawHome.msg = x.message; drawHome(); });
+  showHome(); };
+function settle() {   // after the effects: the end-of-duel or your-turn sound; true when the duel is over
+  if (over) { if (!over.sung) { over.sung = 1; sfx(ctrl[me] === 'human' && over.winner && over.winner !== me ? 'lose' : 'win'); showResult(); } return true; }
+  const side = st.selective_side; if (ctrl[side] === 'human' && settle.last !== side) sfx('turn'); settle.last = side;
+}
 // One step of the original client's loop (Engine.CurrentState): effects of the last move, new status, next legal moves.
 async function sync(played) {
   const id = gameId;
@@ -848,28 +1003,29 @@ async function sync(played) {
   try {
     const [fx, s, lm, ss] = await Promise.all([played ? api('output_effects') : null, api('status'), api('legal_moves'), api('selective_side')]);
     if (id !== gameId) return;
-    const before = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.marker || {}).circle])), mpBefore = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.effect && c.effect.mp) || 0]));
-    st = s.status; legal = lm.legal_moves || [];
-    if (played) for (const kind of new Set(st.pokemon_conditions.filter(c => { const now = (c.marker || {}).circle; return now && now !== 'normal' && now !== before.get(c.pokemon_index); }).map(c => c.marker.circle)))
-      statusSfx(kind);
-    if (played) for (const dir of new Set(st.pokemon_conditions.map(c => Math.sign(((c.effect && c.effect.mp) || 0) - (mpBefore.get(c.pokemon_index) || 0))).filter(Boolean))) mpSfx(dir);
+    logSide = played && st ? st.turn : null;   // the turn the move was made in, read before the new status replaces it
+    arrive(s.status, lm.legal_moves || [], played);
     states[rec.all_moves.length] = { b: !!ss.beginning_of_turn, s: ss.selective_side };   // RewindableRecord.AddState
     if (ss.game_set && !over) over = { winner: ss.winner, reason: ss.reason }; saveGame();
-    if (net && net.host) net.conn.send({ t: 'state', st, legal, fx: fx ? fx.effect_moves || [] : [], over: ss.game_set ? { winner: ss.winner, reason: ss.reason } : null });
-    if (fx) await playEffects(fx.effect_moves || []);
+    if (net && net.host) net.conn.send({ t: 'state', st, legal, fx: fx ? fx.effect_moves || [] : [], over: ss.game_set ? { winner: ss.winner, reason: ss.reason } : null, clock, played, mv: played ? rec.all_moves[rec.all_moves.length - 1] : null });
+    if (fx) await playEffects(fx.effect_moves || []); logSide = null;
     if (id !== gameId) return;
     const side = st.selective_side;
     if (!over && ss.game_set) over = { winner: ss.winner, reason: ss.reason };
     busy = false; render();
-    if (over) { if (!over.sung) { over.sung = 1; sfx(ctrl[me] === 'human' && over.winner && over.winner !== me ? 'lose' : 'win'); } return; }
-    if (ctrl[side] === 'human' && sync.last !== side) sfx('turn'); sync.last = side;
+    if (settle()) return;
+    if (legal.length === 1 && legal[0].value.type === 'game_set') return play(legal[0]);   // after a resignation the engine's only move is the one that ends the duel: nothing to choose, so it is played
     if (side === 'both') return play(pickRandom(legal));                 // system move (a spin): the original client samples it too
     if (ctrl[side] === 'ai') { busy = true; render(); const g = await api('go', ai); if (id === gameId) return play(g.move); }
+    remoteMove();
   } catch (e) { busy = false; $('status').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
 }
 function play(move) {
   if (over) return;
-  if (net && !net.host) { net.conn.send({ t: 'move', i: legal.indexOf(move) }); legal = []; busy = true; sel = null; routeChoice = null; return render(); }
+  pick = null; plateView = null;
+  if (net && !net.host) {   // move === 'ai': the host's engine chooses
+    if (move !== 'ai' && move.value.type === 'mp_move') animateMove(move);
+    net.sent = move !== 'ai'; net.conn.send({ t: 'move', i: move === 'ai' ? 'ai' : legal.indexOf(move) }); legal = []; busy = true; sel = null; routeChoice = null; return render(); }
   if (move.value.type === 'mp_move') animateMove(move);
   rec.all_moves.push(move); rec.seeds.push(rec.seed); sel = null; routeChoice = null;
   return sync(true);
@@ -900,7 +1056,7 @@ function rewind() {
   if (keep < 0) return;
   rec.seed = monoRandomNext(rec.seed);                    // a rewind re-seeds the duel, so the same spins do not simply repeat
   rec.all_moves.length = keep; rec.seeds.length = keep; states.length = keep;
-  over = null; rewinds++; sel = null; routeChoice = null;
+  over = null; rewinds++; sel = null; routeChoice = null; sealed.clear();
   log(`<span class="note">— rewound to the start of your turn (${REWIND_MAX - rewinds} left) —</span>`);
   return sync(false);
 }
@@ -923,7 +1079,7 @@ function badges(c) {
 // ---------- describing moves and effects (generic, so every engine move can be shown and chosen) ----------
 const TITLES = { null_move: 'End turn', resign: 'Resign', declare_battle: 'Battle', mp_move: 'Move', declare_plate: 'Use plate', turn_end: 'Turn ends', knockedout_move: 'Knocked out',
   put_circle: 'Condition', put_triangle: 'Marker', pokepower_notice: 'Ability', skill_notice: 'Attack effect', sandwich: 'Surrounded', remove_debuff: 'Conditions removed',
-  bench_move: 'To the bench', touch: 'Tag', evolve: 'Evolve', spot_move: 'Move', game_set: 'Game over', declare_pokepower: 'Use ability', use_pokepower: 'Use ability', add_wait: 'Wait' };
+  bench_move: 'To the bench', touch: 'Tag', evolve: 'Evolve', spot_move: 'Move', game_set: 'Game over', declare_pokepower: 'Use ability', use_pokepower: 'Use ability', add_wait: 'Wait', z_skill: 'Z-Move', declare_turn_end: 'Turn End' };
 function fmt(k, x) {
   if (Array.isArray(x)) return k === 'route' ? x.map(place).join(' → ') : x.map(y => fmt(k.replace(/s$/, ''), y)).join(', ');
   if (x && typeof x === 'object') return describe(x);
@@ -943,11 +1099,16 @@ function describe(v) {
   }).filter(Boolean);
   return `<span class="ink">${TITLES[v.type] || esc(String(v.type || '').replace(/_/g, ' '))}</span>${parts.length ? ' · ' + parts.join(' · ') : ''}`;
 }
-const QUIET = new Set(['add_z_gauge', 'battled_after_field_in', 'battle_info', 'declare_spin', 'base_damage_notice', 'declare_battle', 'mp_move', 'spin', 'battle_result']);
+const QUIET = new Set(['add_z_gauge', 'battled_after_field_in', 'battle_info', 'declare_spin', 'base_damage_notice', 'skill_damage_notice', 'pokepower_damage_notice', 'plate_damage_notice', 'condition_damage_notice', 'overwrite_notice', 'declare_battle', 'mp_move', 'spin', 'battle_result']);
 
 // ---------- sound ----------
 // (the sound effects live in sound.js, shared with the storybook)
 $('sideBtn').innerHTML = `<span class="m">${icon('<path d="M4 7h16M4 12h16M4 17h16"/>')}</span><span class="c">${icon('<path d="M6 6l12 12M18 6L6 18"/>')}</span>`;
+// The narrow-screen menu covers the table only, so its top and bottom are measured from the table when it opens (and when the window changes).
+const fitSide = () => { const r = document.querySelector('.table').getBoundingClientRect(), s = document.querySelector('.side').style; s.setProperty('--side-top', r.top + 'px'); s.setProperty('--side-bottom', innerHeight - r.bottom + 'px'); };
+window.toggleSide = () => { fitSide(); document.querySelector('.side').classList.toggle('open'); }; addEventListener('resize', fitSide);
+addEventListener('click', e => { const s = document.querySelector('.side'); if (s.classList.contains('open') && !e.target.closest('.side, #sideBtn')) { s.classList.remove('open'); e.stopPropagation(); } }, true);   // a click outside the open menu only closes it
+$('rnd').innerHTML = icon('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9v.01M15 9v.01M12 12v.01M9 15v.01M15 15v.01"/>'); $('clr').innerHTML = icon('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/>');
 $('newBtn').innerHTML = icon('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>');
 
 // A move along a route is shown as hops from point to point (STEP_MS each), with a landing sound per point. It starts the moment the move is
@@ -966,13 +1127,14 @@ function animateMove(move) {
 // the colour of each status condition's ring, the same on the flat board and the 3D table
 const STATUS_COL = { poison: '#a855f7', bad_poison: '#6b21a8', burn: '#ff7a1a', paralyze: '#fde047', sleep: '#94a3b8', freeze: '#67e8f9', melt: '#67e8f9', panic: '#f472b6', curse: '#7c3aed' };
 const VIEW3D = !/\/2d\/(index\.html)?$/.test(location.pathname), U = ([x, y]) => [(x - 210) / 54.2, (y - 350) / 54.2];   // the duel is shown on a WebGL table (board3d.js); /2d/ shows the same duel on the flat board
-document.documentElement.style.setProperty('--board-ar', VIEW3D ? .72 : .517);   // the 3D table, seen at a tilt, is squarer than the flat board
+document.documentElement.style.setProperty('--board-ar', VIEW3D ? .72 : .55);   // the 3D table, seen at a tilt, is squarer than the flat board
 $('viewLink').innerHTML = icon(VIEW3D ? '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/>' : '<path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/>'); $('viewLink').title = VIEW3D ? 'Switch to the flat board' : 'Switch to the 3D table'; $('viewLink').setAttribute('aria-label', $('viewLink').title); $('viewLink').href = VIEW3D ? '2d/' : './';
 if (VIEW3D) { $('board').style.display = 'none'; $('board3d').hidden = false; import(new URL('board3d.js', document.baseURI)).catch(x => { $('board3d').innerHTML = `<p class="err" style="padding:16px">3D view failed to load: ${esc(x.message)}</p>`; }); }
+const NEAR = .45;
 function xy(p, away) { // engine point ids: 0-27 field, 28-33 / 34-39 benches, 40-41 / 42-43 P.C., above that = out of play
   if (p < 28) { const q = flip ? 27 - p : p; return [42 + XY[q][0] * 56, 186 + XY[q][1] * 82]; }
-  if (p < 44) { const k = flip ? -54.2 : 54.2; return [210 - SPOT[p][0] * k, 350 + SPOT[p][1] * k]; }
-  return [away, (p < 50) !== flip ? 730 : -30];   // out of play (ids 44-49 / 50-55): a row past the bench, `away` being how far along it
+  if (p < 44) { const k = flip ? -54.2 : 54.2; return [210 - SPOT[p][0] * k, 350 + (SPOT[p][1] - Math.sign(SPOT[p][1]) * NEAR) * k]; }   // benches and P.C. sit NEAR closer to the field than the original's
+  return [away, (p < 50) !== flip ? 706 : -6];   // out of play (ids 44-49 / 50-55): a row past the bench, `away` being how far along it
 }
 function render() {
   if (!st) return;
@@ -987,6 +1149,10 @@ function render() {
     if (v.type === 'mp_move' && v.route[0] === me.index) { const to = v.route[v.route.length - 1]; (routes.get(to) || routes.set(to, []).get(to)).push(m); }
     if (v.type === 'declare_battle' && v.from_pokemon === sel) targets.set(v.to_pokemon, m);
   }
+  if (!mine) pick = null;
+  const stage = pick ? pickStage() : null;
+  if (stage) { routes.clear(); targets.clear();   // a choice is being made: the board offers its figures or points instead of the selected figure's moves
+    if (stage.map) for (const [v, ms] of stage.map) if (stage.kind === 'fig') targets.set(v, ms); else { routes.set(v, ms); const c = st.pokemon_conditions.find(c => c.index === v); if (c) targets.set(c.pokemon_index, ms); } }
   render.routes = routes; render.targets = targets;
   // a route stops at the rim of an entry point's ring (17.9 = its radius plus half its stroke) instead of running through it to the dot
   const rimCut = (p, x, y, tx, ty) => { if (![0, 6, 21, 27].includes(p)) return [x, y]; const l = Math.hypot(tx - x, ty - y); return [x + (tx - x) * 17.9 / l, y + (ty - y) * 17.9 / l]; };
@@ -1004,10 +1170,11 @@ function render() {
       if (stem) h += `<line class="edge" x1="${x + ux * 23.3}" y1="${y + uy * 23.3}" x2="${x + ux * (23.3 + stem)}" y2="${y + uy * (23.3 + stem)}"/>`;
       h += `<polygon class="arrowmark" points="${at(23.3 + stem, -7.2)} ${at(23.3 + stem, 7.2)} ${at(30.5 + stem, 0)}"/>`;
     } }
-  const z = c => { const g = (st.z_gauge_conditions || []).find(x => x.color === c); return g ? ' · Z ' + g.z_gauge : ''; };
   const low = flip ? 'white' : 'black', high = other(low);
   for (const [c, k] of [[low, 0], [high, 1]]) {   // HUD bars: who, Z gauge, clock; the side to act is outlined
-    $('n' + k).textContent = label(c); $('d' + k).style.background = P_COL[c]; $('z' + k).textContent = z(c).replace(' · ', '');
+    const zv = Math.min(100, ((st.z_gauge_conditions || []).find(x => x.color === c) || {}).z_gauge || 0);   // SetZWazaBar: capped at 100, "MAX" when full
+    $('n' + k).textContent = label(c); $('d' + k).style.background = P_COL[c]; $('d' + k).textContent = label(c)[0]; $('z' + k).textContent = zv >= 100 ? 'MAX' : zv + '/100';
+    $('zg' + k).style.setProperty('--v', zv + '%'); $('zg' + k).classList.toggle('max', zv >= 100);
     $(k ? 'hudTop' : 'hudBottom').classList.toggle('turn', !over && st.selective_side === c);
   }
   const away = { [low]: 378, [high]: 42 }, toks = [];   // the next free place in each side's row of excluded figures (bottom row fills from the right, top row from the left)
@@ -1023,6 +1190,15 @@ function render() {
       ${c.index < 40 ? `<circle class="mpb" cx="15" cy="15" r="6.6" stroke="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}"/><text x="15" y="18" font-size="8.6" fill="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}">${mp}</text>` : ''}
       ${b.length ? `<rect x="-24" y="23" width="48" height="11" rx="5.5" fill="#10141a"/><text y="31.3" font-size="7.2" fill="#ffd88a">${esc(b[0].slice(0, 11))}${b.length > 1 ? '+' : ''}</text>` : ''}</g>`;
   }
+  const tm = tableModel(mine), B = (x, z) => [210 + x * 54.2, 350 + z * 54.2];   // the plate stacks and the AI / End Turn / Z-Move button, in board units
+  for (const k of tm.stacks) {
+    h += `<g class="pcardT" data-act="${k.act}">` + k.cards.map((c, i) => { const [x, y] = B(c.x, k.z), e = k.s > 0 ? x - 26 : x + 21.5;   // the rarity edge is on the side that shows when fanned
+      return `<g${c.used ? ' opacity=".45"' : ''}><rect class="sh" x="${x - 25}" y="${y - 36}" width="52" height="76.1" rx="4"/><rect x="${x - 26}" y="${y - 38.05}" width="52" height="76.1" rx="4"/><rect class="re" x="${e}" y="${y - 34}" width="4.5" height="68" rx="2" style="fill:${RAR_COL[c.r] || RAR_COL[1]}"/>` +
+        (i ? '' : `<rect class="fr" x="${x - 19.5 + (k.s > 0 ? 3 : -3)}" y="${y - 33}" width="39" height="66" rx="2.5"/><text x="${x + (k.s > 0 ? 3 : -3)}" y="${y - 2}" font-size="5.6">${esc(c.n.slice(0, 16))}</text>` +
+          Array.from({ length: c.c }, (_, n) => `<circle class="co" cx="${x - 13 + (k.s > 0 ? 3 : -3) + n * 6.5}" cy="${y + 27}" r="2.3"/>`).join('')) + '</g>'; }).reverse().join('') + '</g>';
+    if (k.mark) h += k.mark.map(([x, z]) => { const [X, Y] = B(x, z), dx = Math.sign(k.x - x) * 16, dy = Math.sign(k.z - z) * 16; return `<path class="pmark" d="M${X + dx} ${Y}H${X}V${Y + dy}"/>`; }).join('');
+  }
+  { const t = tm.btn, [x, y] = B(t.x, t.z); h += `<g class="tbtn${t.on ? ' on' : ''}" data-act="main"><rect class="o" x="${x - 54.2}" y="${y - 16.3}" width="108.4" height="32.5" rx="6"/><rect class="i" x="${x - 47.7}" y="${y - 10.8}" width="95.4" height="21.7" rx="3.5"/><text x="${x}" y="${y}" font-size="${t.size}">${esc(t.label)}</text></g>`; }
   $('board').innerHTML = h;
   if (moveAnim && performance.now() < moveAnim.t0 + moveAnim.dur) {   // flat board: hop along the route, picking up where the animation was if the board was redrawn meanwhile
     const el = $('board').querySelector(`[data-fig="${moveAnim.fig}"]`), pts = moveAnim.route.map(q => xy(q)), n = pts.length - 1, kf = [];
@@ -1032,18 +1208,110 @@ function render() {
   if (VIEW3D) {
     const pts = []; for (let p = 0; p < 28; p++) { const [x, z] = U(xy(p)); pts.push({ k: flip ? 27 - p : p, p, x, z, goal: p === (flip ? 3 : 24) ? 0 : p === (flip ? 24 : 3) ? 1 : null, mv: routes.has(p) }); }
     const slots = []; for (let p = 28; p < 44; p++) slots.push(U(xy(p)));
-    window.board3dModel = { pts, slots, toks, edges: EDGES.map(([a, b]) => [U(xy(a)), U(xy(b))]) }; if (window.Board3D) Board3D.draw(board3dModel);
+    window.board3dModel = { pts, slots, toks, edges: EDGES.map(([a, b]) => [U(xy(a)), U(xy(b))]), table: tm }; if (window.Board3D) Board3D.draw(board3dModel);
   }
-  $('status').innerHTML = over ? `<b>${over.winner && P_COL[over.winner] ? label(over.winner) + ' wins' : 'Draw'}</b> — ${esc(String(over.reason).replace(/_/g, ' '))}`
-    : `<b style="color:${P_COL[side] || 'inherit'}">${P_COL[side] ? label(side) : '…'}</b>${busy ? ' · working…' : mine ? ' to act' : ''} · ${st.remaining_turns} turns left`;
+  $('status').innerHTML = over ? `<b>${over.winner && P_COL[over.winner] ? wins(over.winner) : 'Draw'}</b> — ${esc(String(over.reason).replace(/_/g, ' '))}`
+    : `<b style="color:${P_COL[side] || 'inherit'}">${P_COL[side] ? label(side) : '…'}</b>${busy ? ' · working…' : mine ? ' to act' : ''}`; $('turns').textContent = st.remaining_turns;
   const extra = !mine ? [] : routeChoice ? routeChoice : legal.filter(m => !['mp_move', 'declare_battle', 'resign'].includes(m.value.type));
   $('acts').innerHTML = (routeChoice && mine ? '<span class="note">Several routes lead there — choose one:</span>' : '') + extra.map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('') +
     (rewindTarget() >= 0 ? `<button data-rw="1">Rewind to the start of your turn (${REWIND_MAX - rewinds} left)</button>` : '') +
     (mine ? '<button data-ai="1">Let the AI choose this move</button>' : '') + (mine && legal.some(m => m.value.type === 'resign') ? `<button data-m="${legal.findIndex(m => m.value.type === 'resign')}" class="note">Resign</button>` : '');
-  drawClock(); drawCard(me);
+  drawClock(); drawCard(me); drawPrompt(mine, stage); drawBar(mine); drawPlates(mine);
 }
+// ---------- the original's duel controls ----------
+// What MatchMain has: on the table, a fanned stack of plates per player (a table button that opens the plate list; the opponent's to look
+// at) and one button at the near edge that is AI, End Turn once a move is made, or Activate Z-Move for a figure that can; on the screen, a
+// bar with Give up, one centre button (Use Ability, or Cancel while a plate or ability is being aimed) and Wait (rewind, duels against the
+// AI only). A plate or ability that needs targets is finished on the board; Cancel reopens the plate list (SetActiveCancelButton).
+// English labels: AI, End Turn and Activate Z-Move are the original's. Its other English button texts did not survive, so Resign, Take
+// Back, Use Ability, Cancel and Use translate the Japanese defaults in its scene (投了, 待った, 特性発動, キャンセル).
+let pick = null, plateView = null;   // pick: { title, cands (the legal moves still possible), step, back }; plateView: the colour whose plate list is open
+const platesOf = c => ((st.plate_conditions || []).find(x => x.color === c) || {}).plates || [];
+const plateMoves = id => legal.filter(m => m.value.type === 'declare_plate' && m.value.plate_id === id);
+function tokens(v, key, out = []) {   // the choices a move is made of, in order: ['fig', figure] / ['pt', point] / ['opt', text]
+  if (Array.isArray(v)) { if (key === 'route') out.push(['pt', v[v.length - 1]]); else v.forEach(x => tokens(x, key, out)); }
+  else if (v && typeof v === 'object') { for (const [k, x] of Object.entries(v)) if (!['type', 'plate_id', 'pokepower_id', 'pokepower'].includes(k)) tokens(x, k, out); }
+  else if (typeof v === 'number' && /pokemon|target/.test(key)) out.push(['fig', v]);
+  else if (typeof v === 'number' && /^(from|to|point)$/.test(key)) out.push(['pt', v]);
+  else out.push(['opt', key + ' ' + v]);
+  return out;
+}
+function pickStage() {   // what has to be chosen next: figures or points on the board ({ kind, map: value -> moves }) or one of a list ({ kind:'opt', list })
+  for (;;) {
+    const c = pick.cands, toks = c.map(m => tokens(m.value)[pick.step]);
+    if (c.length < 2 || toks.every(t => !t)) return { kind: 'opt', list: c };
+    if (new Set(toks.map(t => t ? t[0] + t[1] : '')).size === 1) { pick.step++; continue; }   // nothing to choose at this step
+    const kind = toks.find(Boolean)[0]; if (kind === 'opt' || toks.some(t => !t || t[0] !== kind)) return { kind: 'opt', list: c };
+    const map = new Map(); c.forEach((m, k) => (map.get(toks[k][1]) || map.set(toks[k][1], []).get(toks[k][1])).push(m)); return { kind, map };
+  }
+}
+function advance() { if (pick.cands.length === 1) { const m = pick.cands[0]; pick = null; return play(m); } sel = null; routeChoice = null; render(); }
+function startPick(title, cands, back) { pick = { title, cands, step: 0, back }; advance(); }
+function choose(ms) { pick.cands = ms; pick.step++; advance(); }
+function askAi() { if (busy) return; if (net && !net.host) return play('ai'); busy = true; render(); return api('go', HINT).then(g => play(g.move)).catch(x => { busy = false; $('status').innerHTML = `<span class="err">${esc(x.message)}</span>`; }); }
+// MatchPlateManager: where each plate of a stack lies relative to its device (x along the table, y its height) and where the two corner
+// markers of the stack's table button sit for a stack of n plates. Board x is the original's x mirrored.
+const PLATE_X = [-.3, -.2, -.1, 0, .1, .2, .25, .3, .35, .4, .45, .5], PLATE_Y = [.06, .04, .02, 0, -.02, -.04, -.05, -.06, -.07, -.08, -.09, -.1];
+const MARK_X = [[-.35, -.35], [-.25, -.25], [-.25, -.15], [-.25, -.05], [-.25, .05], [-.25, .15], [-.25, .2], [-.25, .25], [-.25, .3], [-.25, .35], [-.25, .4], [-.25, .45]];
+// Where they sit is this site's compact layout, not the original's (its plate devices are at 2.5, 6.75 and its button at 0, 7, full depth):
+// the plates tucked under the P.C., the button small (2 x 0.6) at the bench's left edge.
+const PX = 2.2, PZ = 6.2 - NEAR, BX = -2.12, BZ = 6.8 - NEAR;   // clear of a figure standing on the spot above (a figure's base reaches .65 from its centre)
+function tableModel(mine) {
+  const low = flip ? 'white' : 'black', n = c => Math.min(platesOf(c).length, 12);
+  const stacks = [low, other(low)].filter(n).map(c => { const s = c === low ? 1 : -1, ps = platesOf(c).slice(0, 12);
+    return { act: 'pl:' + c, s, x: s * PX, z: s * PZ, name: (plateById.get(ps[0].id) || { n: '' }).n, cards: ps.map((p, i) => { const d = plateById.get(p.id) || {}; return { x: s * (PX - PLATE_X[i]), y: .1 + PLATE_Y[i], n: d.n || '', r: d.r || 0, c: d.c || 0, used: p.condition !== 'unused' }; }),
+      mark: busy || over ? null : MARK_X[ps.length - 1].map((x, k) => [s * (PX - x + (k ? -.477 : .477)), s * (PZ + (k ? -.802 : .802))]) }; });   // the marker mesh sits .675 out from its anchor, turned 45 degrees: the two opposite corners of the stack
+  const zs = mine ? legal.filter(m => m.value.type === 'z_skill' && m.value.pokemon === sel) : [], end = mine && legal.find(m => m.value.type === 'null_move' || m.value.type === 'declare_turn_end');
+  tableModel.run = !mine ? null : zs.length ? () => startPick('Activate Z-Move', zs) : end ? () => play(end) : askAi;   // SetActiveZSkillButton / SetActiveTurnEndButton: one button, three faces
+  return { stacks, btn: { x: BX, z: BZ, on: !!mine, label: zs.length ? 'Activate Z-Move' : end ? 'End Turn' : 'AI', size: zs.length ? 8 : end ? 11 : 13 } };
+}
+function tableAct(a) { if (a === 'main') { if (tableModel.run) tableModel.run(); return; } plateView = a.slice(3); pick = null; render(); }
+function drawPrompt(mine, stage) {   // the choice in progress, and whatever else the engine offers that has no button of its own (evolution and other choices)
+  let h = '';
+  if (mine && stage) { drawPrompt.opts = stage.list || []; h = `<b>${esc(pick.title)}</b>` + (stage.map ? `<span>${stage.kind === 'fig' ? 'Choose a figure' : 'Choose a point'}</span>` : drawPrompt.opts.map((m, k) => `<button data-c="${k}">${describe(m.value)}</button>`).join('')); }
+  else if (mine && routeChoice) h = '<b>Several routes lead there</b>' + routeChoice.map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
+  else if (mine) h = legal.filter(m => !['mp_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
+  $('tbl').innerHTML = h;
+}
+function drawBar(mine) {
+  const give = mine ? legal.findIndex(m => m.value.type === 'resign') : -1, own = sel != null && pk(sel) ? pk(sel).pokepower : null, all = mine ? legal.filter(m => m.value.type === 'declare_pokepower') : [];
+  const abil = all.some(m => m.value.pokepower_id === own) ? all.filter(m => m.value.pokepower_id === own) : all, name = abil.length && D.abilities[abil[0].value.pokepower_id] ? D.abilities[abil[0].value.pokepower_id][0] : 'Use Ability';
+  drawBar.mid = pick || routeChoice ? () => { plateView = (pick && pick.back) || null; pick = null; routeChoice = null; render(); } : abil.length ? () => startPick(name, abil) : null;
+  $('ibar').innerHTML = `<button id="ibGive" data-m="${give}" ${give < 0 ? 'disabled' : ''}>Resign</button><button id="ibMid" ${drawBar.mid ? '' : 'disabled'}>${pick || routeChoice ? 'Cancel' : 'Use Ability'}</button>` +
+    (missionDuel() ? `<button id="ibWait" ${rewindTarget() >= 0 ? '' : 'disabled'}>Take Back<i>${REWIND_MAX - rewinds}</i></button>` : '');   // OnlineStartInit hides Wait outside duels against the AI
+}
+$('ibar').onclick = e => {
+  const b = e.target.closest('button'); if (!b || b.disabled || busy) return;
+  if (b.id === 'ibWait') return rewind();
+  if (b.id === 'ibMid') return drawBar.mid && drawBar.mid();
+  if (confirm('Resign this duel?')) play(legal[+b.dataset.m]);
+};
+// The plate list (MatchPlateChoices): plates still in hand first, spent ones after and greyed; the one at the centre is the selected one,
+// shown large, and Use is offered only for a plate of the player to act that the engine allows now.
+const plateCard = (p, k, cls) => { const d = plateById.get(p.id) || { n: 'Plate ' + p.id, d: '', c: 0, r: 0 };
+  return `<div class="pl530 ${cls}" style="--k:${k}"><span class="chip rr rar${d.r}">${RAR[d.r] || ''}</span><b class="nm">${esc(d.n)}</b><span class="ds">${esc(d.d)}</span><span class="ct">${'<i></i>'.repeat(d.c || 0)}</span></div>`; };
+function drawPlates(mine) {
+  const ov = $('plates'); ov.hidden = !plateView; if (!plateView) { drawPlates.key = ''; return; }
+  const own = mine && st.selective_side === plateView, ps = platesOf(plateView), list = ps.filter(p => p.condition === 'unused').concat(ps.filter(p => p.condition !== 'unused'));
+  const ok = p => own && p.condition === 'unused' && plateMoves(p.id).length > 0, key = plateView + own + list.map(p => p.id + p.condition + ok(p)).join();
+  drawPlates.list = list; drawPlates.ok = ok;
+  if (key !== drawPlates.key) {   // rebuilt only when something changed, so the list keeps its place
+    drawPlates.key = key; drawPlates.at = 0;
+    ov.innerHTML = `<div class="pbig" id="plBig"></div><div class="pband"></div><div class="plist" id="plList">${list.map((p, i) => `<div data-i="${i}">${plateCard(p, .31, 'sm' + (p.condition !== 'unused' ? ' off' : ''))}</div>`).join('')}</div>
+      <div class="psel${plateView === (flip ? 'white' : 'black') ? '' : ' opp'}"></div><button id="plUse">Use</button><button id="plClose" aria-label="Close" title="Close">${icon('<path d="M6 6l12 12M18 6L6 18"/>')}</button>`;
+    $('plList').onscroll = () => { const i = Math.max(0, Math.min(list.length - 1, Math.round($('plList').scrollLeft / $('plList').firstElementChild.offsetWidth))); if (i !== drawPlates.at) { drawPlates.at = i; plateFocus(); } };
+  }
+  plateFocus();
+}
+function plateFocus() { const p = drawPlates.list[drawPlates.at]; if (!p) return; $('plBig').innerHTML = plateCard(p, .55, p.condition !== 'unused' ? 'off' : ''); $('plUse').hidden = !drawPlates.ok(p); }
+$('plates').onclick = e => {
+  const c = e.target.closest('[data-i]'), p = drawPlates.list[drawPlates.at];
+  if (c) return c.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });   // UICenterOnClick
+  if (e.target.id === 'plUse' && p) { const back = plateView; plateView = null; return startPick((plateById.get(p.id) || { n: 'Plate' }).n, plateMoves(p.id), back); }
+  if (e.target.closest('#plClose') || e.target === $('plates')) { plateView = null; render(); }
+};
 function drawClock() {
-  $('c0').hidden = $('c1').hidden = missionDuel() || !!(net && !net.host);
+  $('c0').hidden = $('c1').hidden = missionDuel();
   for (const [c, el] of [[flip ? 'white' : 'black', 'c0'], [flip ? 'black' : 'white', 'c1']]) {
     $(el).textContent = `${Math.floor(clock[c] / 60)}:${String(clock[c] % 60).padStart(2, '0')}`;
     $(el).className = 'clock' + (!over && st && st.selective_side === c ? ' on' : '');
@@ -1060,7 +1328,7 @@ function wheelSvg(skills, size) {
   let a = 0, wedges = '', text = '', defs = '', rays = '';
   for (let k = 0; k < 96; k += 2) { const [x1, y1] = pt(k, R), [x2, y2] = pt(k + 1, R); rays += `M100 100L${x1} ${y1}A${R} ${R} 0 0 1 ${x2} ${y2}Z`; }
   skills.filter(x => x.range > 0).forEach((x, n) => {
-    const sk = D.skills[x.id] || ['', '', 0], col = sk[2], a2 = a + x.range, mid = (a + a2) / 2, ink = col === 2 ? '#fff' : '#111', big = x.range > 48 ? 1 : 0;
+    const sk = x.sealed ? ['Miss', '', 0] : D.skills[x.id] || ['', '', 0], col = sk[2], a2 = a + x.range, mid = (a + a2) / 2, ink = col === 2 ? '#fff' : '#111', big = x.range > 48 ? 1 : 0;
     const [x1, y1] = pt(a, R), [x2, y2] = pt(a2, R);
     wedges += x.range >= 96 ? `<circle cx="100" cy="100" r="${R}" fill="${DISK_COL[col]}"/>` : `<path d="M100 100L${x1} ${y1}A${R} ${R} 0 ${big} 1 ${x2} ${y2}Z" fill="${DISK_COL[col]}" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/>`;
     const val = col === 2 ? '★'.repeat(Math.min(x.speed_or_damage || 0, 5)) : col === 1 || col === 3 ? String(x.speed_or_damage || 0) : '';
@@ -1116,67 +1384,113 @@ function drawCard(c) {
 }
 
 // ---------- input: every action is one of the engine's legal moves ----------
-window.boardPick = (fig, pt) => {   // a figure index and / or a field point, from either board
+window.boardPick = (fig, pt, act) => {   // a figure index and / or a field point, or a table object ('main', 'pl:colour'), from either board
+  if (act && fig == null) return tableAct(act);
+  if (pick) { const ms = (fig != null && render.targets.get(fig)) || (pt != null && render.routes.get(pt)); if (ms) choose(ms); return; }
   if (fig != null) { if (render.targets && render.targets.has(fig)) return play(render.targets.get(fig)); sel = fig; routeChoice = null; sfx('select'); return render(); }
   if (pt != null && render.routes && render.routes.has(pt)) { const r = render.routes.get(pt); if (r.length === 1) return play(r[0]); routeChoice = r; render(); }
 };
-$('board').onclick = e => { const g = e.target.closest('[data-fig]'), pt = e.target.closest('[data-pt]'); boardPick(g ? +g.dataset.fig : null, pt ? +pt.dataset.pt : null); };
-$('acts').onclick = e => {
+$('board').onclick = e => { const g = e.target.closest('[data-fig]'), pt = e.target.closest('[data-pt]'), a = e.target.closest('[data-act]'); boardPick(g ? +g.dataset.fig : null, pt ? +pt.dataset.pt : null, a && a.dataset.act); };
+$('acts').onclick = $('tbl').onclick = e => {
+  const t = e.target.closest('[data-c]'); if (t) return choose([drawPrompt.opts[+t.dataset.c]]);
   if (e.target.closest('[data-rw]')) return rewind();
-  if (e.target.closest('[data-ai]') && !busy) { busy = true; render(); return api('go', { use_plate: false }).then(g => play(g.move)).catch(x => { busy = false; $('status').innerHTML = `<span class="err">${esc(x.message)}</span>`; }); }
+  if (e.target.closest('[data-ai]')) return askAi();
   const b = e.target.closest('[data-m]'); if (b && !busy) { const m = legal[+b.dataset.m]; if (m.value.type !== 'resign' || confirm('Resign this duel?')) play(m); } };
 
 // ---------- playing back the engine's effect list ----------
-function log(html) { logLines.push(html); $('log').innerHTML = logLines.slice(-120).map(l => `<div>${l}</div>`).join(''); $('log').scrollTop = 1e6; }
+// Each line is tinted with the colour of the player whose turn it happened in (logSide, set while a move's effects are played back): blue for
+// the player at the bottom, red for the other; lines that belong to nobody (the start, a rewind) stay plain.
+let logSide = null;
+function log(html) { const cls = P_COL[logSide] ? (logSide === (flip ? 'white' : 'black') ? 'me' : 'op') : ''; logLines.push(`<div class="${cls}">${html}</div>`); $('log').innerHTML = logLines.slice(-120).join(''); $('log').scrollTop = 1e6; }
 function modal(html) { $('box').innerHTML = html; $('modal').hidden = false; return new Promise(res => { $('box').onclick = e => { const b = e.target.closest('[data-v]'); if (b) { $('modal').hidden = true; res(b.dataset.v); } }; }); }
 // The battle screen. It covers the whole arena (HUD and board), with no dialog around it, and is laid out as the original lays it out: two large disks on a dark stage, the opponent's above and to the right and
 // yours below and to the left, touching at one point where a red gem marks what each wheel landed on. The wheels spin and stop with the
 // position the engine drew at the gem; each side's attack and value then appear in its corner, with the outcome under the stage.
 const LEAN = 24;   // degrees the line through the two disk centres leans from the vertical
-async function showSpin(e, result) {
-  const spins = e.value.spins || [], WON = { win: 1, win_with_effect: 1, lose: -1, lose_with_effect: -1, draw: 0, draw_with_effect: 0 }, TEXT = { 1: 'wins', '-1': 'loses', 0: 'draw' };
-  const skillsOf = sp => (pk(sp.pokemon) || { skills: [] }).skills, last = sp => sp.results[sp.results.length - 1];
+// The battle screen runs the way the original's roulette does (Roulette.cs, MatchMain.BattleSpin / SpinEndWait):
+//  - each wheel spins and eases to a stop after about a second (1 s x 0.8-1.2); a sealed attack shows as a Miss wedge;
+//  - a shifted result (confusion and the like) waits 0.5 s, then turns 0.3 s to the wedge it shifts to;
+//  - a re-spin shows "More", waits 0.5 s and spins again, each one 0.6 x as long as the last;
+//  - when a wheel is done its other wedges go dark and the attack's name and power appear (the panel opens in 0.1 s);
+//  - each change to the damage (ability, plate, condition) is then shown in turn, the number running to its new value in 0.3 s, a second apart;
+//  - 0.7 s after the wheels the result is shown and the screen closes by itself. The original shows the result as the two figures fighting;
+//    here the winner's wheel lights up, the loser's dims and shakes, and the outcome is written across the middle.
+const sealed = new Map();   // figure -> attack ids the engine has sealed (disable_skill), kept until its conditions are removed
+async function showSpin(e, result, notices) {
+  const spins = e.value.spins || [], WON = { win: 1, win_with_effect: 1, lose: -1, lose_with_effect: -1, draw: 0, draw_with_effect: 0 }, human = ctrl.black === 'human' || ctrl.white === 'human';
+  const skillsOf = sp => ((pk(sp.pokemon) || { skills: [] }).skills || []).filter(x => x.range > 0).map(x => (sealed.get(sp.pokemon) || []).includes(x.id) ? Object.assign({}, x, { sealed: true }) : x);
   // with two wheels, the one that is not yours goes on top; a lone wheel sits below the gem
   const top = spins.length === 2 ? (colorOf(spins[0].pokemon) === (ctrl[me] === 'human' ? me : 'black') ? 1 : 0) : -1, where = k => k === top ? 'up' : 'dn';   // not 'top': that class is the page's top bar
   let ov = $('battle'), shut = false;
   if (!ov) { ov = document.createElement('div'); ov.id = 'battle'; document.querySelector('.arena').appendChild(ov); }
-  const done = new Promise(res => { ov.onclick = ev => { if (ev.target.closest('[data-v]')) { shut = true; res(); } }; });
-  ov.hidden = false; ov.innerHTML = (`<div class="stage${spins.length === 1 ? ' solo' : ''}">${spins.map((sp, k) => `<div class="bdisk ${where(k)}"><div class="spin" id="w${k}">${wheelSvg(skillsOf(sp), 440)}</div></div>
-      <div class="cap ${where(k)}" id="r${k}" style="--c:${P_COL[colorOf(sp.pokemon)]}"><b>${esc(figOf(sp.pokemon).n)}</b></div>`).join('')}
-      <div class="flare" id="flare"></div><div class="sparks" id="sparks">${Array.from({ length: 14 }, (_, k) => `<i style="--a:${(k % 2 ? 204 : 24) + ((k * 37) % 44) - 22}deg;--l:${26 + (k * 53) % 60}px;--far:${70 + (k * 29) % 120}px;--t:${(k % 5) * .05}s"></i>`).join('')}</div><div class="gem"></div><button class="skip" data-v="ok" id="okb">Skip</button><div class="verdict" id="verdict"></div></div>`);
-  await sleep(60); sfx('spin');
-  spins.forEach((sp, k) => { $('w' + k).style.transform = `rotate(${1440 + (k === top ? 180 + LEAN : LEAN) - (last(sp).num + .5) / 96 * 360}deg)`; });
-  await Promise.race([sleep(1750), done.then(() => 0)]);
-  if (!shut) { $('flare').classList.add('on'); $('sparks').classList.add('on'); sfx('hit'); }
-  let winner = null, drawn = false;
-  spins.forEach((sp, k) => {
-    const r = last(sp), side = result && [result.value.attack, result.value.defence].find(x => x && x.pokemon === sp.pokemon);
-    let at = 0;
-    const landed = skillsOf(sp).filter(x => x.range > 0).find(x => (at += x.range) > r.num) || {}, sk = D.skills[side ? side.skill : landed.id] || ['', '', 0];
-    const value = side ? side.speed_or_damage : landed.speed_or_damage, shown = sk[2] === 2 ? '★'.repeat(Math.min(value || 0, 5)) : sk[2] === 1 || sk[2] === 3 ? (value || 0) : '', won = side ? WON[side.result] : undefined;
-    if ($('r' + k)) $('r' + k).innerHTML = `<b>${esc(sk[0] || 'spin ' + r.num)}</b>${shown !== '' ? `<span class="val">${shown}</span>` : ''}` +
-      (won !== undefined ? `<span class="out">${TEXT[won]}</span>` : '') + (sp.results.some(x => x.displace) ? '<span class="out">shifted (confused)</span>' : '') + (sp.results.length > 1 ? `<span class="out">${sp.results.length} spins</span>` : '');
-    if (won === 1) winner = sp; else if (won === 0) drawn = true;
-  });
-  if ($('verdict')) $('verdict').innerHTML = winner ? `${nameOf(winner.pokemon)} wins the battle` : drawn ? 'Draw' : '';
-  if ($('okb')) $('okb').textContent = 'Continue';
-  if (!shut) { if (ctrl.black === 'human' || ctrl.white === 'human') await Promise.race([done, sleep(6000)]); else await sleep(600); }
+  const done = new Promise(res => { ov.onclick = ev => { if (ev.target.closest('[data-v]')) { shut = true; res(); } }; }), wait = ms => shut ? Promise.resolve() : Promise.race([sleep(human ? ms : ms / 4), done]);
+  ov.hidden = false; ov.innerHTML = (`<div class="stage${spins.length === 1 ? ' solo' : ''}">${spins.map((sp, k) => `<div class="bdisk ${where(k)}" id="bd${k}"><div class="spin" id="w${k}">${wheelSvg(skillsOf(sp), 440)}</div></div>
+      <div class="cap ${where(k)}" id="r${k}" style="--c:${P_COL[colorOf(sp.pokemon)]}" hidden></div>`).join('')}
+      <div class="flare" id="flare"></div><div class="sparks" id="sparks">${Array.from({ length: 14 }, (_, k) => `<i style="--a:${(k % 2 ? 204 : 24) + ((k * 37) % 44) - 22}deg;--l:${26 + (k * 53) % 60}px;--far:${70 + (k * 29) % 120}px;--t:${(k % 5) * .05}s"></i>`).join('')}</div><div class="gem"></div><button class="skip" data-v="ok">Skip</button><div class="verdict" id="verdict"></div></div>`);
+  await sleep(40); sfx('spin');
+  const power = (x, v) => { const col = x.sealed ? 0 : (D.skills[x.id] || [0, 0, 0])[2]; return col === 2 ? '★'.repeat(Math.min(v == null ? x.speed_or_damage || 0 : v, 5)) : col === 1 || col === 3 ? String(v == null ? x.speed_or_damage || 0 : v) : ''; };
+  const final = [];   // what each wheel ended on
+  await Promise.all(spins.map(async (sp, k) => {
+    const el = $('w' + k), segs = skillsOf(sp), base = k === top ? 180 + LEAN : LEAN, starts = []; let a = 0; for (const x of segs) { starts.push(a); a += x.range; }
+    const at = num => Math.max(0, segs.findIndex((x, n) => num >= starts[n] && num < starts[n] + x.range));
+    let rot = 0; const turn = async (pos, sec, turns, back) => {   // bring wheel position `pos` (0-96) under the gem
+      let to = base - pos / 96 * 360; if (back) { while (to > rot) to -= 360; } else { while (to < rot + turns * 360) to += 360; }
+      rot = to; el.style.transition = shut ? 'none' : `transform ${sec}s cubic-bezier(.12,.75,.2,1)`; el.style.transform = `rotate(${to}deg)`; await wait(sec * 1000); };
+    let sec = 1, landed = 0;
+    for (let n = 0; n < sp.results.length; n++) {
+      const r = sp.results[n];
+      if (n) { if (!shut) { $('bd' + k).insertAdjacentHTML('beforeend', '<div class="more">More</div>'); sfx('select'); } await wait(500); const m = $('bd' + k).querySelector('.more'); if (m) m.remove(); sec = Math.min(1, Math.max(.1, sec * .6)); if (!shut) sfx('spin'); }
+      await turn(r.num + .5, sec * (n ? 1 : .8 + Math.random() * .4), n ? 2 : 3); if (!shut) sfx('step');
+      landed = at(r.num);
+      if (r.displace) { await wait(500); landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, .3, 0, r.displace < 0); if (!shut) sfx('step'); }
+    }
+    const x = segs[landed] || {}, pt = (t, r) => [100 + r * Math.sin(t / 96 * 2 * Math.PI), 100 - r * Math.cos(t / 96 * 2 * Math.PI)];
+    el.insertAdjacentHTML('beforeend', `<svg class="dimw" viewBox="0 0 200 200">${segs.map((y, n) => { if (n === landed || segs.length < 2) return ''; const [x1, y1] = pt(starts[n], 88), [x2, y2] = pt(starts[n] + y.range, 88); return `<path d="M100 100L${x1} ${y1}A88 88 0 ${y.range > 48 ? 1 : 0} 1 ${x2} ${y2}Z" fill="#000" opacity=".5"/>`; }).join('')}</svg>`);
+    const side = result && [result.value.attack, result.value.defence].find(y => y && y.pokemon === sp.pokemon), cap = $('r' + k), mine = (notices || []).filter(y => y.value.pokemon === sp.pokemon && y.value.value);
+    const name = x.sealed ? 'Miss' : (D.skills[x.id] || ['spin'])[0]; let shown = mine.length ? mine[0].value.value.current : x.speed_or_damage;
+    const paint = (extra, cls, why) => { cap.innerHTML = `<b>${esc(name)}${extra ? ` <span class="add">${esc(extra)}</span>` : ''}</b>${power(x, shown) !== '' ? `<span class="val ${cls || ''}">${power(x, shown)}</span>` : ''}${x.sealed ? '<span class="seal">Sealed</span>' : ''}` +
+      (why ? `<span class="why">${esc(why)}</span>` : '') + (sp.results.some(y => y.displace) ? '<span class="out">shifted</span>' : '') + (sp.results.length > 1 ? `<span class="out">${sp.results.length} spins</span>` : ''); };
+    paint(); cap.hidden = false; cap.classList.add('in');
+    const changes = mine.filter(y => y.value.value.result !== y.value.value.current || y.value.value.addend || y.value.value.multiplier > 1);
+    for (let n = 0; n < changes.length; n++) {   // DamageDisp / DamageDispNext
+      await wait(n ? 1000 : changes.length > 1 ? 500 : 0);
+      const v = changes[n].value, d = v.value, from = shown, t0 = performance.now(), up = d.result >= from;
+      const why = v.pokepower_id != null && D.abilities[v.pokepower_id] ? D.abilities[v.pokepower_id][0] : v.plate_id != null && plateById.has(v.plate_id) ? plateById.get(v.plate_id).n : v.condition ? condName(v.condition) : v.skill_id != null && D.skills[v.skill_id] ? D.skills[v.skill_id][0] : String(v.type).replace(/_damage_notice$/, '').replace(/_/g, ' ');
+      const extra = d.addend ? (d.addend > 0 ? '＋' : '') + d.addend : d.multiplier > 1 ? '×' + d.multiplier : '';
+      if (!shut) sfx(up ? 'mp_up' : 'mp_down');
+      while (!shut && performance.now() - t0 < 300) { shown = Math.round(from + (d.result - from) * (performance.now() - t0) / 300); paint(extra, up ? 'up' : 'down', why); await sleep(30); }
+      shown = d.result; paint(extra, up ? 'up' : 'down', why);
+    }
+    if (side && side.speed_or_damage != null && power(x, side.speed_or_damage) !== '' && side.speed_or_damage !== shown) { shown = side.speed_or_damage; paint(); }   // the engine's final figure wins over anything shown on the way
+    final[k] = { sp, side };
+  }));
+  if (result) {
+    await wait(700);
+    let winner = null, loser = null, drawn = false;
+    final.forEach((f, k) => { const w = f.side ? WON[f.side.result] : undefined; if (w === 1) winner = k; else if (w === -1) loser = k; else if (w === 0) drawn = true; });
+    if (winner != null) $('bd' + winner).classList.add('won'); final.forEach((f, k) => { if (k !== winner && (winner != null || WON[(f.side || {}).result] === -1)) $('bd' + k).classList.add('lost'); });
+    if (!shut) { $('flare').classList.add('on'); $('sparks').classList.add('on'); sfx('hit'); }
+    $('verdict').innerHTML = winner != null ? `${nameOf(final[winner].sp.pokemon)} wins` : drawn ? 'Draw' : loser != null ? 'Both miss' : '';
+    await wait(1300);
+  } else await wait(2000);   // a spin outside a battle stays up two seconds
   ov.hidden = true; ov.innerHTML = '';
 }
 async function playEffects(list) {
   for (let k = 0; k < list.length; k++) {
     const e = list[k], v = e.value, t = v.type;
     if (t === 'spin') {
-      const result = list.slice(k + 1).find(x => x.value.type === 'battle_result');
-      await showSpin(e, (v.spins || []).some(s => s.results.some(r => r.type === 'battle')) ? result : null);
+      const after = list.slice(k + 1), ri = after.findIndex(x => x.value.type === 'battle_result'), result = after[ri];
+      await showSpin(e, (v.spins || []).some(s => s.results.some(r => r.type === 'battle')) ? result : null, (ri < 0 ? after : after.slice(0, ri)).filter(x => /damage_notice$/.test(x.value.type)));
       if (!result) log('Spin · ' + (v.spins || []).map(s => `${nameOf(s.pokemon)} ${s.results.map(r => r.num).join(', ')}`).join(' · '));
     } else if (t === 'battle_result') {
       const side = x => `${nameOf(x.pokemon)} ${fmt('skill', x.skill)} ${x.speed_or_damage || ''} (${esc(String(x.result).replace(/_/g, ' '))})`;
       log(`Battle · ${side(v.attack)} vs ${side(v.defence)}`);
-    } else if (t === 'mp_move') log(`${nameOf(figAt(v.route))} moves ${v.route.map(place).join(' → ')}`);
+    } else if (t === 'disable_skill') { sealed.set(v.pokemon, [].concat(v.skill_id || [])); if (sealed.get(v.pokemon).length) log(`${nameOf(v.pokemon)}: ${sealed.get(v.pokemon).map(id => fmt('skill', id)).join(', ')} sealed`); }
+    else if (t === 'remove_debuff') { for (const i of v.pokemons || []) sealed.delete(i); log(describe(v)); }
+    else if (t === 'mp_move') log(`${nameOf(figAt(v.route))} moves ${v.route.map(place).join(' → ')}`);
     else if (t === 'declare_battle') log(`${nameOf(v.from_pokemon)} attacks ${nameOf(v.to_pokemon)}`);
-    else if (t === 'turn_end') log('<span class="note">— turn ends —</span>');
-    else if (t === 'game_set') { over = { winner: v.win, reason: v.reason }; log(`<b>${P_COL[v.win] ? label(v.win) + ' wins' : 'Draw'}</b> (${esc(String(v.reason).replace(/_/g, ' '))})`); }
+    else if (t === 'turn_end') { log('<span class="note">— turn ends —</span>'); if (P_COL[logSide]) logSide = other(logSide); }   // what follows in the same list already belongs to the next player
+    else if (t === 'game_set') { over = { winner: v.win, reason: v.reason }; log(`<b>${P_COL[v.win] ? wins(v.win) : 'Draw'}</b> (${esc(String(v.reason).replace(/_/g, ' '))})`); }
     else if (t === 'sandwich' && !(v.pokemons || []).length) continue;
     else if (!QUIET.has(t)) log(describe(v));
   }

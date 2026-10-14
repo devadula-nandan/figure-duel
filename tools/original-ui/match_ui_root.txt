@@ -1,0 +1,742 @@
+== level4
+UI Root  p=(0, 0) s=(0.001, 0.001)
+    [UIRoot] manualHeight=1334 manualWidth=750 minimumHeight=320 maximumHeight=1536 scalingStyle=1 fitWidth=1 fitHeight=1
+    [UIPanel] mDepth=0 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+  Camera  p=(0, 0)
+      [UICamera] 
+  Container  p=(0, 0)
+      [UIWidget] mWidth=750 mHeight=1334 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+      [AnchorRoot] 
+    BattlerContainer  p=(0, 0)
+      EnemyContainer  p=(-377, 622)
+          [UIWidget] mWidth=751 mHeight=82 mPivot=0 mColor='#ffffff/1.00' mDepth=0
+        time_red  p=(0, 0)
+          time  p=(416, -63)
+              [UILabel] mWidth=126 mHeight=41 mPivot=3 mColor='#ffffff/1.00' mText='05:00' mFontSize=31 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=2 mSpacingY=0 mMaxLineCount=0
+        prof_red  p=(0, 0)
+          RatingRoot  p=(540, -62)
+          player_red_bg  p=(355, -42)
+              [UISprite] mWidth=433 mHeight=84 mPivot=3 mColor='#ffffff/1.00' mSpriteName='EnemyInfoBase' mDepth=0 mType=1 rightAnchor='anchor(rel=1.0 abs=4)' topAnchor='anchor(rel=1.0 abs=0)'
+          name  p=(635, -20)
+              [UILabel] mWidth=218 mHeight=41 mPivot=5 mColor='#ffd7d7/1.00' mText='Monokuroku' mFontSize=25 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=1 mSpacingY=0 mMaxLineCount=0 bottomAnchor='anchor(rel=0.5 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+          mask  p=(698, -44) s=(0.6, 0.6)
+          Rank (off)  p=(0, 0)
+            Icon  p=(618, -63) s=(0.6, 0.6)
+                [UISprite] mWidth=74 mHeight=84 mPivot=4 mColor='#ffffff/1.00' mSpriteName='10ss' mDepth=2 mType=0
+        z_waza_red  p=(0, 0)
+          light  p=(571, -110)
+              [UISprite] mWidth=360 mHeight=64 mPivot=4 mColor='#ffffff/1.00' mSpriteName='z_light' mDepth=7 mType=1
+              [TweenAlpha] 
+          ProgressBar  p=(571, -110)
+              [UISprite] mWidth=360 mHeight=30 mPivot=4 mColor='#ffffff/1.00' mSpriteName='z_bg' mDepth=5 mType=1
+              [UISlider] 
+              [UIEventListener] 
+            Foreground  p=(0, 0)
+                [UISprite] mWidth=360 mHeight=30 mPivot=4 mColor='#ffffff/1.00' mSpriteName='z_gauge' mDepth=6 mType=1
+          num  p=(582, -111.9)
+              [UILabel] mWidth=160 mHeight=41 mPivot=3 mColor='#ffffff/1.00' mText='99/100' mFontSize=24 mDepth=100 mOverflow=0 mAlignment=3 mEffectStyle=2 mSpacingX=1 mSpacingY=0 mMaxLineCount=0
+      PlayerContainer  p=(-377, 622)
+          [UIWidget] mWidth=751 mHeight=82 mPivot=0 mColor='#ffffff/1.00' mDepth=0
+        TurnRoot (off)  p=(-0, 0)
+            [UIPanel] mDepth=3 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+          TurnBG  p=(377, -42)
+              [UISprite] mWidth=90 mHeight=64 mPivot=4 mColor='#ffffff/1.00' mSpriteName='TurnIcon' mDepth=1 mType=0
+            TurnCount  p=(0, -8)
+                [UILabel] mWidth=58 mHeight=28 mPivot=4 mColor='#ffff00/1.00' mText='300' mFontSize=27 mDepth=2 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+          EnemyMask  p=(353, -42)
+              [UISprite] mWidth=401 mHeight=84 mPivot=3 mColor='#000000/0.00' mSpriteName='EnemyInfoBase' mDepth=0 mType=1 rightAnchor='anchor(rel=1.0 abs=4)' topAnchor='anchor(rel=1.0 abs=0)'
+          PlayerMask  p=(197, -42)
+              [UISprite] mWidth=401 mHeight=84 mPivot=4 mColor='#000000/0.00' mSpriteName='PlayerInfoBase' mDepth=0 mType=1 leftAnchor='anchor(rel=0.0 abs=-4)' rightAnchor='anchor(rel=0.5 abs=22)'
+        prof_blue  p=(0, 0)
+          RatingRoot  p=(124, -62)
+          player_blue_bg  p=(195, -42)
+              [UISprite] mWidth=436 mHeight=84 mPivot=4 mColor='#ffffff/1.00' mSpriteName='PlayerInfoBase' mDepth=0 mType=1 leftAnchor='anchor(rel=0.0 abs=-4)' rightAnchor='anchor(rel=0.5 abs=22)'
+          name  p=(111, -34)
+              [UILabel] mWidth=218 mHeight=26 mPivot=6 mColor='#d7ecff/1.00' mText='Monokuroku' mFontSize=25 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=1 mSpacingY=0 mMaxLineCount=0
+          mask  p=(60, -44) s=(0.6, 0.6)
+          Rank (off)  p=(0, 0)
+            Icon  p=(135, -63) s=(0.6, 0.6)
+                [UISprite] mWidth=74 mHeight=84 mPivot=4 mColor='#ffffff/1.00' mSpriteName='10ss' mDepth=2 mType=0
+        time_blue  p=(0, 0)
+          time  p=(226, -63)
+              [UILabel] mWidth=126 mHeight=41 mPivot=3 mColor='#ffffff/1.00' mText='05:00' mFontSize=31 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=2 mSpacingY=0 mMaxLineCount=0
+        RemainTimeByTurn  p=(380, -600)
+          Time (off)  p=(0, 0)
+              [UILabel] mWidth=120 mHeight=120 mPivot=4 mColor='#1e1e1e/1.00' mText='' mFontSize=80 mDepth=0 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+        z_waza_blue  p=(0, 0)
+          icon  p=(377, -109)
+              [UISprite] mWidth=64 mHeight=64 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Z_02' mDepth=10 mType=1
+          light  p=(183, -110)
+              [UISprite] mWidth=360 mHeight=64 mPivot=4 mColor='#ffffff/1.00' mSpriteName='z_light' mDepth=7 mType=1
+              [TweenAlpha] 
+          ProgressBar  p=(183, -110)
+              [UISprite] mWidth=360 mHeight=30 mPivot=4 mColor='#ffffff/1.00' mSpriteName='z_bg' mDepth=5 mType=1
+              [UISlider] 
+              [UIEventListener] 
+            Foreground  p=(0, 0)
+                [UISprite] mWidth=360 mHeight=30 mPivot=4 mColor='#ffffff/1.00' mSpriteName='z_gauge' mDepth=6 mType=1
+          num  p=(12.1, -111.9)
+              [UILabel] mWidth=160 mHeight=41 mPivot=3 mColor='#ffffff/1.00' mText='99/100' mFontSize=24 mDepth=100 mOverflow=0 mAlignment=1 mEffectStyle=2 mSpacingX=1 mSpacingY=0 mMaxLineCount=0
+    InterfaceContainer  p=(0, 0)
+        [UIWidget] mWidth=750 mHeight=1334 mPivot=4 mColor='#ffffff/1.00' mDepth=11 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+      MainRoot  p=(0, 0)
+        Wait  p=(283, -608)
+            [UIWidget] mWidth=150 mHeight=70 mPivot=4 mColor='#ffffff/1.00' mDepth=100
+          WaitButton  p=(0, 0)
+              [BoxCollider] size=(150.0, 70.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=150 mHeight=70 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Gray_M' mDepth=1 mType=1
+              WaitCountIcon  p=(64, 24)
+                  [UISprite] mWidth=44 mHeight=44 mPivot=4 mColor='#c8c8c8/1.00' mSpriteName='WaitCountIconBase' mDepth=2 mType=0 leftAnchor='anchor(rel=1.0 abs=-33)' rightAnchor='anchor(rel=1.0 abs=11)' bottomAnchor='anchor(rel=0.5 abs=2)' topAnchor='anchor(rel=1.0 abs=11)'
+                Label  p=(-1, -2)
+                    [UILabel] mWidth=70 mHeight=50 mPivot=4 mColor='#403d3d/1.00' mText='10' mFontSize=19 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=-14)' rightAnchor='anchor(rel=1.0 abs=12)' bottomAnchor='anchor(rel=0.0 abs=-5)' topAnchor='anchor(rel=1.0 abs=1)'
+              name  p=(16, -1)
+                  [UILabel] mWidth=72 mHeight=24 mPivot=4 mColor='#b3c0cc/1.00' mText='待った' mFontSize=24 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=0 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=55)' rightAnchor='anchor(rel=1.0 abs=-23)' bottomAnchor='anchor(rel=0.0 abs=22)' topAnchor='anchor(rel=1.0 abs=-24)'
+              Icon  p=(-41, 0)
+                  [UISprite] mWidth=24 mHeight=26 mPivot=4 mColor='#ffffff/1.00' mSpriteName='IconWait' mDepth=2 mType=1 leftAnchor='anchor(rel=0.0 abs=22)' rightAnchor='anchor(rel=1.0 abs=-104)' bottomAnchor='anchor(rel=0.0 abs=22)' topAnchor='anchor(rel=1.0 abs=-22)'
+        UsePokePower  p=(0, -612)
+            [UIWidget] mWidth=258 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mDepth=1
+          UsePokePowerButton  p=(0, 5)
+              [BoxCollider] size=(258.0, 78.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=258 mHeight=80 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_DarkBlue_M' mDepth=1 mType=1
+              Label  p=(0, 0)
+                  [UILabel] mWidth=234 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mText='特性発動' mFontSize=29 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=12)' rightAnchor='anchor(rel=1.0 abs=-12)' bottomAnchor='anchor(rel=0.0 abs=1)' topAnchor='anchor(rel=1.0 abs=-1)'
+        SkipPokePower  p=(0, -612)
+            [UIWidget] mWidth=258 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mDepth=1
+          SkipPokePowerButton (off)  p=(0, 5)
+              [BoxCollider] size=(258.0, 78.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=258 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_DarkBlue_M' mDepth=1 mType=1
+              Label  p=(0, 0)
+                  [UILabel] mWidth=234 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mText='特性スキップ' mFontSize=29 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=12)' rightAnchor='anchor(rel=1.0 abs=-12)' bottomAnchor='anchor(rel=0.0 abs=-1)' topAnchor='anchor(rel=1.0 abs=1)'
+        GiveUp  p=(-302, -607)
+            [UIWidget] mWidth=112 mHeight=68 mPivot=4 mColor='#ffffff/1.00' mDepth=16
+          GiveUpButton  p=(0, 0)
+              [BoxCollider] size=(112.0, 68.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [OnBackKeyFire] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=112 mHeight=68 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Gray_S' mDepth=1 mType=1
+              Label  p=(0, -2)
+                  [UILabel] mWidth=100 mHeight=68 mPivot=4 mColor='#b3c0cc/1.00' mText='投了' mFontSize=24 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=6)' rightAnchor='anchor(rel=1.0 abs=-6)' bottomAnchor='anchor(rel=0.0 abs=-2)' topAnchor='anchor(rel=1.0 abs=-2)'
+        RemoveMarker  p=(0, -612)
+            [UIWidget] mWidth=258 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mDepth=1
+          RemoveMarkerButton (off)  p=(0, 5)
+              [BoxCollider] size=(258.0, 78.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=258 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_DarkBlue_M' mDepth=1 mType=1
+              Label  p=(0, 0)
+                  [UILabel] mWidth=234 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mText='マーカーを外す' mFontSize=29 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=12)' rightAnchor='anchor(rel=1.0 abs=-12)' bottomAnchor='anchor(rel=0.0 abs=-1)' topAnchor='anchor(rel=1.0 abs=1)'
+        Cancel  p=(0, -612)
+            [UIWidget] mWidth=258 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mDepth=1
+          CancelButton (off)  p=(0, 5)
+              [BoxCollider] size=(258.0, 78.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=258 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_DarkBlue_M' mDepth=1 mType=1
+              Label  p=(0, 0)
+                  [UILabel] mWidth=234 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mText='キャンセル' mFontSize=29 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=12)' rightAnchor='anchor(rel=1.0 abs=-12)' bottomAnchor='anchor(rel=0.0 abs=-1)' topAnchor='anchor(rel=1.0 abs=1)'
+      SuperAiRoot (off)  p=(0, 0)
+        SuperAiPause  p=(0, -612)
+            [UIWidget] mWidth=258 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mDepth=1
+          SuperAiPauseButton  p=(0, 5)
+              [BoxCollider] size=(258.0, 78.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=258 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_DarkBlue_M' mDepth=1 mType=1
+              Label  p=(0, 0)
+                  [UILabel] mWidth=234 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mText='AI一時停止' mFontSize=29 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=12)' rightAnchor='anchor(rel=1.0 abs=-12)' bottomAnchor='anchor(rel=0.0 abs=-1)' topAnchor='anchor(rel=1.0 abs=1)'
+        SuperAiRestart  p=(0, -612)
+            [UIWidget] mWidth=258 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mDepth=1
+          SuperAiRestartButton (off)  p=(0, 5)
+              [BoxCollider] size=(258.0, 78.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=258 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_DarkBlue_M' mDepth=1 mType=1
+              Label  p=(0, 0)
+                  [UILabel] mWidth=234 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mText='再開' mFontSize=29 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=12)' rightAnchor='anchor(rel=1.0 abs=-12)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+      AiRoot (off)  p=(0, 0)
+        AiContinue  p=(0, -612)
+            [UIWidget] mWidth=258 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mDepth=1
+          AiContinueButton  p=(0, 5)
+              [BoxCollider] size=(258.0, 78.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=258 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_DarkBlue_M' mDepth=1 mType=1
+              Label  p=(0, 0)
+                  [UILabel] mWidth=234 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mText='AI継続' mFontSize=29 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=12)' rightAnchor='anchor(rel=1.0 abs=-12)' bottomAnchor='anchor(rel=0.0 abs=-1)' topAnchor='anchor(rel=1.0 abs=1)'
+        AiStop  p=(0, -612)
+            [UIWidget] mWidth=258 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mDepth=1
+          AiStopButton (off)  p=(0, 5)
+              [BoxCollider] size=(258.0, 78.0, 0.0) center=(0.0, 0.0, 0.0)
+              [UIButton] 
+              [DownButtonAnimation] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=258 mHeight=76 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_DarkBlue_M' mDepth=1 mType=1
+              Label  p=(0, 0)
+                  [UILabel] mWidth=258 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mText='AI停止' mFontSize=29 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.0 abs=-1)' topAnchor='anchor(rel=1.0 abs=1)'
+      WatchingRoot (off)  p=(0, 0)
+        EndButton  p=(-236, -611)
+            [BoxCollider] size=(146.0, 66.0, 0.0) center=(0.0, 0.0, 0.0)
+            [UIButton] 
+            [DownButtonAnimation] 
+          Background  p=(0, 0)
+              [UISprite] mWidth=150 mHeight=68 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Gray_M' mDepth=1 mType=1
+            Label  p=(0, 0)
+                [UILabel] mWidth=112 mHeight=68 mPivot=4 mColor='#b3c0cc/1.00' mText='終了' mFontSize=21 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=19)' rightAnchor='anchor(rel=1.0 abs=-19)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+        RewindButton  p=(227, -611)
+            [BoxCollider] size=(146.0, 66.0, 0.0) center=(0.0, 0.0, 0.0)
+            [UIButton] 
+            [DownButtonAnimation] 
+          Background  p=(0, 0)
+              [UISprite] mWidth=150 mHeight=68 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Gray_M' mDepth=1 mType=1
+            Label  p=(0, 0)
+                [UILabel] mWidth=112 mHeight=68 mPivot=4 mColor='#b3c0cc/1.00' mText='1ターン戻す' mFontSize=21 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=0 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=19)' rightAnchor='anchor(rel=1.0 abs=-19)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+        AutoButton  p=(0, -611)
+            [BoxCollider] size=(146.0, 66.0, 0.0) center=(0.0, 0.0, 0.0)
+            [UIButton] 
+            [DownButtonAnimation] 
+          Background  p=(0, 0)
+              [UISprite] mWidth=150 mHeight=68 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Gray_M' mDepth=1 mType=1
+            Label  p=(0, 0)
+                [UILabel] mWidth=112 mHeight=68 mPivot=4 mColor='#b3c0cc/1.00' mText='停止' mFontSize=21 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=19)' rightAnchor='anchor(rel=1.0 abs=-19)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+        ChangeSpeedButton (off)  p=(278, -611)
+            [BoxCollider] size=(146.0, 66.0, 0.0) center=(0.0, 0.0, 0.0)
+            [UIButton] 
+            [SpeedLabel] 
+            [DownButtonAnimation] 
+          Background  p=(0, 0)
+              [UISprite] mWidth=150 mHeight=68 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Gray_M' mDepth=1 mType=1
+            RateLabel  p=(-31, 0)
+                [UILabel] mWidth=50 mHeight=68 mPivot=4 mColor='#b3c0cc/1.00' mText='×1' mFontSize=21 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=0 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=1.0 abs=-153)' rightAnchor='anchor(rel=1.0 abs=-103)' bottomAnchor='anchor(rel=0.0 abs=22)' topAnchor='anchor(rel=0.0 abs=90)'
+            Arrow1Label  p=(8, 0)
+                [UILabel] mWidth=32 mHeight=68 mPivot=4 mColor='#b3c0cc/1.00' mText='▶' mFontSize=21 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=1.0 abs=-105)' rightAnchor='anchor(rel=1.0 abs=-73)' bottomAnchor='anchor(rel=0.0 abs=22)' topAnchor='anchor(rel=0.0 abs=90)'
+            Arrow2Label  p=(27, 0)
+                [UILabel] mWidth=32 mHeight=68 mPivot=4 mColor='#3c495f/1.00' mText='▶' mFontSize=21 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=1.0 abs=-86)' rightAnchor='anchor(rel=1.0 abs=-54)' bottomAnchor='anchor(rel=0.0 abs=22)' topAnchor='anchor(rel=0.0 abs=90)'
+            Arrow3Label  p=(46, 0)
+                [UILabel] mWidth=32 mHeight=68 mPivot=4 mColor='#3c495f/1.00' mText='▶' mFontSize=21 mDepth=100 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=3 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=1.0 abs=-67)' rightAnchor='anchor(rel=1.0 abs=-35)' bottomAnchor='anchor(rel=0.0 abs=22)' topAnchor='anchor(rel=0.0 abs=90)'
+      ButtonBG  p=(2, -616)
+          [UISprite] mWidth=769 mHeight=107 mPivot=4 mColor='#000000/0.75' mSpriteName='BoxBase' mDepth=0 mType=1 leftAnchor='anchor(rel=0.0 abs=-2)' rightAnchor='anchor(rel=1.0 abs=6)' bottomAnchor='anchor(rel=0.0 abs=-2)' topAnchor='anchor(rel=0.0 abs=105)'
+    RouletteUI  p=(0, 0)
+      player  p=(0, 0)
+        SpinSkillDataUI (off)  p=(123.3, -400)
+            [UIWidget] mWidth=200 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=16
+            [SpinSkillDataUI] 
+          TextRoot  p=(0, 800)
+              [UIPanel] mDepth=0 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+            SkillName  p=(148, -1014)
+                [UILabel] mWidth=440 mHeight=40 mPivot=5 mColor='#0096ff/1.00' mText='しびれどくのしょくしゅ' mFontSize=40 mDepth=20 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 rightAnchor='anchor(rel=0.0 abs=0)'
+            SkillNameAdd  p=(244, -1014)
+                [UILabel] mWidth=96 mHeight=40 mPivot=5 mColor='#ffff40/1.00' mText='' mFontSize=40 mDepth=20 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+            Damage  p=(231, -936)
+                [UILabel] mWidth=298 mHeight=122 mPivot=5 mColor='#0096ff/1.00' mText='20' mFontSize=106 mDepth=20 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=1 mSpacingY=0 mMaxLineCount=0
+            Imprison  p=(207, -946)
+                [UILabel] mWidth=328 mHeight=136 mPivot=5 mColor='#ffffff/1.00' mText='封印' mFontSize=136 mDepth=21 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+                [SetTextMasterToLabel] 
+          Background  p=(378, -84)
+              [UISprite] mWidth=876 mHeight=368 mPivot=5 mColor='#ffffff/1.00' mSpriteName='BattlePlayerBG' mDepth=2 mType=0
+          EffectRoot  p=(145, -132)
+          player  p=(0, 400) s=(667, 667)
+            Particle System  p=(1.04, -0.24)
+              Particle System (1)  p=(-0, 0)
+                Particle System (2)  p=(-0, -0)
+        AvatorRoot (off)  p=(254, -533)
+            [UIPanel] mDepth=10 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+      enemy  p=(0, 0)
+        SpinSkillDataUI (off)  p=(-125, 399)
+            [UIWidget] mWidth=200 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=16
+            [SpinSkillDataUI] 
+          TextRoot  p=(0, -7)
+              [UIPanel] mDepth=0 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+            SkillName  p=(-228, 190)
+                [UILabel] mWidth=440 mHeight=40 mPivot=3 mColor='#fa66bd/1.00' mText='連続で攻撃できるほのお' mFontSize=40 mDepth=20 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+            SkillNameAdd  p=(212, 190)
+                [UILabel] mWidth=96 mHeight=40 mPivot=3 mColor='#ffff40/1.00' mText='×1' mFontSize=40 mDepth=20 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=1.0 abs=0)'
+            Damage  p=(-230, 104)
+                [UILabel] mWidth=298 mHeight=122 mPivot=3 mColor='#fa66bd/1.00' mText='20' mFontSize=106 mDepth=20 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=1 mSpacingY=0 mMaxLineCount=0
+            Imprison  p=(-224, 130)
+                [UILabel] mWidth=328 mHeight=136 mPivot=3 mColor='#ffffff/1.00' mText='封印' mFontSize=136 mDepth=21 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+                [SetTextMasterToLabel] 
+          Background  p=(-376, 39)
+              [UISprite] mWidth=876 mHeight=368 mPivot=3 mColor='#ffffff/1.00' mSpriteName='BattleEnemyBG' mDepth=-1 mType=0
+          EffectRoot  p=(-130, 103)
+          enemy  p=(0, -445) s=(667, 667)
+            Particle System  p=(1.04, -0.24)
+              Particle System (1)  p=(-0, 0)
+                Particle System (3)  p=(0, 0)
+        AvatorRoot (off)  p=(-254, 533)
+            [UIPanel] mDepth=10 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+    LiveTickerRoot  p=(0, 0)
+        [UIPanel] mDepth=1 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+      LiveTicker  p=(0, 644)
+          [UIWidget] mWidth=751 mHeight=47 mPivot=4 mColor='#ffffff/1.00' mDepth=32 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)'
+          [MatchLiveTicker] 
+        sp  p=(1, 0)
+            [UISprite] mWidth=821 mHeight=47 mPivot=4 mColor='#000000/1.00' mSpriteName='BoxBase' mDepth=0 mType=1 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=2)'
+        label  p=(-371, 0)
+            [UILabel] mWidth=8 mHeight=24 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=24 mDepth=2 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=10)'
+    RouletteArrow (off)  p=(-204, -392)
+        [RouletteArrow] 
+      RootRotation  p=(0, 0)
+          [TweenRotation] 
+        RootPos  p=(178, 0)
+            [UIWidget] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+            [TweenAlpha] 
+            [TweenPosition] 
+          GameObject  p=(0, 0)
+              [UISprite] mWidth=181 mHeight=190 mPivot=4 mColor='#ffffff/1.00' mSpriteName='Arrow' mDepth=0 mType=0
+              [TweenColor] 
+    PlateChoices (off)  p=(0, 0)
+        [UIPanel] mDepth=120 mClipping=4 mClipRange=(0.0, 0.0, 1048.0, 1333.0) mClipSoftness=(4.0, 4.0)
+        [MatchPlateChoices] 
+        [BoxCollider] size=(1048.0, 1333.0, 1.0) center=(0.0, 0.0, 0.0)
+      AlphaRoot  p=(0, 0)
+          [UISprite] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mSpriteName='' mDepth=0 mType=0
+          [TweenColor] 
+        PlateThumbnailRoot  p=(0, -18)
+        CloseButton  p=(305, -584)
+            [UIButton] 
+            [BoxCollider] size=(60.0, 60.0, 0.0) center=(0.0, 0.0, 0.0)
+            [DownButtonAnimation] 
+          CloseButtonBG  p=(0, -1)
+              [UISprite] mWidth=60 mHeight=60 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Gray_S' mDepth=3 mType=1
+          CloseButtonSprite  p=(0, 0)
+              [UISprite] mWidth=28 mHeight=28 mPivot=4 mColor='#ffffff/1.00' mSpriteName='CloseIcon' mDepth=4 mType=0 leftAnchor='anchor(rel=0.5 abs=-14)' rightAnchor='anchor(rel=0.5 abs=14)' bottomAnchor='anchor(rel=0.5 abs=-13)' topAnchor='anchor(rel=1.0 abs=-15)'
+        UseButton (off)  p=(0, -598)
+            [UIButton] 
+            [BoxCollider] size=(190.0, 84.0, 0.0) center=(0.0, 0.0, 0.0)
+            [UIWidget] mWidth=2 mHeight=2 mPivot=4 mColor='#ffffff/1.00' mDepth=40
+            [DownButtonAnimation] 
+          UseButtonBG  p=(0, 0)
+              [UISprite] mWidth=190 mHeight=84 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Yellow_M' mDepth=41 mType=1
+            UseButtonText  p=(0, 0)
+                [UILabel] mWidth=10 mHeight=30 mPivot=4 mColor='#5c3401/1.00' mText='' mFontSize=30 mDepth=42 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+      Container  p=(0, -404)
+          [UIWidget] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+        BG  p=(0, -68)
+            [UISprite] mWidth=1048 mHeight=468 mPivot=4 mColor='#212425/1.00' mSpriteName='DuelChoiceBase' mDepth=0 mType=1
+            [TweenColor] 
+        Root  p=(0, 0)
+            [TweenPosition] 
+          Scroll View  p=(0, 0)
+              [UIPanel] mDepth=121 mClipping=3 mClipRange=(0.0, 437.0, 1048.0, 1322.0) mClipSoftness=(0.0, 0.0)
+              [UIScrollView] movement=0
+            Grid  p=(0, 0)
+                [UIGrid] cellWidth=178.0 cellHeight=240.0 maxPerLine=1 arrangement=1
+                [UICenterOnChild] 
+                [TweenPosition] 
+        Select  p=(0, 0)
+            [UIPanel] mDepth=123 mClipping=4 mClipRange=(0.0, 0.0, 750.0, 1333.0) mClipSoftness=(4.0, 4.0)
+            [TweenColor] 
+          Sprite  p=(0, 0)
+              [UISprite] mWidth=177 mHeight=251 mPivot=4 mColor='#ffffff/1.00' mSpriteName='PlateChoicesSelectPlayer' mDepth=1 mType=0
+    MatchSelect (off)  p=(0, 0) s=(0, 0)
+        [MatchSelect] 
+        [UIPanel] mDepth=301 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+      EnemySelect  p=(-275, 171)
+          [UILabel] mWidth=236 mHeight=26 mPivot=3 mColor='#ff6981/1.00' mText='相手が選択中...' mFontSize=46 mDepth=1 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+      Enemy  p=(0, 0)
+          [UIPanel] mDepth=300 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        BG  p=(0, 248)
+            [UISprite] mWidth=438 mHeight=98 mPivot=4 mColor='#ffffff/1.00' mSpriteName='ChoiceBaseEnemy' mDepth=0 mType=0
+        Name  p=(67, 253)
+            [UILabel] mWidth=236 mHeight=44 mPivot=5 mColor='#ffffff/1.00' mText='Monokuroku' mFontSize=29 mDepth=1 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+        AvatarRoot  p=(142, 239)
+        time  p=(67, 237)
+            [UILabel] mWidth=100 mHeight=40 mPivot=5 mColor='#ff6981/1.00' mText='' mFontSize=33 mDepth=1 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+        MaskRoot  p=(0, 0)
+          NameMask  p=(0, 248)
+              [UISprite] mWidth=438 mHeight=98 mPivot=4 mColor='#000000/0.50' mSpriteName='ChoiceBaseEnemy' mDepth=5 mType=0
+      Player  p=(0, 0)
+          [UIPanel] mDepth=302 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        BG  p=(0, -238)
+            [UISprite] mWidth=438 mHeight=98 mPivot=4 mColor='#ffffff/1.00' mSpriteName='ChoiceBasePlayer' mDepth=0 mType=0
+        Name  p=(-70, -245)
+            [UILabel] mWidth=236 mHeight=44 mPivot=3 mColor='#ffffff/1.00' mText='Monokuroku' mFontSize=29 mDepth=1 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+        AvatarRoot  p=(-142, -246)
+        time  p=(-70, -228)
+            [UILabel] mWidth=100 mHeight=40 mPivot=3 mColor='#ffffff/1.00' mText='' mFontSize=33 mDepth=1 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+        MaskRoot  p=(0, 0)
+          NameMask  p=(0, -242.9)
+              [UISprite] mWidth=438 mHeight=98 mPivot=4 mColor='#000000/0.50' mSpriteName='ChoiceBasePlayer' mDepth=5 mType=0
+      ButtonGrid  p=(0, -52)
+          [UIGrid] cellWidth=200.0 cellHeight=80.0 maxPerLine=0 arrangement=1
+      MainLabel  p=(0, 100)
+          [UILabel] mWidth=462 mHeight=54 mPivot=4 mColor='#ffffff/1.00' mText='ワザを右に2つずらしますか？' mFontSize=28 mDepth=1 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+      TitleLabel  p=(0, 144)
+          [UILabel] mWidth=236 mHeight=44 mPivot=4 mColor='#ffffff/1.00' mText='ふりむく' mFontSize=34 mDepth=1 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+      BG  p=(0, 4)
+          [UISprite] mWidth=606 mHeight=420 mPivot=4 mColor='#1f59ae/1.00' mSpriteName='DuelChoiceBase' mDepth=0 mType=1
+    BattleEffectSelect (off)  p=(0, 474)
+        [UIPanel] mDepth=112 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        [BattleEffectSelect] 
+      BG  p=(0, 188)
+          [UISprite] mWidth=720 mHeight=258 mPivot=1 mColor='#212425/1.00' mSpriteName='DuelBaseMiniDetail' mDepth=0 mType=1
+          [BoxCollider] size=(750.0, 82.0, 1.0) center=(0.0, -41.0, 0.0)
+      NameBG  p=(0, 147)
+          [UISprite] mWidth=692 mHeight=54 mPivot=4 mColor='#ffffff/1.00' mSpriteName='DuelContentsHalfCircle' mDepth=1 mType=1 leftAnchor='anchor(rel=0.0 abs=14)' rightAnchor='anchor(rel=1.0 abs=-14)' bottomAnchor='anchor(rel=1.0 abs=-68)' topAnchor='anchor(rel=1.0 abs=-14)'
+          [BoxCollider] size=(750.0, 82.0, 1.0) center=(0.0, -41.0, 0.0)
+      DescriptionBG  p=(0, 30)
+          [UISprite] mWidth=692 mHeight=172 mPivot=4 mColor='#ffffff/1.00' mSpriteName='DuelContentsHalfCircle' mDepth=1 mType=1 leftAnchor='anchor(rel=0.0 abs=14)' rightAnchor='anchor(rel=1.0 abs=-14)' bottomAnchor='anchor(rel=0.0 abs=14)' topAnchor='anchor(rel=1.0 abs=-72)'
+          [BoxCollider] size=(750.0, 82.0, 1.0) center=(0.0, -41.0, 0.0)
+      SkillName  p=(0, 147)
+          [UILabel] mWidth=692 mHeight=54 mPivot=4 mColor='#ffffff/1.00' mText='スピーダー' mFontSize=32 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+      Scroll View  p=(0, 41)
+          [UIPanel] mDepth=113 mClipping=3 mClipRange=(0.0, 12.0, 676.0, 96.0) mClipSoftness=(0.0, 0.0)
+          [UIScrollView] movement=1
+        Grid  p=(0, 58)
+          DescriptionText  p=(0, 0)
+              [UILabel] mWidth=669 mHeight=256 mPivot=1 mColor='#ffffff/1.00' mText='フィールドかベンチにいる自分のポケモン1体を選ぶ。このターン、そのポケモンの白ワザ1つが選ばれ、そのワザは金ワザになる。あああああああああああああああああああああああ\nフィールドかベンチにいる自分のポケモン1体を選ぶ。このターン、そのポケモンの白ワザ1つが選ばれ、そのワザは金ワザになる。あああああああああああああああああああああああ' mFontSize=24 mDepth=3 mOverflow=3 mAlignment=1 mEffectStyle=0 mSpacingX=1 mSpacingY=8 mMaxLineCount=10
+              [BoxCollider] size=(724.0, 96.0, 1.0) center=(0.0, -48.0, 0.0)
+              [UIDragScrollView] 
+      SimpleDescriptionText  p=(0, -24)
+          [UILabel] mWidth=312 mHeight=24 mPivot=4 mColor='#000000/1.00' mText='ポケモンを選んでください。' mFontSize=24 mDepth=3 mOverflow=2 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+        SimpleDescriptionTextBG  p=(0, 0)
+            [UISprite] mWidth=324 mHeight=36 mPivot=4 mColor='#ffff00/1.00' mSpriteName='BoxBase' mDepth=2 mType=1 leftAnchor='anchor(rel=0.0 abs=-6)' rightAnchor='anchor(rel=1.0 abs=6)' bottomAnchor='anchor(rel=0.0 abs=-6)' topAnchor='anchor(rel=1.0 abs=6)'
+            [BoxCollider] size=(750.0, 82.0, 1.0) center=(0.0, -41.0, 0.0)
+    MiniDetailFigure (off)  p=(0, 424)
+        [UIPanel] mDepth=103 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        [MiniDetailFigure] 
+        [BoxCollider] size=(720.0, 328.0, 1.0) center=(0.0, 24.0, 0.0)
+      Evolve  p=(0, 0)
+          [MiniDetailEvolveIcon] 
+        Marker  p=(-142, -105)
+          BG  p=(0, 0)
+              [UISprite] mWidth=80 mHeight=35 mPivot=4 mColor='#ffffff/1.00' mSpriteName='EvolutionMarkerPlayer' mDepth=3 mType=1
+          Text  p=(0, 0)
+              [UILabel] mWidth=66 mHeight=50 mPivot=4 mColor='#002d62/1.00' mText='1進化' mFontSize=20 mDepth=4 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=1
+        Icon1  p=(12, 147)
+            [UISprite] mWidth=18 mHeight=18 mPivot=4 mColor='#ffffff/1.00' mSpriteName='EvolutionIconPlayer' mDepth=3 mType=1
+        Icon2  p=(-7.9, 147)
+            [UISprite] mWidth=18 mHeight=18 mPivot=4 mColor='#ffffff/1.00' mSpriteName='EvolutionIconPlayer' mDepth=3 mType=1
+        Icon3  p=(-27.9, 147)
+            [UISprite] mWidth=18 mHeight=18 mPivot=4 mColor='#ffffff/1.00' mSpriteName='EvolutionIconPlayer' mDepth=3 mType=1
+        Ring1  p=(128, 22)
+            [UISprite] mWidth=78 mHeight=78 mPivot=4 mColor='#ffffff/1.00' mSpriteName='RouletteEvolutionRingPlayer1' mDepth=7 mType=1
+        Ring2  p=(128, 22)
+            [UISprite] mWidth=90 mHeight=90 mPivot=4 mColor='#ffffff/1.00' mSpriteName='RouletteEvolutionRingPlayer2' mDepth=7 mType=1
+        Ring3  p=(128, 22)
+            [UISprite] mWidth=104 mHeight=104 mPivot=4 mColor='#ffffff/1.00' mSpriteName='RouletteEvolutionRingPlayer2' mDepth=7 mType=1
+        FormIcon1 (off)  p=(12, 147)
+            [UISprite] mWidth=18 mHeight=18 mPivot=4 mColor='#ffffff/1.00' mSpriteName='EvolutionIconEnemy' mDepth=3 mType=1
+        FormIcon2 (off)  p=(-7.9, 147)
+            [UISprite] mWidth=18 mHeight=18 mPivot=4 mColor='#ffffff/1.00' mSpriteName='EvolutionIconEnemy' mDepth=3 mType=1
+        FormIcon3 (off)  p=(-27.9, 147)
+            [UISprite] mWidth=18 mHeight=18 mPivot=4 mColor='#ffffff/1.00' mSpriteName='EvolutionIconEnemy' mDepth=3 mType=1
+      RouletteFrame  p=(128, 22) s=(0.52, 0.52)
+          [UISprite] mWidth=512 mHeight=512 mPivot=4 mColor='#ffffff/1.00' mSpriteName='RouletteFrame' mDepth=4 mType=1
+      Close  p=(306, -92)
+          [BoxCollider] size=(50.0, 50.0, 0.0) center=(0.0, 0.0, 0.0)
+          [UIButton] 
+          [DownButtonAnimation] 
+        BG  p=(0, 0)
+            [UISprite] mWidth=60 mHeight=60 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Gray_S' mDepth=4 mType=1
+        Icon  p=(0, 0)
+            [UISprite] mWidth=28 mHeight=28 mPivot=4 mColor='#ffffff/1.00' mSpriteName='CloseIcon' mDepth=5 mType=0 leftAnchor='anchor(rel=0.5 abs=-14)' rightAnchor='anchor(rel=0.5 abs=14)' bottomAnchor='anchor(rel=0.5 abs=-14)' topAnchor='anchor(rel=0.5 abs=14)'
+      DetailButton  p=(282, 134)
+          [BoxCollider] size=(100.0, 60.0, 0.0) center=(0.0, 0.0, 0.0)
+          [UIButton] 
+          [DownButtonAnimation] 
+        BG  p=(0, 0)
+            [UISprite] mWidth=104 mHeight=60 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Gray_S' mDepth=4 mType=1
+        name  p=(0, 0)
+            [UILabel] mWidth=84 mHeight=60 mPivot=4 mColor='#cad5df/1.00' mText='詳細' mFontSize=24 mDepth=5 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=2 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=10)' rightAnchor='anchor(rel=1.0 abs=-10)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+      BGRoot  p=(0, 0)
+        BG  p=(0, 21)
+            [UISprite] mWidth=720 mHeight=330 mPivot=4 mColor='#000000/1.00' mSpriteName='DuelBaseMiniDetail' mDepth=0 mType=1
+        LeftBG  p=(-358, 21)
+            [UISprite] mWidth=164 mHeight=326 mPivot=3 mColor='#212425/1.00' mSpriteName='DuelBaseMiniDetailWhite' mDepth=1 mType=1 leftAnchor='anchor(rel=0.0 abs=2)' rightAnchor='anchor(rel=0.0 abs=166)' bottomAnchor='anchor(rel=0.0 abs=2)' topAnchor='anchor(rel=1.0 abs=-2)'
+          OwnPokePowerBG  p=(82, 111)
+              [UISprite] mWidth=136 mHeight=76 mPivot=4 mColor='#000000/1.00' mSpriteName='DuelContentsCircle' mDepth=2 mType=1 leftAnchor='anchor(rel=0.0 abs=14)' rightAnchor='anchor(rel=1.0 abs=-14)' bottomAnchor='anchor(rel=1.0 abs=-90)' topAnchor='anchor(rel=1.0 abs=-14)'
+            PokePowerRoot  p=(0, 0)
+          StateBG  p=(82, -40)
+              [UISprite] mWidth=136 mHeight=218 mPivot=4 mColor='#000000/1.00' mSpriteName='DuelContentsCircle' mDepth=2 mType=1 leftAnchor='anchor(rel=0.0 abs=14)' rightAnchor='anchor(rel=1.0 abs=-14)' bottomAnchor='anchor(rel=0.0 abs=14)' topAnchor='anchor(rel=0.0 abs=-4)'
+          pokePower  p=(80, 154)
+              [UILabel] mWidth=30 mHeight=14 mPivot=4 mColor='#b3c0cc/1.00' mText='特性' mFontSize=14 mDepth=3 mOverflow=2 mAlignment=0 mEffectStyle=2 mSpacingX=1 mSpacingY=0 mMaxLineCount=1
+          status  p=(80, 69)
+              [UILabel] mWidth=74 mHeight=14 mPivot=4 mColor='#b3c0cc/1.00' mText='ステータス' mFontSize=14 mDepth=4 mOverflow=2 mAlignment=0 mEffectStyle=2 mSpacingX=1 mSpacingY=0 mMaxLineCount=1
+        RightBG  p=(74, 21)
+            [UISprite] mWidth=568 mHeight=326 mPivot=4 mColor='#212425/1.00' mSpriteName='DuelBaseMiniDetailWhite' mDepth=1 mType=1 leftAnchor='anchor(rel=1.0 abs=-16)' rightAnchor='anchor(rel=1.0 abs=-2)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+          NameBG (off)  p=(0, 111)
+              [UISprite] mWidth=540 mHeight=76 mPivot=4 mColor='#000000/1.00' mSpriteName='DuelContentsCircle' mDepth=2 mType=1 leftAnchor='anchor(rel=0.0 abs=14)' rightAnchor='anchor(rel=1.0 abs=-14)' bottomAnchor='anchor(rel=0.5 abs=73)' topAnchor='anchor(rel=1.0 abs=-14)'
+          RouletteBG  p=(0, 0)
+              [UISprite] mWidth=540 mHeight=298 mPivot=4 mColor='#000000/1.00' mSpriteName='DuelContentsCircle' mDepth=2 mType=1 leftAnchor='anchor(rel=0.0 abs=14)' rightAnchor='anchor(rel=1.0 abs=-14)' bottomAnchor='anchor(rel=0.0 abs=14)' topAnchor='anchor(rel=1.0 abs=-14)'
+      Name  p=(-184.5, 118)
+          [UILabel] mWidth=200 mHeight=24 mPivot=3 mColor='#ffffff/1.00' mText='１２３４５６７８９' mFontSize=24 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=0 mMaxLineCount=0
+      Arrows  p=(0, 0)
+          [UIPanel] mDepth=110 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        status  p=(-278, 90)
+            [UILabel] mWidth=74 mHeight=14 mPivot=4 mColor='#b3c0cc/1.00' mText='ステータス' mFontSize=14 mDepth=4 mOverflow=2 mAlignment=0 mEffectStyle=2 mSpacingX=1 mSpacingY=0 mMaxLineCount=1
+        Up  p=(-276, 73.8)
+          BG  p=(0, 0)
+              [UISprite] mWidth=136 mHeight=32 mPivot=4 mColor='#00ff00/0.50' mSpriteName='DuelContentsHalfCircle' mDepth=0 mType=1
+            Arrow  p=(0, 0)
+                [UISprite] mWidth=32 mHeight=14 mPivot=4 mColor='#ffffff/1.00' mSpriteName='MiniDetailArrow' mDepth=1 mType=0
+        Down  p=(-276, -114)
+          BG  p=(0, 0)
+              [UISprite] mWidth=136 mHeight=32 mPivot=4 mColor='#00ff00/0.50' mSpriteName='DuelContentsHalfCircle' mDepth=0 mType=1
+            Arrow  p=(0, 0)
+                [UISprite] mWidth=32 mHeight=14 mPivot=4 mColor='#ffffff/1.00' mSpriteName='MiniDetailArrow' mDepth=1 mType=0
+      Scroll View  p=(0, 0)
+          [UIPanel] mDepth=105 mClipping=3 mClipRange=(-275.0, -20.0, 138.0, 200.0) mClipSoftness=(0.0, 0.0)
+          [UIScrollView] movement=1
+        IconGrid  p=(-276, 50)
+            [UIGrid] cellWidth=128.0 cellHeight=72.0 maxPerLine=0 arrangement=1
+      Description (off)  p=(0, 0)
+        DescriptionBG  p=(74, 21)
+            [UISprite] mWidth=524 mHeight=282 mPivot=4 mColor='#ffffff/1.00' mSpriteName='DuelContentsCircle' mDepth=22 mType=1 leftAnchor='anchor(rel=1.0 abs=8)' rightAnchor='anchor(rel=0.0 abs=-8)' bottomAnchor='anchor(rel=1.0 abs=8)' topAnchor='anchor(rel=0.0 abs=-8)'
+          MainLabel  p=(-250, 123)
+              [UILabel] mWidth=506 mHeight=264 mPivot=0 mColor='#000000/1.00' mText='テキストがここに入るテキストがここに入るテキストがここに入るテキストがここに入るテキストがここに入るテキストがここに入るテキストがここに入るテキストがここに入るテキストがここに入るテキストがここに入る' mFontSize=21 mDepth=23 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=3 mSpacingY=12 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=12)' rightAnchor='anchor(rel=1.0 abs=-6)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=-18)'
+        DescriptionBalloon (off)  p=(-192, -12)
+            [UISprite] mWidth=18 mHeight=10 mPivot=4 mColor='#ffffff/1.00' mSpriteName='ResultRewardBalloonBottom' mDepth=22 mType=1
+      Rare  p=(-147, 50)
+        Icon  p=(0, 0)
+            [UISprite] mWidth=68 mHeight=68 mPivot=4 mColor='#ffffff/1.00' mSpriteName='RareIconR' mDepth=4 mType=1
+      MP  p=(-72, 50)
+        Icon  p=(0, 0)
+            [UISprite] mWidth=68 mHeight=68 mPivot=4 mColor='#ffffff/1.00' mSpriteName='MpIconBlue' mDepth=3 mType=1
+        Lable  p=(0, 0)
+            [UILabel] mWidth=28 mHeight=40 mPivot=4 mColor='#ffffff/1.00' mText='5' mFontSize=40 mDepth=4 mOverflow=2 mAlignment=0 mEffectStyle=2 mSpacingX=1 mSpacingY=0 mMaxLineCount=1
+      Boost  p=(-20, -105)
+        BG  p=(0, 0) s=(1, 0.66)
+            [UISprite] mWidth=140 mHeight=38 mPivot=4 mColor='#ffffff/1.00' mSpriteName='BoostGaugeThin' mDepth=3 mType=1
+        Icon  p=(-44, 0)
+            [UISprite] mWidth=10 mHeight=14 mPivot=4 mColor='#ffffff/1.00' mSpriteName='BoostArrowIcon' mDepth=4 mType=1
+        Lable  p=(-34, -2)
+            [UILabel] mWidth=86 mHeight=20 mPivot=3 mColor='#ffffff/1.00' mText='1' mFontSize=20 mDepth=4 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=1 mSpacingY=0 mMaxLineCount=1
+      SkillZDetailButton  p=(-108, -38)
+          [UIButton] 
+          [BoxCollider] size=(88.0, 91.0, 1.0) center=(0.0, 0.0, 0.0)
+          [DownButtonAnimation] 
+        BackGround  p=(-1, 0.5)
+            [UISprite] mWidth=88 mHeight=91 mPivot=4 mColor='#ffffff/1.00' mSpriteName='SkillZButtonBg' mDepth=11 mType=1
+        Icon  p=(-1, 6)
+            [UISprite] mWidth=84 mHeight=54 mPivot=4 mColor='#ffffff/1.00' mSpriteName='SkillZButtonIcon' mDepth=12 mType=1 leftAnchor='anchor(rel=0.0 abs=2)' rightAnchor='anchor(rel=1.0 abs=-2)' bottomAnchor='anchor(rel=0.5 abs=-22)' topAnchor='anchor(rel=1.0 abs=-13)'
+        Label  p=(-1, -36)
+            [UILabel] mWidth=88 mHeight=91 mPivot=4 mColor='#ffffff/1.00' mText='Zワザ' mFontSize=20 mDepth=13 mOverflow=0 mAlignment=0 mEffectStyle=2 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.0 abs=-37)' topAnchor='anchor(rel=0.5 abs=9)'
+      SkillZButton (off)  p=(-108, -38)
+          [UIPanel] mDepth=51 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        Container  p=(0, 0)
+            [UIWidget] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+      SkillZConfirmDialogPrefab (off)  p=(0, 0)
+          [AssignParent] 
+          [SkillZConfirmDialog] 
+        Panel  p=(0, 0)
+            [UIPanel] mDepth=501 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+          RootContainer  p=(0, 0)
+              [UIWidget] mWidth=100 mHeight=100 mPivot=4 mColor='#ffffff/1.00' mDepth=0
+            Background  p=(0, 0)
+                [UISprite] mWidth=1001 mHeight=1334 mPivot=4 mColor='#000000/0.75' mSpriteName='WhiteDot' mDepth=-1 mType=1
+                [BoxCollider] size=(1001.0, 1334.0, 0.0) center=(0.0, 0.0, 0.0)
+                [UIEventTrigger] 
+            Window  p=(0, 0)
+                [UISprite] mWidth=560 mHeight=700 mPivot=4 mColor='#ffffff/1.00' mSpriteName='TextBaseFrame_gray' mDepth=0 mType=1
+              Border (off)  p=(0, 0)
+                  [UISprite] mWidth=645 mHeight=850 mPivot=4 mColor='#ffffff/1.00' mSpriteName='FilterNumFrame' mDepth=2 mType=1
+            ContentBg (off)  p=(0, 0)
+                [UISprite] mWidth=620 mHeight=500 mPivot=4 mColor='#080808/1.00' mSpriteName='FilterNumBase' mDepth=1 mType=1
+            Title  p=(0, 239.03)
+                [UILabel] mWidth=583 mHeight=70 mPivot=4 mColor='#ffff00/1.00' mText='' mFontSize=32 mDepth=1 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=2 mSpacingY=0 mMaxLineCount=0
+            UIScrollView  p=(0, 30.7)
+                [UIPanel] mDepth=4 mClipping=3 mClipRange=(0.0, 0.0, 400.0, 450.0) mClipSoftness=(0.0, 0.0)
+                [UIScrollView] movement=0
+                [UICenterOnChild] 
+                [UIGrid] cellWidth=520.0 cellHeight=450.0 maxPerLine=0 arrangement=0
+            DragArea  p=(0, 30.7)
+                [BoxCollider] size=(560.0, 450.0, 0.0) center=(0.0, 0.0, 0.0)
+                [UIWidget] mWidth=560 mHeight=450 mPivot=4 mColor='#ffffff/1.00' mDepth=5
+                [UIDragScrollView] 
+            CloseButton  p=(0, -262.7)
+                [BoxCollider] size=(190.0, 85.0, 0.0) center=(0.0, 0.0, 0.0)
+                [UIWidget] mWidth=190 mHeight=85 mPivot=4 mColor='#ffffff/1.00' mDepth=2
+                [UIButton] 
+                [OnBackKeyFire] 
+                [DownButtonAnimation] 
+              ButtonBase  p=(0, -0)
+                  [UISprite] mWidth=190 mHeight=85 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Yellow_M' mDepth=2 mType=1
+              Label  p=(0, 0)
+                  [UILabel] mWidth=150 mHeight=50 mPivot=4 mColor='#5c2a0c/1.00' mText='' mFontSize=30 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=0 mSpacingY=0 mMaxLineCount=0 leftAnchor='anchor(rel=0.0 abs=20)' rightAnchor='anchor(rel=1.0 abs=-20)' bottomAnchor='anchor(rel=0.0 abs=18)' topAnchor='anchor(rel=1.0 abs=-17)'
+            Arrows  p=(0, 0)
+              LeftArrow (off)  p=(-235, 0)
+                  [UISprite] mWidth=42 mHeight=93 mPivot=4 mColor='#ffffff/0.21' mSpriteName='arrow_y' mDepth=14 mType=0
+                  [TweenAlpha] 
+                  [UIButton] 
+                  [BoxCollider] size=(42.0, 93.0, 0.0) center=(0.0, 0.0, 0.0)
+                  [TweenColor] 
+              RightArrow  p=(235, 0)
+                  [UISprite] mWidth=42 mHeight=93 mPivot=4 mColor='#ffffff/0.85' mSpriteName='arrow_y' mDepth=14 mType=0
+                  [TweenAlpha] 
+                  [UIButton] 
+                  [BoxCollider] size=(42.0, 93.0, 0.0) center=(0.0, 0.0, 0.0)
+                  [TweenColor] 
+    EvolveSelect (off)  p=(0, 0) s=(0, 0)
+        [UIPanel] mDepth=4 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        [EvolutionSelect] 
+        [TweenScale] 
+        [TweenScale] 
+      Objects  p=(0, 0)
+          [UIPanel] mDepth=102 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        Select  p=(0, -548)
+          ButtonGrid  p=(0, 108)
+            YesButton  p=(-117, 0)
+                [BoxCollider] size=(187.0, 84.0, 1.0) center=(0.0, 0.0, 0.0)
+                [UIButton] 
+                [UIPlaySound] 
+                [ButtonArgs] 
+                [DownButtonAnimation] 
+              BG  p=(0, 0)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Yellow_M' mDepth=2 mType=1
+                  [TweenPosition] 
+              Text  p=(117, 440)
+                  [UILabel] mWidth=2 mHeight=2 mPivot=4 mColor='#520000/1.00' mText='はい' mFontSize=30 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=10 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+              BG[BASE]  p=(0, -6.5)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#914e00/1.00' mSpriteName='sliceBTN_ALL_base' mDepth=1 mType=1
+              BG[BASE]  p=(0, -6.5)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#914e00/1.00' mSpriteName='sliceBTN_ALL_base' mDepth=1 mType=1
+            NoButton  p=(112, 0)
+                [BoxCollider] size=(187.0, 84.0, 1.0) center=(0.0, 0.0, 0.0)
+                [UIButton] 
+                [UIPlaySound] 
+                [ButtonArgs] 
+                [DownButtonAnimation] 
+              BG  p=(0, 0)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Yellow_M' mDepth=2 mType=1
+                  [TweenPosition] 
+              Text  p=(-112, 440)
+                  [UILabel] mWidth=2 mHeight=2 mPivot=4 mColor='#520000/1.00' mText='いいえ' mFontSize=30 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=10 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+              BG[BASE]  p=(0, -6.5)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#914e00/1.00' mSpriteName='sliceBTN_ALL_base' mDepth=1 mType=1
+              BG[BASE]  p=(0, -6.5)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#914e00/1.00' mSpriteName='sliceBTN_ALL_base' mDepth=1 mType=1
+          SelectMain  p=(-3, 446)
+              [UILabel] mWidth=344 mHeight=50 mPivot=4 mColor='#ffffff/1.00' mText='進化しますか？' mFontSize=32 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=2 mSpacingY=0 mMaxLineCount=0
+        RevolutionArrow  p=(0, 216) s=(0.7, 0.7)
+            [UISprite] mWidth=80 mHeight=36 mPivot=4 mColor='#ffffff/1.00' mSpriteName='ItemUpArrow' mDepth=1 mType=0
+        FigureRoot  p=(0, 354) s=(0.776, 0.776)
+        FigureRootAfter  p=(0, 51) s=(0.776, 0.776)
+          FigureRootAfter  p=(0, 0)
+              [UIPanel] mDepth=98 mClipping=3 mClipRange=(0.0, 0.0, 722.0, 410.0) mClipSoftness=(4.0, 4.0)
+              [UIScrollView] movement=0
+              [UICenterOnChild] 
+        Arrow  p=(0, 0)
+          LeftArrow  p=(-300, 60) s=(1.1, 1.1)
+              [UISprite] mWidth=42 mHeight=93 mPivot=4 mColor='#ffffff/0.38' mSpriteName='arrow_y' mDepth=0 mType=0
+              [TweenAlpha] 
+          RightArrow  p=(300, 60) s=(1.1, 1.1)
+              [UISprite] mWidth=42 mHeight=93 mPivot=4 mColor='#ffffff/0.38' mSpriteName='arrow_y' mDepth=0 mType=0
+              [TweenAlpha] 
+      BG  p=(0, -1)
+          [UISprite] mWidth=604 mHeight=1052 mPivot=4 mColor='#212425/1.00' mSpriteName='DuelChoiceBase' mDepth=0 mType=1
+          [BoxCollider] size=(1000.0, 1333.0, 1.0) center=(0.0, 0.0, 0.0)
+      BG_Y  p=(-3, -259)
+          [UISprite] mWidth=526 mHeight=214 mPivot=4 mColor='#222222/1.00' mSpriteName='BoxBase' mDepth=2 mType=1
+        BG_B  p=(3, 259)
+            [UISprite] mWidth=2 mHeight=2 mPivot=4 mColor='#000000/1.00' mSpriteName='BoxBase' mDepth=3 mType=1 leftAnchor='anchor(rel=0.0 abs=4)' rightAnchor='anchor(rel=1.0 abs=-4)' bottomAnchor='anchor(rel=0.0 abs=4)' topAnchor='anchor(rel=1.0 abs=-4)'
+          Scroll View  p=(-13, 3)
+              [UIPanel] mDepth=103 mClipping=3 mClipRange=(0.0, 0.0, 520.0, 210.0) mClipSoftness=(4.0, 4.0)
+              [UIScrollView] movement=1
+            DescriptionLabel  p=(-243, 78.7)
+                [UILabel] mWidth=500 mHeight=232 mPivot=3 mColor='#fff100/1.00' mText='※進化すると、進化した回数分、\nダメージ+10、★+1されます\n※進化しない場合、再度進化条件を満たす必要が\n\u3000あります\n※一度進化すると、元に戻せません\n※進化前のマーカーは取り除かれます\n※進化前の特殊状態は解除されます' mFontSize=21 mDepth=4 mOverflow=3 mAlignment=0 mEffectStyle=0 mSpacingX=0 mSpacingY=9 mMaxLineCount=0
+                [BoxCollider] size=(500.0, 232.0, 0.0) center=(250.0, 0.0, 0.0)
+                [UIDragScrollView] 
+          Slider  p=(3, 259)
+              [UISlider] 
+              [UIEventListener] 
+          ScrollBar  p=(254, -100)
+              [UIPanel] mDepth=104 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+              [UIScrollBar] mSize=0.9693171381950378
+              [ScrollBarExtension] 
+            Background  p=(0, 0)
+                [UISprite] mWidth=12 mHeight=200 mPivot=7 mColor='#222222/0.00' mSpriteName='BoxBase' mDepth=1 mType=1
+                [BoxCollider] size=(36.0, 200.0, 0.0) center=(-12.0, 100.0, 0.0)
+                [UIEventTrigger] 
+                [UIEventListener] 
+                [UIEventTrigger] 
+                [UIEventTrigger] 
+            Foreground  p=(0, 0)
+                [UISprite] mWidth=12 mHeight=200 mPivot=7 mColor='#0474d3/0.00' mSpriteName='Bar' mDepth=2 mType=1
+                [BoxCollider] size=(12.0, 194.048, 0.0) center=(0.0, 102.73, 0.0)
+                [UIEventTrigger] 
+                [UIEventListener] 
+                [UIEventTrigger] 
+                [UIEventTrigger] 
+    ZSkillSelect (off)  p=(0, 0) s=(0, 0)
+        [UIPanel] mDepth=4 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        [ZSkillSelect] 
+        [TweenScale] 
+        [TweenScale] 
+      Objects  p=(0, 0)
+          [UIPanel] mDepth=102 mClipping=0 mClipRange=(0.0, 0.0, 300.0, 200.0) mClipSoftness=(4.0, 4.0)
+        Select  p=(0, -548)
+          ButtonGrid  p=(0, 305)
+            YesButton  p=(-115, 0)
+                [BoxCollider] size=(187.0, 84.0, 1.0) center=(0.0, 0.0, 0.0)
+                [UIButton] 
+                [UIPlaySound] 
+                [ButtonArgs] 
+                [DownButtonAnimation] 
+              BG  p=(0, 0)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Yellow_M' mDepth=2 mType=1
+                  [TweenPosition] 
+              Text  p=(117, 440)
+                  [UILabel] mWidth=2 mHeight=2 mPivot=4 mColor='#520000/1.00' mText='はい' mFontSize=30 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=10 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+              BG[BASE]  p=(0, -6.5)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#914e00/1.00' mSpriteName='sliceBTN_ALL_base' mDepth=1 mType=1
+              BG[BASE]  p=(0, -6.5)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#914e00/1.00' mSpriteName='sliceBTN_ALL_base' mDepth=1 mType=1
+            NoButton  p=(115, 0)
+                [BoxCollider] size=(187.0, 84.0, 1.0) center=(0.0, 0.0, 0.0)
+                [UIButton] 
+                [UIPlaySound] 
+                [ButtonArgs] 
+                [DownButtonAnimation] 
+              BG  p=(0, 0)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#ffffff/1.00' mSpriteName='sliceBTN_Yellow_M' mDepth=2 mType=1
+                  [TweenPosition] 
+              Text  p=(-112, 440)
+                  [UILabel] mWidth=2 mHeight=2 mPivot=4 mColor='#520000/1.00' mText='いいえ' mFontSize=30 mDepth=3 mOverflow=0 mAlignment=0 mEffectStyle=3 mSpacingX=10 mSpacingY=0 mMaxLineCount=1 leftAnchor='anchor(rel=0.0 abs=0)' rightAnchor='anchor(rel=1.0 abs=0)' bottomAnchor='anchor(rel=0.0 abs=0)' topAnchor='anchor(rel=1.0 abs=0)'
+              BG[BASE]  p=(0, -6.5)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#914e00/1.00' mSpriteName='sliceBTN_ALL_base' mDepth=1 mType=1
+              BG[BASE]  p=(0, -6.5)
+                  [UISprite] mWidth=187 mHeight=84 mPivot=4 mColor='#914e00/1.00' mSpriteName='sliceBTN_ALL_base' mDepth=1 mType=1
+          SelectMain  p=(-3, 788)
+              [UILabel] mWidth=344 mHeight=50 mPivot=4 mColor='#ffff00/1.00' mText='Zワザを発動しますか？' mFontSize=32 mDepth=2 mOverflow=0 mAlignment=0 mEffectStyle=0 mSpacingX=2 mSpacingY=0 mMaxLineCount=0
+        SkillRoot  p=(0, 6) s=(0.776, 0.776)
+          SkillRoot  p=(0, 0)
+              [UIPanel] mDepth=98 mClipping=3 mClipRange=(0.0, 0.0, 560.0, 700.0) mClipSoftness=(4.0, 4.0)
+              [UIScrollView] movement=0
+              [UICenterOnChild] 
+        Arrow  p=(0, -41)
+          LeftArrow  p=(-235, 60) s=(1.1, 1.1)
+              [UISprite] mWidth=42 mHeight=93 mPivot=4 mColor='#ffffff/0.38' mSpriteName='arrow_y' mDepth=0 mType=0
+              [TweenAlpha] 
+              [UIButton] 
+              [BoxCollider] size=(50.0, 100.0, 0.0) center=(0.0, 0.0, 0.0)
+          RightArrow  p=(235, 60) s=(1.1, 1.1)
+              [UISprite] mWidth=42 mHeight=93 mPivot=4 mColor='#ffffff/0.38' mSpriteName='arrow_y' mDepth=0 mType=0
+              [TweenAlpha] 
+              [UIButton] 
+              [BoxCollider] size=(50.0, 100.0, 0.0) center=(0.0, 0.0, 0.0)
+      BG  p=(0, -1)
+          [UISprite] mWidth=560 mHeight=700 mPivot=4 mColor='#212425/1.00' mSpriteName='DuelChoiceBase' mDepth=0 mType=1
+          [BoxCollider] size=(1000.0, 1333.0, 1.0) center=(0.0, 0.0, 0.0)
+  BattleFade  p=(0, 0)
+      [BattleFade] 
+    Sprite (off)  p=(0, 0)
+        [UISprite] mWidth=1001 mHeight=1333 mPivot=4 mColor='#000000/0.00' mSpriteName='BoxBase' mDepth=19 mType=1
+  CameraTurnChange  p=(0, 0)
+  Camera (1)  p=(0, 0)

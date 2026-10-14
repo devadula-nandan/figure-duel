@@ -7,10 +7,13 @@
   const ICONS = { auto: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
     light: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     dark: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>' };
-  const label = () => { const b = document.getElementById('themeBtn'); if (!b) return; b.innerHTML = icon(ICONS[mode]); b.title = 'Theme: ' + mode + ' (click to change)'; b.setAttribute('aria-label', b.title); b.classList.add('iconbtn'); };
+  // The button shows what a click would switch to: that theme's icon, drawn in that theme's own colours (Auto takes the device's).
+  const NEXT = { auto: 'light', light: 'dark', dark: 'auto' }, LOOK = { light: ['#fff', '#111', '#cfcfcf'], dark: ['#111', '#f2f2f2', '#333'] };
+  const label = () => { const b = document.getElementById('themeBtn'); if (!b) return; const next = NEXT[mode], [bg, ink, line] = LOOK[next === 'auto' ? (sysLight.matches ? 'light' : 'dark') : next];
+    b.innerHTML = icon(ICONS[next]); b.title = 'Switch to ' + next + ' theme (now: ' + mode + ')'; b.setAttribute('aria-label', b.title); b.classList.add('iconbtn'); Object.assign(b.style, { background: bg, color: ink, borderColor: line }); };
   window.setTheme = m => { mode = ['auto', 'light', 'dark'].includes(m) ? m : 'auto'; document.documentElement.dataset.theme = mode === 'auto' ? (sysLight.matches ? 'light' : 'dark') : mode; label(); try { localStorage.setItem(KEY, mode); } catch (e) {} };
   window.themeMode = () => mode;
   let saved = 'auto'; try { saved = localStorage.getItem(KEY) || saved; } catch (e) {} setTheme(saved);
-  sysLight.addEventListener('change', () => { if (mode === 'auto') setTheme('auto'); });
-  addEventListener('DOMContentLoaded', () => { label(); const b = document.getElementById('themeBtn'); if (b) b.onclick = () => setTheme({ auto: 'light', light: 'dark', dark: 'auto' }[mode]); });
+  sysLight.addEventListener('change', () => { if (mode === 'auto') setTheme('auto'); else label(); });
+  addEventListener('DOMContentLoaded', () => { label(); const b = document.getElementById('themeBtn'); if (b) b.onclick = () => setTheme(NEXT[mode]); });
 })();

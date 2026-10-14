@@ -30,7 +30,7 @@ const floor = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshSt
 scene.fog = new THREE.Fog(0x0c0d10, 28, 120);   // the far floor melts into the table colour instead of ending at a line
 
 const mat = (color, emissive = 0, o = {}) => new THREE.MeshStandardMaterial({ color, emissive, roughness: .45, ...o });
-const M = { line: mat(0xdfe6ff, 0x30385c), pt: mat(0x0c1230), rim: mat(0xdfe6ff, 0x30385c), blue: mat(BLUE, 0x0a2a66), red: mat(RED, 0x4a0a12), mv: mat(GOLD, 0xa07800), slot: mat(0xdfe6ff, 0, { transparent: true, opacity: .5, side: THREE.DoubleSide }), unseen: new THREE.MeshBasicMaterial({ visible: false }), cap: mat(0x101216, 0, { transparent: true }) };
+const M = { line: mat(0xdfe6ff, 0x30385c), pt: mat(0x0c1230), rim: mat(0xdfe6ff, 0x30385c), blue: mat(BLUE, 0x0a2a66), red: mat(RED, 0x4a0a12), mv: mat(GOLD, 0xa07800), slot: mat(0xdfe6ff, 0, { transparent: true, opacity: .5, side: THREE.DoubleSide }), unseen: new THREE.MeshBasicMaterial({ visible: false }), cap: mat(0x101216, 0, { transparent: true }), card: mat(0x2a2e36), edge: mat(0xd8dce4, 0, { roughness: .8 }) };
 const band = (r, w, h) => {   // a ring of radius r, w wide and h tall, lying in the XY plane and centred on it (the meshes turn it flat)
   const outer = new THREE.Shape(); outer.absarc(0, 0, r + w / 2, 0, Math.PI * 2, false);
   const hole = new THREE.Path(); hole.absarc(0, 0, r - w / 2, 0, Math.PI * 2, true); outer.holes.push(hole);
@@ -43,8 +43,9 @@ function applyTheme() {
   paintTable(); scene.fog.color.set(bd).lerp(new THREE.Color(css('--bd2', '#17191e')), .5); scene.background = scene.fog.color;   // the sky is the table colour too, so there is no line where the far floor ends
   M.line.color.set(line); M.rim.color.set(line); M.slot.color.set(line); M.pt.color.set(pt); M.cap.color.set(pt);
   M.line.emissive.set(line).multiplyScalar(light ? 0 : .22); M.rim.emissive.copy(M.line.emissive);
+  M.edge.color.set(pt).lerp(new THREE.Color(line), .7);   // the plates' cut edge
 }
-applyTheme(); new MutationObserver(applyTheme).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+applyTheme(); new MutationObserver(() => { applyTheme(); extrasKey = ''; if (last) draw(last); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 const statics = new THREE.Group(), points = new Map(), tokens = new Map(), pickable = []; scene.add(statics);
 let built = '', last = null;
 // status conditions get an aura in their own colour; anything else with a marker gets a white one
@@ -101,7 +102,50 @@ function token(t) {
   return g;
 }
 
+// The original's table objects: each player's fanned stack of plates (cards 0.96 x 1.404, PlateObject 160 x 234 at scale 0.006) with the two
+// corner markers of its table button, and the AI / End Turn / Z-Move button (collider 3 x 0.3 x 1; body and rim are its two meshes' sizes).
+const extras = new THREE.Group(); scene.add(extras); let extrasKey = '';
+const words = (text, w, h, ink, px) => tex(w, h, g => { g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = ink; g.font = `900 ${px}px Segoe UI, sans-serif`; let s = 1; const tw = g.measureText(text).width; if (tw > w * .94) s = w * .94 / tw; g.translate(w / 2, h / 2); g.scale(s, s); g.fillText(text, 0, 0); });
+// A plate card: a rounded slab 0.96 x 1.404 and 0.02 thick (the fan's own step, so the stack reads as a deck). Its face is painted here:
+// a rarity band down the edge that shows in the fan, and on the top card a frame, the rarity, the name and the cost.
+const cardGeo = (() => { const w = .48, h = .702, r = .07, s = new THREE.Shape(); s.moveTo(-w + r, -h); s.lineTo(w - r, -h); s.absarc(w - r, -h + r, r, -Math.PI / 2, 0, false); s.lineTo(w, h - r); s.absarc(w - r, h - r, r, 0, Math.PI / 2, false);
+  s.lineTo(-w + r, h); s.absarc(-w + r, h - r, r, Math.PI / 2, Math.PI, false); s.lineTo(-w, -h + r); s.absarc(-w + r, -h + r, r, Math.PI, Math.PI * 1.5, false); return new THREE.ExtrudeGeometry(s, { depth: .02, bevelEnabled: false, curveSegments: 6 }); })();
+const RARE = ['#8a8f98', '#8a8f98', '#2e9e5b', '#2f7fe0', '#d9a514', '#c0392b'], RARE_NAME = ['', 'C', 'UC', 'R', 'EX', 'UX'], faces = new Map();
+function face(c, top) {
+  const pt = css('--bd-pt', '#101216'), line = css('--bd-line', '#c9ced8'), key = [c.n, c.r, c.c, c.used, top, pt, line].join('|'); if (faces.has(key)) return faces.get(key);
+  const t = tex(320, 468, (g, w, h) => {
+    g.fillStyle = pt; g.fillRect(0, 0, w, h); const sheen = g.createLinearGradient(0, 0, w, h); sheen.addColorStop(0, 'rgba(255,255,255,.14)'); sheen.addColorStop(.5, 'rgba(255,255,255,0)'); sheen.addColorStop(1, 'rgba(0,0,0,.18)'); g.fillStyle = sheen; g.fillRect(0, 0, w, h);
+    g.fillStyle = RARE[c.r] || RARE[1]; g.fillRect(0, 0, 30, h);
+    if (top) { g.strokeStyle = line; g.globalAlpha = .55; g.lineWidth = 3; g.beginPath(); g.roundRect(48, 20, w - 68, h - 40, 14); g.stroke(); g.globalAlpha = 1;
+      g.font = '800 26px Segoe UI, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; const rn = RARE_NAME[c.r] || ''; if (rn) { g.fillStyle = RARE[c.r]; g.beginPath(); g.roundRect(w - 96, 38, 60, 36, 8); g.fill(); g.fillStyle = '#fff'; g.fillText(rn, w - 66, 57); }
+      g.fillStyle = line; g.font = '800 36px Segoe UI, sans-serif'; const words = c.n.split(' '), lines = []; for (const x of words) { const l = lines[lines.length - 1]; if (l && g.measureText(l + ' ' + x).width < w - 96) lines[lines.length - 1] = l + ' ' + x; else lines.push(x); }
+      lines.slice(0, 4).forEach((l, n) => g.fillText(l, (w + 30) / 2, h * .46 + (n - (Math.min(lines.length, 4) - 1) / 2) * 44, w - 90));
+      g.fillStyle = css('--gold', '#ffd23f'); for (let n = 0; n < c.c; n++) { g.beginPath(); g.arc(78 + n * 36, h - 58, 13, 0, 7); g.fill(); } }
+    if (c.used) { g.fillStyle = 'rgba(0,0,0,.55)'; g.fillRect(0, 0, w, h); }
+  });
+  t.repeat.set(1 / .96, 1 / 1.404); t.offset.set(.5, .5); faces.set(key, t); return t;   // the slab's face coordinates are its own x and y, centred
+}
+function drawTable(t) {
+  const key = JSON.stringify(t); if (key === extrasKey) return; extrasKey = key;
+  for (const o of extras.children) { const i = pickable.indexOf(o); if (i >= 0) pickable.splice(i, 1); }
+  extras.clear();
+  const flat = (w, d, y, material) => { const p = new THREE.Mesh(new THREE.PlaneGeometry(w, d), material); p.rotation.x = -Math.PI / 2; p.position.y = y; return p; }, hit = (w, h, d, x, z, act) => { const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), M.unseen); b.position.set(x, h / 2, z); b.userData.pick = { act }; extras.add(b); pickable.push(b); };
+  for (const k of t.stacks) {
+    k.cards.forEach((c, i) => { const card = new THREE.Mesh(cardGeo, [new THREE.MeshStandardMaterial({ map: face(c, !i), roughness: .55 }), M.edge]);   // a real card: rounded, with thickness, a printed face and a pale cut edge
+      card.rotation.x = -Math.PI / 2; if (k.s < 0) card.rotation.z = Math.PI; card.position.set(c.x, c.y - .02, k.z); card.castShadow = card.receiveShadow = true; extras.add(card); });
+    if (k.mark) k.mark.forEach(([x, z]) => { const dx = Math.sign(k.x - x) * .3, dz = Math.sign(k.z - z) * .3; for (const [w, dd, ox, oz] of [[.3, .05, dx / 2, 0], [.05, .3, 0, dz / 2]]) { const b = new THREE.Mesh(new THREE.BoxGeometry(w, .03, dd), M.mv); b.position.set(x + ox, .12, z + oz); extras.add(b); } });
+    hit(1.8, .4, 1.5, k.x, k.z, k.act);
+  }
+  // the button, drawn like the board: a small rounded slab outlined in the route colour, filled with it when it can be pressed (sizes are its frame and body meshes)
+  const slab = (w, d, r, h, material) => { const x = w / 2, y = d / 2, sh = new THREE.Shape(); sh.moveTo(-x + r, -y); sh.lineTo(x - r, -y); sh.absarc(x - r, -y + r, r, -Math.PI / 2, 0, false); sh.lineTo(x, y - r); sh.absarc(x - r, y - r, r, 0, Math.PI / 2, false);
+    sh.lineTo(-x + r, y); sh.absarc(-x + r, y - r, r, Math.PI / 2, Math.PI, false); sh.lineTo(-x, -y + r); sh.absarc(-x + r, -y + r, r, Math.PI, Math.PI * 1.5, false);
+    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: h, bevelEnabled: false, curveSegments: 8 }), material); m.rotation.x = -Math.PI / 2; m.position.set(t.btn.x, 0, t.btn.z); return m; };
+  const rim = slab(2, .6, .11, .06, M.line), well = slab(1.9, .5, .08, .07, M.pt), body = slab(1.76, .4, .06, t.btn.on ? .12 : .075, t.btn.on ? M.line : M.pt); rim.castShadow = body.castShadow = true;
+  const name = flat(1.6, .28, t.btn.on ? .125 : .08, new THREE.MeshBasicMaterial({ map: words(t.btn.label.toUpperCase(), 400, 70, css(t.btn.on ? '--bd' : '--bd-line', '#888'), 46), transparent: true, opacity: t.btn.on ? 1 : .45 })); name.position.x = t.btn.x; name.position.z = t.btn.z;
+  extras.add(rim, well, body, name); hit(2, .3, .6, t.btn.x, t.btn.z, 'main');
+}
 function draw(m) {
+  if (m.table) drawTable(m.table);
   const cam = JSON.stringify(m.cam) !== JSON.stringify(last && last.cam); last = m; if (built !== m.pts.length + ':' + m.slots.length + ':' + m.edges.length) build(m); if (cam) home();
   for (const p of m.pts) { const u = points.get(p.k).userData; u.pt = p.p; u.mark.material = p.mv ? M.mv : u.plain; u.mark.scale.setScalar(p.mv && !u.goal ? 1.6 : 1); }
   const seen = new Set();
@@ -131,7 +175,8 @@ function keepCamera() {   // called whenever the lock changes or a locked view i
 }
 function home(reset) {   // reset = the Reset button: go to the default view even when a locked view is remembered.
   // the whole table, both benches included, from behind the near player; a model may bring its own camera: { pos, at, width } (width = how much of the scene must fit across)
-  const d = Math.max(1, .72 / camera.aspect) * 20.5, c = last && last.cam, at = new THREE.Vector3(...(c ? c.at : [0, 0, .75])), pos = c ? new THREE.Vector3(...c.pos) : new THREE.Vector3(0, d * .84, d * .55 + .75);
+  const d = Math.max(.92, .57 / camera.aspect) * 20.5,   // far enough for the table's depth (.92) or its width (.55 / aspect), whichever needs more, so a narrow screen is filled side to side
+     c = last && last.cam, at = new THREE.Vector3(...(c ? c.at : [0, 0, 1.25])), pos = c ? new THREE.Vector3(...c.pos) : new THREE.Vector3(0, d * .84, d * .55 + 1.25)   // aimed a little towards the near side, where the plates and the button are;
   if (c) pos.lerpVectors(at, pos, Math.max(1, c.width / (2 * Math.tan(camera.fov * Math.PI / 360) * camera.aspect) / pos.distanceTo(at)));
   const far = pos.distanceTo(at); controls.minDistance = far * .5; controls.maxDistance = far * 1.3; camera.position.copy(pos); controls.target.copy(at); controls.update(); moved = false;
   if (kept && !c && reset !== true) { camera.position.fromArray(kept.pos); controls.target.fromArray(kept.at); controls.update(); moved = true; }   // the remembered locked view (not in scenes that bring their own camera)
@@ -156,8 +201,8 @@ let downAt = [0, 0]; renderer.domElement.addEventListener('pointerdown', e => { 
 renderer.domElement.addEventListener('click', e => {
   if (Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 6) return;
   const r = renderer.domElement.getBoundingClientRect(); mouse.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); ray.setFromCamera(mouse, camera);
-  const hits = ray.intersectObjects(pickable, false).map(x => x.object.userData.pick), fig = hits.find(u => u.fig != null), pt = hits.find(u => u.pt != null);
-  window.boardPick(fig ? fig.fig : null, pt ? pt.pt : null);
+  const hits = ray.intersectObjects(pickable, false).map(x => x.object.userData.pick), fig = hits.find(u => u.fig != null), pt = hits.find(u => u.pt != null), act = hits.find(u => u.act);
+  window.boardPick(fig ? fig.fig : null, pt ? pt.pt : null, act ? act.act : null);
 });
 
 const clock = new THREE.Clock(), TILT = .3, STEP = .17;   // TILT: how far (radians) the camera must rise from the lowest side view before figures are fully centred on their bases   // seconds per hop, the same pace as the flat board
