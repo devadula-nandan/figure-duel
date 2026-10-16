@@ -217,6 +217,11 @@
   .bdisk.up { left:calc(var(--w) / 2 + var(--d) * .2035 - var(--d) / 2); top:calc(var(--h) / 2 - var(--d) * .457 - var(--d) / 2); }
   .bdisk.dn { left:calc(var(--w) / 2 - var(--d) * .2035 - var(--d) / 2); top:calc(var(--h) / 2 + var(--d) * .457 - var(--d) / 2); }
   .stage.solo .bdisk.dn { left:calc(var(--w) / 2 - var(--d) / 2); top:calc(var(--h) / 2 + 6px); } .stage.solo .gem, .stage.solo .flare { top:calc(50% + 6px); }
+  /* a follow-up spin of more than two wheels (an attack that spins several figures) lays them in a row instead of stacking them on one disk */
+  .stage.row { display:flex; flex-wrap:wrap; align-content:center; align-items:center; justify-content:center; gap:8px; }
+  .stage.row .bdisk { position:relative; left:auto; top:auto; width:min(34cqw, 46cqh); height:auto; }
+  .stage.row .spin { width:100%; aspect-ratio:1; } .stage.row .gem, .stage.row .flare, .stage.row .sparks { display:none; }
+  .cap.row { position:relative; left:auto; right:auto; top:auto; bottom:auto; max-width:100%; text-align:center; }
   .spin { position:relative; width:100%; height:100%; } .spin .dimw { position:absolute; inset:0; pointer-events:none; animation:resin .2s; }
   .bdisk { transition:transform .25s, filter .25s; } .bdisk.won { transform:scale(1.03); filter:drop-shadow(0 0 22px var(--gold)); } .bdisk.lost { filter:brightness(.4) saturate(.5); animation:bshake .4s; }
   @keyframes bshake { 20% { translate:-10px 4px; } 40% { translate:9px -5px; } 60% { translate:-6px 3px; } 80% { translate:4px -2px; } }
@@ -884,9 +889,12 @@ async function joinRoom(code) {
       const hop = d.mv && d.mv.value.type === 'mp_move' && !net.sent; net.sent = false;   // the opponent's move hops here; this player's own move started hopping when it was made
       if (hop) animateMove(d.mv);
       logSide = d.played && st ? st.turn : null;
-      arrive(d.st, d.legal, d.played); clock = d.clock; busy = true; render();
+      const prev = st, fx = d.fx || [], spinning = fx.some(e => e.value && e.value.type === 'spin');
+      if ((d.hold || spinning) && prev && !boardSt) boardSt = prev;   // the host's outcome waits off-screen until this spin, and any respin it leads to, has played
+      arrive(d.st, d.legal, d.played && !boardSt); clock = d.clock; busy = true; if (!boardSt) render();
       if (hop && moveAnim) await sleep(moveAnim.dur);
-      await playEffects(d.fx || []); logSide = null; if (d.over) over = d.over; busy = false; render(); settle();
+      await playEffects(fx, { hold: !!d.hold, wheelSt: boardSt }); logSide = null; if (d.over) over = d.over;
+      if (d.hold) busy = true; else releaseBoard(); settle();
     });
   });
   conn.on('close', () => { if (!over) log('<b>The host disconnected.</b>'); });
@@ -915,7 +923,7 @@ async function start(opts) {
   rec.client_ai_name = (await api('name')).name; rec.ai_protocol_version = (await api('protocol_version')).protocol_version;   // as Engine.GameStart does
   const check = await api('check_record');
   if (check.errors && check.errors.length) throw new Error('The engine rejected this setup: ' + check.errors.join(', '));
-  leagueGame = lgMode ? { done: false } : null; sealed.clear(); $('home').hidden = true; states = []; rewinds = 0;
+  leagueGame = lgMode ? { done: false } : null; sealed.clear(); boardSt = null; battleView = null; deferredSfx = null; const btl = $('battle'); if (btl) { btl.hidden = true; btl.innerHTML = ''; } $('home').hidden = true; states = []; rewinds = 0;
   sel = null; busy = false; over = null; logLines = []; clock = { black: 300, white: 300 }; gameId++;
   $('setupErr').textContent = ''; $('setup').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
   log(`<b style="color:${P_COL[rec.first_player]}">${label(rec.first_player)}</b> goes first.`);
@@ -959,18 +967,40 @@ async function resumeGame() {
   $('home').hidden = true; $('game').hidden = false; $('status').textContent = 'resuming the duel…';
   await startEngines();
   ({ rec, me, ctrl, ai, clock, rewinds, over } = g); flip = me === 'white'; net = null; leagueGame = g.league ? { done: !!over } : null;
-  states = []; sel = null; busy = false; logLines = []; gameId++; $('log').innerHTML = ''; log(`Duel resumed at move ${rec.all_moves.length}.`);
+  states = []; sel = null; busy = false; logLines = []; gameId++; boardSt = null; battleView = null; deferredSfx = null; const btl = $('battle'); if (btl) { btl.hidden = true; btl.innerHTML = ''; } $('log').innerHTML = ''; log(`Duel resumed at move ${rec.all_moves.length}.`);
   startClock(); await sync(false);
 }
 const wins = c => label(c) === 'You' ? 'You win' : label(c) + ' wins';
 const label = c => ctrl[c] === 'remote' ? 'Opponent' : ctrl.black === 'human' && ctrl.white === 'human' ? (c === 'black' ? 'Player 1' : 'Player 2') : ctrl[c] === 'ai' ? 'Computer' : 'You';
 
-function arrive(s, lm, played) {   // a new status and its legal moves, with the sounds of what changed
+let boardSt = null, battleView = null, deferredSfx = null;   // boardSt: the table kept on screen while a spin chain plays; the engine status underneath is already the outcome
+function arriveSfx(before, mpBefore) {
+  if (!st) return;
+  for (const kind of new Set(st.pokemon_conditions.filter(c => { const now = (c.marker || {}).circle; return now && now !== 'normal' && now !== before.get(c.pokemon_index); }).map(c => c.marker.circle)))
+    statusSfx(kind);
+  for (const dir of new Set(st.pokemon_conditions.map(c => Math.sign(((c.effect && c.effect.mp) || 0) - (mpBefore.get(c.pokemon_index) || 0))).filter(Boolean))) mpSfx(dir);
+}
+function arrive(s, lm, played) {   // a new status and its legal moves. While a spin is on screen the sounds wait until the table actually changes.
   const before = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.marker || {}).circle])), mpBefore = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.effect && c.effect.mp) || 0]));
   st = s; legal = lm;
-  if (played) for (const kind of new Set(st.pokemon_conditions.filter(c => { const now = (c.marker || {}).circle; return now && now !== 'normal' && now !== before.get(c.pokemon_index); }).map(c => c.marker.circle)))
-    statusSfx(kind);
-  if (played) for (const dir of new Set(st.pokemon_conditions.map(c => Math.sign(((c.effect && c.effect.mp) || 0) - (mpBefore.get(c.pokemon_index) || 0))).filter(Boolean))) mpSfx(dir);
+  if (!played) return;
+  if (boardSt) { if (!deferredSfx) deferredSfx = { before, mpBefore }; }   // keep the snapshot from before the chain, so a respin does not hide the first spin's status sounds
+  else arriveSfx(before, mpBefore);
+}
+function releaseBoard() {   // the spin chain is over: the knockout, the status and the moved figures land now, the way the original returns to the field after the roulette
+  const prev = boardSt; boardSt = null;
+  const d = deferredSfx; deferredSfx = null;
+  if (prev && st) {
+    const moved = [];
+    for (const c of st.pokemon_conditions) {
+      const o = prev.pokemon_conditions.find(x => x.pokemon_index === c.pokemon_index);
+      if (o && o.index !== c.index) moved.push([o.index, c]);
+    }
+    const ko = moved.find(([, c]) => c.index >= 40) || moved[0];
+    if (ko) moveAnim = { fig: ko[1].pokemon_index, route: [ko[0], ko[1].index], id: ++moveSeq, t0: performance.now(), dur: STEP_MS * 2 };
+  }
+  if (d) arriveSfx(d.before, d.mpBefore);
+  busy = false; render();
 }
 // The end of a duel. EndReasonCutIn shows the bar only for these endings (a goal or a knockout ending goes straight to the result), with the
 // original's own words (UiMaster.GameSet.*: Time Up, Forfeit, Wait, Turn Over + Win / Loss). MatchResult then offers Next, or after a room
@@ -997,28 +1027,50 @@ function settle() {   // after the effects: the end-of-duel or your-turn sound; 
   const side = st.selective_side; if (ctrl[side] === 'human' && settle.last !== side) sfx('turn'); settle.last = side;
 }
 // One step of the original client's loop (Engine.CurrentState): effects of the last move, new status, next legal moves.
+function respinMove() {   // DeclareRespin / DeclareDisplacement: the original plays these itself and holds the battle result; they are not a button
+  if (!(battleView && battleView.battle)) return null;
+  const forced = legal.filter(m => m.value.type === 'declare_respin' || m.value.type === 'declare_displacement');
+  if (forced.length !== 1) return null;
+  const rest = legal.filter(m => !['declare_respin', 'declare_displacement', 'null_move', 'resign', 'game_set'].includes(m.value.type));
+  return rest.length ? null : forced[0];
+}
 async function sync(played) {
   const id = gameId;
-  busy = true; render();
+  const prev = st;
+  busy = true; if (!boardSt) render();
   try {
     const [fx, s, lm, ss] = await Promise.all([played ? api('output_effects') : null, api('status'), api('legal_moves'), api('selective_side')]);
     if (id !== gameId) return;
     logSide = played && st ? st.turn : null;   // the turn the move was made in, read before the new status replaces it
-    arrive(s.status, lm.legal_moves || [], played);
+    const effects = fx ? fx.effect_moves || [] : [], moves = lm.legal_moves || [];
+    const spinning = effects.some(e => e.value.type === 'spin');
+    const battleSpin = effects.some(e => e.value.type === 'spin' && (e.value.spins || []).some(sp => (sp.results || []).some(r => r.type === 'battle')));
+    const tagged = effects.some(e => e.value.type === 'declare_spin' || e.value.type === 'declare_respin' || e.value.type === 'declare_displacement');
+    const nextSpin = ss.selective_side === 'both' && moves.some(m => m.value.type === 'spin');
+    const forced = moves.filter(m => m.value.type === 'declare_respin' || m.value.type === 'declare_displacement');
+    const soleRespin = forced.length === 1 && !moves.some(m => !['declare_respin', 'declare_displacement', 'null_move', 'resign', 'game_set'].includes(m.value.type));
+    const inBattle = !!(battleView && battleView.battle);
+    // the result stays held while a respin, a displacement or a follow-up spin is still to come (MatchMain keeps BattleResult until SpinEndWait and RespinState is clear)
+    const chainHold = (inBattle || battleSpin || tagged) && (nextSpin || soleRespin);
+    if ((spinning || inBattle) && prev && !boardSt) boardSt = prev;
+    arrive(s.status, moves, played && !boardSt);
     states[rec.all_moves.length] = { b: !!ss.beginning_of_turn, s: ss.selective_side };   // RewindableRecord.AddState
     if (ss.game_set && !over) over = { winner: ss.winner, reason: ss.reason }; saveGame();
-    if (net && net.host) net.conn.send({ t: 'state', st, legal, fx: fx ? fx.effect_moves || [] : [], over: ss.game_set ? { winner: ss.winner, reason: ss.reason } : null, clock, played, mv: played ? rec.all_moves[rec.all_moves.length - 1] : null });
-    if (fx) await playEffects(fx.effect_moves || []); logSide = null;
+    if (net && net.host) net.conn.send({ t: 'state', st, legal, fx: effects, over: ss.game_set ? { winner: ss.winner, reason: ss.reason } : null, clock, played, hold: chainHold, mv: played ? rec.all_moves[rec.all_moves.length - 1] : null });
+    if (fx) await playEffects(effects, { hold: chainHold, wheelSt: boardSt }); logSide = null;
     if (id !== gameId) return;
     const side = st.selective_side;
     if (!over && ss.game_set) over = { winner: ss.winner, reason: ss.reason };
-    busy = false; render();
+    if (!chainHold && boardSt) releaseBoard(); else if (!boardSt) { busy = false; render(); }
     if (settle()) return;
     if (legal.length === 1 && legal[0].value.type === 'game_set') return play(legal[0]);   // after a resignation the engine's only move is the one that ends the duel: nothing to choose, so it is played
     if (side === 'both') return play(pickRandom(legal));                 // system move (a spin): the original client samples it too
+    const again = respinMove(); if (again) return play(again);
+    if (chainHold) return;
+    busy = false; render();
     if (ctrl[side] === 'ai') { busy = true; render(); const g = await api('go', ai); if (id === gameId) return play(g.move); }
     remoteMove();
-  } catch (e) { busy = false; $('status').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
+  } catch (e) { boardSt = null; battleView = null; deferredSfx = null; busy = false; const ov = $('battle'); if (ov) { ov.hidden = true; ov.innerHTML = ''; } $('status').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
 }
 function play(move) {
   if (over) return;
@@ -1057,6 +1109,7 @@ function rewind() {
   rec.seed = monoRandomNext(rec.seed);                    // a rewind re-seeds the duel, so the same spins do not simply repeat
   rec.all_moves.length = keep; rec.seeds.length = keep; states.length = keep;
   over = null; rewinds++; sel = null; routeChoice = null; sealed.clear();
+  boardSt = null; battleView = null; deferredSfx = null; const btl = $('battle'); if (btl) { btl.hidden = true; btl.innerHTML = ''; }
   log(`<span class="note">— rewound to the start of your turn (${REWIND_MAX - rewinds} left) —</span>`);
   return sync(false);
 }
@@ -1138,9 +1191,10 @@ function xy(p, away) { // engine point ids: 0-27 field, 28-33 / 34-39 benches, 4
 }
 function render() {
   if (!st) return;
+  if (boardSt && !render.held) { const live = st; render.held = true; st = boardSt; try { return render(); } finally { st = live; render.held = false; } }   // the table stays as it was when the spin began
   if (moveAnim && !busy && performance.now() > moveAnim.t0 + moveAnim.dur) moveAnim = null;
   P_COL.black = flip ? 'var(--p1)' : 'var(--p0)'; P_COL.white = flip ? 'var(--p0)' : 'var(--p1)';
-  if (over && leagueGame && !leagueGame.done) finishLeague();
+  if (over && !boardSt && leagueGame && !leagueGame.done) finishLeague();
   const side = st.selective_side, mine = !busy && !over && ctrl[side] === 'human';
   const me = sel != null ? st.pokemon_conditions.find(c => c.pokemon_index === sel) : null;
   const routes = new Map(), targets = new Map();
@@ -1149,6 +1203,7 @@ function render() {
     if (v.type === 'mp_move' && v.route[0] === me.index) { const to = v.route[v.route.length - 1]; (routes.get(to) || routes.set(to, []).get(to)).push(m); }
     if (v.type === 'declare_battle' && v.from_pokemon === sel) targets.set(v.to_pokemon, m);
   }
+  if (mine && !pick) for (const m of legal) if (m.value.type === 'spot_move' && m.value.to != null) { const to = m.value.to; (routes.get(to) || routes.set(to, []).get(to)).push(m); }   // after a battle the figure's landing spot is chosen on the board
   if (!mine) pick = null;
   const stage = pick ? pickStage() : null;
   if (stage) { routes.clear(); targets.clear();   // a choice is being made: the board offers its figures or points instead of the selected figure's moves
@@ -1188,7 +1243,7 @@ function render() {
       <text class="nm" y="4" font-size="8.5" fill="#10141a">${esc(f.n.replace(/^(Alolan|Shiny|Mega) /, '').slice(0, 7))}</text>
       ${sprite(f) ? `<image href="${sprite(f)}" x="-24" y="-27" width="48" height="48" style="pointer-events:none" onerror="this.remove()"/>` : ''}
       ${c.index < 40 ? `<circle class="mpb" cx="15" cy="15" r="6.6" stroke="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}"/><text x="15" y="18" font-size="8.6" fill="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}">${mp}</text>` : ''}
-      ${b.length ? `<rect x="-24" y="23" width="48" height="11" rx="5.5" fill="#10141a"/><text y="31.3" font-size="7.2" fill="#ffd88a">${esc(b[0].slice(0, 11))}${b.length > 1 ? '+' : ''}</text>` : ''}</g>`;
+      ${b.length ? `<rect x="-24" y="23" width="48" height="11" rx="5.5" fill="#10141a"/><text y="31.3" font-size="7.2" fill="#ffd88a">${esc(b[0].slice(0, 11))}${b.length > 1 ? '+' : ''}</text>` : ''}<circle r="30" fill="transparent"/></g>`;
   }
   const tm = tableModel(mine), B = (x, z) => [210 + x * 54.2, 350 + z * 54.2];   // the plate stacks and the AI / End Turn / Z-Move button, in board units
   for (const k of tm.stacks) {
@@ -1212,7 +1267,8 @@ function render() {
   }
   $('status').innerHTML = over ? `<b>${over.winner && P_COL[over.winner] ? wins(over.winner) : 'Draw'}</b> — ${esc(String(over.reason).replace(/_/g, ' '))}`
     : `<b style="color:${P_COL[side] || 'inherit'}">${P_COL[side] ? label(side) : '…'}</b>${busy ? ' · working…' : mine ? ' to act' : ''}`; $('turns').textContent = st.remaining_turns;
-  const extra = !mine ? [] : routeChoice ? routeChoice : legal.filter(m => !['mp_move', 'declare_battle', 'resign'].includes(m.value.type));
+  const onBoard = m => ['mp_move', 'declare_battle', 'resign'].includes(m.value.type) || (m.value.type === 'spot_move' && m.value.to != null);
+  const extra = !mine ? [] : routeChoice ? routeChoice : legal.filter(m => !onBoard(m));
   $('acts').innerHTML = (routeChoice && mine ? '<span class="note">Several routes lead there — choose one:</span>' : '') + extra.map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('') +
     (rewindTarget() >= 0 ? `<button data-rw="1">Rewind to the start of your turn (${REWIND_MAX - rewinds} left)</button>` : '') +
     (mine ? '<button data-ai="1">Let the AI choose this move</button>' : '') + (mine && legal.some(m => m.value.type === 'resign') ? `<button data-m="${legal.findIndex(m => m.value.type === 'resign')}" class="note">Resign</button>` : '');
@@ -1270,7 +1326,8 @@ function drawPrompt(mine, stage) {   // the choice in progress, and whatever els
   let h = '';
   if (mine && stage) { drawPrompt.opts = stage.list || []; h = `<b>${esc(pick.title)}</b>` + (stage.map ? `<span>${stage.kind === 'fig' ? 'Choose a figure' : 'Choose a point'}</span>` : drawPrompt.opts.map((m, k) => `<button data-c="${k}">${describe(m.value)}</button>`).join('')); }
   else if (mine && routeChoice) h = '<b>Several routes lead there</b>' + routeChoice.map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
-  else if (mine) h = legal.filter(m => !['mp_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
+  else if (mine && legal.some(m => m.value.type === 'spot_move' && m.value.to != null)) h = '<b>Choose a point</b>' + legal.filter(m => !['mp_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
+  else if (mine) h = legal.filter(m => !['mp_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
   $('tbl').innerHTML = h;
 }
 function drawBar(mine) {
@@ -1385,6 +1442,7 @@ function drawCard(c) {
 
 // ---------- input: every action is one of the engine's legal moves ----------
 window.boardPick = (fig, pt, act) => {   // a figure index and / or a field point, or a table object ('main', 'pl:colour'), from either board
+  if (busy) return;
   if (act && fig == null) return tableAct(act);
   if (pick) { const ms = (fig != null && render.targets.get(fig)) || (pt != null && render.routes.get(pt)); if (ms) choose(ms); return; }
   if (fig != null) { if (render.targets && render.targets.has(fig)) return play(render.targets.get(fig)); sel = fig; routeChoice = null; sfx('select'); return render(); }
@@ -1416,72 +1474,112 @@ const LEAN = 24;   // degrees the line through the two disk centres leans from t
 //  - 0.7 s after the wheels the result is shown and the screen closes by itself. The original shows the result as the two figures fighting;
 //    here the winner's wheel lights up, the loser's dims and shakes, and the outcome is written across the middle.
 const sealed = new Map();   // figure -> attack ids the engine has sealed (disable_skill), kept until its conditions are removed
-async function showSpin(e, result, notices) {
-  const spins = e.value.spins || [], WON = { win: 1, win_with_effect: 1, lose: -1, lose_with_effect: -1, draw: 0, draw_with_effect: 0 }, human = ctrl.black === 'human' || ctrl.white === 'human';
-  const skillsOf = sp => ((pk(sp.pokemon) || { skills: [] }).skills || []).filter(x => x.range > 0).map(x => (sealed.get(sp.pokemon) || []).includes(x.id) ? Object.assign({}, x, { sealed: true }) : x);
-  // with two wheels, the one that is not yours goes on top; a lone wheel sits below the gem
-  const top = spins.length === 2 ? (colorOf(spins[0].pokemon) === (ctrl[me] === 'human' ? me : 'black') ? 1 : 0) : -1, where = k => k === top ? 'up' : 'dn';   // not 'top': that class is the page's top bar
+const battleMark = text => { const t = String(text || ''); return t.includes('win') ? 1 : t.includes('draw') ? 0 : t.includes('lose') ? -1 : null; };   // the original matches with IndexOf, so win_with_effect and the rest count
+function wheelSnap(src, battler, spin) {   // the disk is drawn from the figure the spin names (results[0].figure), and from the status the wheel started with
+  const first = (spin.results || [])[0] || {}, figId = first.figure != null && first.figure >= 0 ? first.figure : battler, s = src || st;
+  let mon = null; if (s) for (const p of s.players) for (const x of p.pokemons) if (x.pokemon_index === figId) mon = x;
+  const skills = ((mon && mon.skills) || []).filter(x => x.range > 0).map(x => (sealed.get(figId) || []).includes(x.id) ? Object.assign({}, x, { sealed: true }) : x);
+  const marker = ((s && (s.pokemon_conditions || []).find(c => c.pokemon_index === battler) || {}).marker) || {};
+  return { skills, frozen: marker.circle === 'freeze' || marker.circle === 'melt', marker };
+}
+function closeSpin() { const ov = $('battle'); if (ov) { ov.hidden = true; ov.innerHTML = ''; } battleView = null; }
+async function showSpin(e, result, notices, opt) {
+  opt = opt || {};
+  const spins = e.value.spins || [], human = ctrl.black === 'human' || ctrl.white === 'human';
+  const typedBattle = spins.some(s => (s.results || []).some(r => r.type === 'battle'));
+  const battle = typedBattle || !!(battleView && battleView.battle);   // a follow-up spin declared by the battle stays in the battle
+  const ids = spins.map(s => s.pokemon);
+  const keep = !!(battleView && battleView.ids && ids.length && ids.every(id => battleView.ids.includes(id)) && $('bd0'));   // a one-wheel respin leaves the other disk where it is
   let ov = $('battle'), shut = false;
   if (!ov) { ov = document.createElement('div'); ov.id = 'battle'; document.querySelector('.arena').appendChild(ov); }
   const done = new Promise(res => { ov.onclick = ev => { if (ev.target.closest('[data-v]')) { shut = true; res(); } }; }), wait = ms => shut ? Promise.resolve() : Promise.race([sleep(human ? ms : ms / 4), done]);
-  ov.hidden = false; ov.innerHTML = (`<div class="stage${spins.length === 1 ? ' solo' : ''}">${spins.map((sp, k) => `<div class="bdisk ${where(k)}" id="bd${k}"><div class="spin" id="w${k}">${wheelSvg(skillsOf(sp), 440)}</div></div>
-      <div class="cap ${where(k)}" id="r${k}" style="--c:${P_COL[colorOf(sp.pokemon)]}" hidden></div>`).join('')}
-      <div class="flare" id="flare"></div><div class="sparks" id="sparks">${Array.from({ length: 14 }, (_, k) => `<i style="--a:${(k % 2 ? 204 : 24) + ((k * 37) % 44) - 22}deg;--l:${26 + (k * 53) % 60}px;--far:${70 + (k * 29) % 120}px;--t:${(k % 5) * .05}s"></i>`).join('')}</div><div class="gem"></div><button class="skip" data-v="ok">Skip</button><div class="verdict" id="verdict"></div></div>`);
-  await sleep(40); sfx('spin');
-  const power = (x, v) => { const col = x.sealed ? 0 : (D.skills[x.id] || [0, 0, 0])[2]; return col === 2 ? '★'.repeat(Math.min(v == null ? x.speed_or_damage || 0 : v, 5)) : col === 1 || col === 3 ? String(v == null ? x.speed_or_damage || 0 : v) : ''; };
-  const final = [];   // what each wheel ended on
-  await Promise.all(spins.map(async (sp, k) => {
-    const el = $('w' + k), segs = skillsOf(sp), base = k === top ? 180 + LEAN : LEAN, starts = []; let a = 0; for (const x of segs) { starts.push(a); a += x.range; }
+  const mineCol = ctrl[me] === 'human' ? me : 'black';
+  const slotOf = (id, list) => list.length > 2 ? 'row' : list.length === 1 ? 'dn' : (id === (colorOf(list[0]) === mineCol ? list[1] : list[0]) ? 'up' : 'dn');
+  if (!keep) {
+    const row = ids.length > 2, solo = ids.length === 1;
+    const held = battleView;
+    ov.hidden = false; ov.innerHTML = `<div class="stage${row ? ' row' : solo ? ' solo' : ''}">${spins.map((sp, k) => {
+      const slot = slotOf(sp.pokemon, ids);
+      return `<div class="bdisk ${slot}" id="bd${k}" data-pk="${sp.pokemon}"><div class="spin" id="w${k}">${wheelSvg(wheelSnap(opt.wheelSt, sp.pokemon, sp).skills, 440)}</div></div><div class="cap ${slot}" id="r${k}" style="--c:${P_COL[colorOf(sp.pokemon)]}" hidden></div>`;
+    }).join('')}<div class="flare" id="flare"></div><div class="sparks" id="sparks">${Array.from({ length: 14 }, (_, k) => `<i style="--a:${(k % 2 ? 204 : 24) + ((k * 37) % 44) - 22}deg;--l:${26 + (k * 53) % 60}px;--far:${70 + (k * 29) % 120}px;--t:${(k % 5) * .05}s"></i>`).join('')}</div><div class="gem"></div><button class="skip" data-v="ok">Skip</button><div class="verdict" id="verdict"></div></div>`;
+    battleView = battle ? { battle: true, ids, lastResult: held && held.lastResult, landed: (held && held.landed) || {} } : null;
+  } else battleView.battle = true;
+  if (battle && result) battleView.lastResult = result;
+  const shownIds = (battleView && battleView.ids) || ids;
+  await sleep(40); if (spins.some(sp => !wheelSnap(opt.wheelSt, sp.pokemon, sp).frozen) && !shut) sfx('spin');
+  const powerOf = (x, v) => { const col = x.sealed ? 0 : (D.skills[x.id] || [0, 0, 0])[2]; return col === 2 ? '★'.repeat(Math.min(v == null ? x.speed_or_damage || 0 : v, 5)) : col === 1 || col === 3 ? String(v == null ? x.speed_or_damage || 0 : v) : ''; };
+  await Promise.all(spins.map(async sp => {
+    const k = shownIds.indexOf(sp.pokemon); if (k < 0) return;
+    const info = wheelSnap(opt.wheelSt, sp.pokemon, sp), el = $('w' + k), disk = $('bd' + k), segs = info.skills, slot = slotOf(sp.pokemon, shownIds);
+    const base = slot === 'up' ? 180 + LEAN : LEAN, starts = []; let a = 0; for (const x of segs) { starts.push(a); a += x.range; }
     const at = num => Math.max(0, segs.findIndex((x, n) => num >= starts[n] && num < starts[n] + x.range));
-    let rot = 0; const turn = async (pos, sec, turns, back) => {   // bring wheel position `pos` (0-96) under the gem
+    const oldDim = el && el.querySelector('.dimw'); if (oldDim) oldDim.remove();
+    const oldMore = disk && disk.querySelector('.more'); if (oldMore) oldMore.remove();
+    if (disk) disk.classList.remove('won', 'lost');
+    const cap0 = $('r' + k); if (cap0) { cap0.hidden = true; cap0.classList.remove('in'); }
+    let rot = 0; const spun = el && /rotate\(([-\d.]+)deg\)/.exec(el.style.transform || ''); if (spun) rot = +spun[1];   // a respin continues from where this disk already stopped
+    const turn = async (pos, sec, turns, back) => {
       let to = base - pos / 96 * 360; if (back) { while (to > rot) to -= 360; } else { while (to < rot + turns * 360) to += 360; }
-      rot = to; el.style.transition = shut ? 'none' : `transform ${sec}s cubic-bezier(.12,.75,.2,1)`; el.style.transform = `rotate(${to}deg)`; await wait(sec * 1000); };
+      rot = to; if (!el) return; el.style.transition = shut || !sec ? 'none' : `transform ${sec}s cubic-bezier(.12,.75,.2,1)`; el.style.transform = `rotate(${to}deg)`; await wait(sec * 1000); };
     let sec = 1, landed = 0;
-    for (let n = 0; n < sp.results.length; n++) {
+    for (let n = 0; n < (sp.results || []).length; n++) {
       const r = sp.results[n];
-      if (n) { if (!shut) { $('bd' + k).insertAdjacentHTML('beforeend', '<div class="more">More</div>'); sfx('select'); } await wait(500); const m = $('bd' + k).querySelector('.more'); if (m) m.remove(); sec = Math.min(1, Math.max(.1, sec * .6)); if (!shut) sfx('spin'); }
+      if (info.frozen) { await turn(r.num + .5, 0, 0); landed = at(r.num); if (r.displace && segs[landed]) { landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, 0, 0, r.displace < 0); } break; }   // GetBattleFrizes: a frozen or melted wheel does not spin
+      if (n) { if (!shut && disk) { disk.insertAdjacentHTML('beforeend', '<div class="more">More</div>'); sfx('select'); } await wait(500); const m = disk && disk.querySelector('.more'); if (m) m.remove(); sec = Math.min(1, Math.max(.1, sec * .6)); if (!shut) sfx('spin'); }
       await turn(r.num + .5, sec * (n ? 1 : .8 + Math.random() * .4), n ? 2 : 3); if (!shut) sfx('step');
       landed = at(r.num);
-      if (r.displace) { await wait(500); landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, .3, 0, r.displace < 0); if (!shut) sfx('step'); }
+      if (r.displace && segs.length) { await wait(500); landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, .3, 0, r.displace < 0); if (!shut) sfx('step'); }
+      const landedId = (segs[landed] || {}).id, sid = info.marker.skill_id;
+      if (r.type === 'battle' && info.marker.triangle === 'imprison' && (sid == null || sid < 0 || sid === landedId)) break;   // SpinNext: an imprisoned battle attack does not spin on
     }
-    const x = segs[landed] || {}, pt = (t, r) => [100 + r * Math.sin(t / 96 * 2 * Math.PI), 100 - r * Math.cos(t / 96 * 2 * Math.PI)];
-    el.insertAdjacentHTML('beforeend', `<svg class="dimw" viewBox="0 0 200 200">${segs.map((y, n) => { if (n === landed || segs.length < 2) return ''; const [x1, y1] = pt(starts[n], 88), [x2, y2] = pt(starts[n] + y.range, 88); return `<path d="M100 100L${x1} ${y1}A88 88 0 ${y.range > 48 ? 1 : 0} 1 ${x2} ${y2}Z" fill="#000" opacity=".5"/>`; }).join('')}</svg>`);
-    const side = result && [result.value.attack, result.value.defence].find(y => y && y.pokemon === sp.pokemon), cap = $('r' + k), mine = (notices || []).filter(y => y.value.pokemon === sp.pokemon && y.value.value);
-    const name = x.sealed ? 'Miss' : (D.skills[x.id] || ['spin'])[0]; let shown = mine.length ? mine[0].value.value.current : x.speed_or_damage;
-    const paint = (extra, cls, why) => { cap.innerHTML = `<b>${esc(name)}${extra ? ` <span class="add">${esc(extra)}</span>` : ''}</b>${power(x, shown) !== '' ? `<span class="val ${cls || ''}">${power(x, shown)}</span>` : ''}${x.sealed ? '<span class="seal">Sealed</span>' : ''}` +
-      (why ? `<span class="why">${esc(why)}</span>` : '') + (sp.results.some(y => y.displace) ? '<span class="out">shifted</span>' : '') + (sp.results.length > 1 ? `<span class="out">${sp.results.length} spins</span>` : ''); };
-    paint(); cap.hidden = false; cap.classList.add('in');
-    const changes = mine.filter(y => y.value.value.result !== y.value.value.current || y.value.value.addend || y.value.value.multiplier > 1);
-    for (let n = 0; n < changes.length; n++) {   // DamageDisp / DamageDispNext
-      await wait(n ? 1000 : changes.length > 1 ? 500 : 0);
-      const v = changes[n].value, d = v.value, from = shown, t0 = performance.now(), up = d.result >= from;
+    const x = segs[landed] || {}, col = x.sealed ? 0 : (D.skills[x.id] || [0, 0, 0])[2];
+    if (battle && battleView) battleView.landed[sp.pokemon] = { miss: !x.id && !segs.length ? true : x.sealed || col === 0 };
+    if (el) { const pt = (t, rad) => [100 + rad * Math.sin(t / 96 * 2 * Math.PI), 100 - rad * Math.cos(t / 96 * 2 * Math.PI)];
+      el.insertAdjacentHTML('beforeend', `<svg class="dimw" viewBox="0 0 200 200">${segs.map((y, n) => { if (n === landed || segs.length < 2) return ''; const [x1, y1] = pt(starts[n], 88), [x2, y2] = pt(starts[n] + y.range, 88); return `<path d="M100 100L${x1} ${y1}A88 88 0 ${y.range > 48 ? 1 : 0} 1 ${x2} ${y2}Z" fill="#000" opacity=".5"/>`; }).join('')}</svg>`); }
+    const resNow = result || (battleView && battleView.lastResult), side = resNow && [resNow.value.attack, resNow.value.defence].find(y => y && y.pokemon === sp.pokemon), cap = $('r' + k), steps = (notices || []).filter(y => y.value.pokemon === sp.pokemon && y.value.value);
+    const name = x.sealed ? 'Miss' : (D.skills[x.id] || ['spin'])[0]; let shown = x.speed_or_damage;
+    const paint = (extra, cls, why) => { if (!cap) return; cap.innerHTML = `<b>${esc(name)}${extra ? ` <span class="add">${esc(extra)}</span>` : ''}</b>${powerOf(x, shown) !== '' ? `<span class="val ${cls || ''}">${powerOf(x, shown)}</span>` : ''}${x.sealed ? '<span class="seal">Sealed</span>' : ''}` +
+      (why ? `<span class="why">${esc(why)}</span>` : '') + ((sp.results || []).some(y => y.displace) ? '<span class="out">shifted</span>' : '') + ((sp.results || []).length > 1 ? `<span class="out">${sp.results.length} spins</span>` : ''); };
+    paint(); if (cap) { cap.hidden = false; cap.classList.add('in'); }
+    for (let n = 0; n < steps.length; n++) {   // DamageDisp steps every notice, including a x0 and a set that does not change the number, starting from the wedge's printed damage
+      await wait(n ? 1000 : steps.length > 1 ? 500 : 0);
+      const v = steps[n].value, d = v.value, from = shown == null ? d.result : shown, t0 = performance.now(), up = d.result >= from;
       const why = v.pokepower_id != null && D.abilities[v.pokepower_id] ? D.abilities[v.pokepower_id][0] : v.plate_id != null && plateById.has(v.plate_id) ? plateById.get(v.plate_id).n : v.condition ? condName(v.condition) : v.skill_id != null && D.skills[v.skill_id] ? D.skills[v.skill_id][0] : String(v.type).replace(/_damage_notice$/, '').replace(/_/g, ' ');
-      const extra = d.addend ? (d.addend > 0 ? '＋' : '') + d.addend : d.multiplier > 1 ? '×' + d.multiplier : '';
-      if (!shut) sfx(up ? 'mp_up' : 'mp_down');
-      while (!shut && performance.now() - t0 < 300) { shown = Math.round(from + (d.result - from) * (performance.now() - t0) / 300); paint(extra, up ? 'up' : 'down', why); await sleep(30); }
+      const extra = d.addend ? (d.addend > 0 ? '＋' : '') + d.addend : d.multiplier != null && d.multiplier !== 1 ? '×' + d.multiplier : '';
+      if (d.result !== from && !shut) sfx(up ? 'mp_up' : 'mp_down');
+      while (!shut && d.result !== from && performance.now() - t0 < 300) { shown = Math.round(from + (d.result - from) * (performance.now() - t0) / 300); paint(extra, up ? 'up' : 'down', why); await sleep(30); }
       shown = d.result; paint(extra, up ? 'up' : 'down', why);
     }
-    if (side && side.speed_or_damage != null && power(x, side.speed_or_damage) !== '' && side.speed_or_damage !== shown) { shown = side.speed_or_damage; paint(); }   // the engine's final figure wins over anything shown on the way
-    final[k] = { sp, side };
+    if (side && side.speed_or_damage != null && powerOf(x, side.speed_or_damage) !== '' && side.speed_or_damage !== shown) { shown = side.speed_or_damage; paint(); }
   }));
-  if (result) {
+  if (battle && battleView && !opt.hold) {
+    const res = (battleView.lastResult || result || {}).value;
     await wait(700);
-    let winner = null, loser = null, drawn = false;
-    final.forEach((f, k) => { const w = f.side ? WON[f.side.result] : undefined; if (w === 1) winner = k; else if (w === -1) loser = k; else if (w === 0) drawn = true; });
-    if (winner != null) $('bd' + winner).classList.add('won'); final.forEach((f, k) => { if (k !== winner && (winner != null || WON[(f.side || {}).result] === -1)) $('bd' + k).classList.add('lost'); });
-    if (!shut) { $('flare').classList.add('on'); $('sparks').classList.add('on'); sfx('hit'); }
-    $('verdict').innerHTML = winner != null ? `${nameOf(final[winner].sp.pokemon)} wins` : drawn ? 'Draw' : loser != null ? 'Both miss' : '';
-    await wait(1300);
-  } else await wait(2000);   // a spin outside a battle stays up two seconds
-  ov.hidden = true; ov.innerHTML = '';
+    if (res) {
+      const sides = [res.attack, res.defence].filter(Boolean); let winner = null, drawn = false;
+      for (const side of sides) { const w = battleMark(side.result), k = battleView.ids.indexOf(side.pokemon); if (w === 1) winner = k; else if (w === 0) drawn = true; }
+      if (winner != null && winner >= 0 && $('bd' + winner)) { $('bd' + winner).classList.add('won'); battleView.ids.forEach((_, k) => { if (k !== winner && $('bd' + k)) $('bd' + k).classList.add('lost'); }); }
+      const bothMiss = winner == null && !drawn && sides.length >= 2 && sides.every(side => { const hit = battleView.landed[side.pokemon]; return hit && hit.miss; });
+      if (!shut) { const fl = $('flare'), spk = $('sparks'); if (fl) fl.classList.add('on'); if (spk) spk.classList.add('on'); sfx('hit'); }
+      const who = winner != null ? sides.find(s => battleMark(s.result) === 1) : null;
+      const vd = $('verdict'); if (vd) vd.innerHTML = who ? `${nameOf(who.pokemon)} wins` : drawn ? 'Draw' : bothMiss ? 'Both miss' : '';
+    }
+    await wait(1300); closeSpin();
+  } else if (!battle) { await wait(2000); closeSpin(); }   // a spin outside a battle stays up two seconds
 }
-async function playEffects(list) {
+async function playEffects(list, opt) {
+  opt = opt || {};
   for (let k = 0; k < list.length; k++) {
     const e = list[k], v = e.value, t = v.type;
-    if (t === 'spin') {
-      const after = list.slice(k + 1), ri = after.findIndex(x => x.value.type === 'battle_result'), result = after[ri];
-      await showSpin(e, (v.spins || []).some(s => s.results.some(r => r.type === 'battle')) ? result : null, (ri < 0 ? after : after.slice(0, ri)).filter(x => /damage_notice$/.test(x.value.type)));
-      if (!result) log('Spin · ' + (v.spins || []).map(s => `${nameOf(s.pokemon)} ${s.results.map(r => r.num).join(', ')}`).join(' · '));
+    if (t === 'declare_respin') {   // the respin stays on this screen: "More" on the wheel that spins again, then the next spin turns it
+      for (const id of v.pokemons || []) { const i = battleView && battleView.ids ? battleView.ids.indexOf(id) : -1, disk = i >= 0 && $('bd' + i); if (disk && !disk.querySelector('.more')) { disk.insertAdjacentHTML('beforeend', '<div class="more">More</div>'); sfx('select'); } }
+      await sleep(500);
+    } else if (t === 'declare_displacement') continue;   // the shift is the spin result's displace, played when that wheel turns
+    else if (t === 'spin') {
+      const after = list.slice(k + 1), ri = after.findIndex(x => x.value.type === 'battle_result'), result = ri < 0 ? null : after[ri];
+      const typed = (v.spins || []).some(s => (s.results || []).some(r => r.type === 'battle'));
+      await showSpin(e, typed ? result : null, (ri < 0 ? after : after.slice(0, ri)).filter(x => /damage_notice$/.test(x.value.type)), opt);
+      if (!result) log('Spin · ' + (v.spins || []).map(s => `${nameOf(s.pokemon)} ${(s.results || []).map(r => r.num).join(', ')}`).join(' · '));
     } else if (t === 'battle_result') {
       const side = x => `${nameOf(x.pokemon)} ${fmt('skill', x.skill)} ${x.speed_or_damage || ''} (${esc(String(x.result).replace(/_/g, ' '))})`;
       log(`Battle · ${side(v.attack)} vs ${side(v.defence)}`);
