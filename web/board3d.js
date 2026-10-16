@@ -174,7 +174,7 @@ function draw(m) {
 // Camera: drag to orbit, wheel or pinch to zoom, no panning, kept above the table. Reset returns to the default view; Lock stops drags moving it.
 const controls = new OrbitControls(camera, renderer.domElement); controls.enablePan = false; controls.minPolarAngle = Math.PI * .1; controls.maxPolarAngle = Math.PI * .42;
 let moved = false; controls.addEventListener('start', () => { moved = true; });
-const CAM_KEY = 'figureduel.cam'; let kept = null; try { kept = JSON.parse(localStorage.getItem(CAM_KEY)); } catch (e) {}
+const CAM_KEY = 'pokemonduelweb.cam'; let kept = null; try { let raw = localStorage.getItem(CAM_KEY); if (raw == null) { const old = localStorage.getItem('figureduel.cam'); if (old != null) { raw = old; localStorage.setItem(CAM_KEY, old); localStorage.removeItem('figureduel.cam'); } } kept = JSON.parse(raw); } catch (e) {}
 if (!(kept && Array.isArray(kept.pos) && Array.isArray(kept.at))) kept = null;
 function keepCamera() {   // called whenever the lock changes or a locked view is reset: store the view while locked, forget it when unlocked
   kept = controls.enabled ? null : { pos: camera.position.toArray(), at: controls.target.toArray() };

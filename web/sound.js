@@ -4,8 +4,8 @@
 // recording made in the browser. sfx(name) plays one. A button with id "soundBtn" switches sound on and off.
 // Browsers only let a page make sound after the visitor has clicked or tapped it once.
 (() => {
-  const SOUND_KEY = 'figureduel.sound'; let actx = null, noiseBuf = null, master = null, soundOn = true;
-  try { soundOn = localStorage.getItem(SOUND_KEY) !== 'off'; } catch (e) {}
+  const SOUND_KEY = 'pokemonduelweb.sound'; let actx = null, noiseBuf = null, master = null, soundOn = true;
+  try { let saved = localStorage.getItem(SOUND_KEY); if (saved == null) { const old = localStorage.getItem('figureduel.sound'); if (old != null) { saved = old; localStorage.setItem(SOUND_KEY, old); localStorage.removeItem('figureduel.sound'); } } soundOn = saved !== 'off'; } catch (e) {}
   function ready() {
     if (!soundOn) return null;
     try { actx = actx || new (window.AudioContext || window.webkitAudioContext)(); if (actx.state === 'suspended') actx.resume(); } catch (e) { return null; }
@@ -32,8 +32,8 @@
   }
   const bank = {
     select: t => burst(t, 0, .03, .22, 2400, 1, 'highpass'),
-    click: t => burst(t, 0, .03, .22, 2400, 1, 'highpass'),
-    back: t => burst(t, 0, .04, .2, 900, 1, 'bandpass'),
+    click: t => burst(t, 0, .03, .08, 2400, 1, 'highpass'),
+    back: t => burst(t, 0, .04, .07, 900, 1, 'bandpass'),
     step: t => { burst(t, 0, .07, .4, 140, .8); burst(t, .01, .03, .12, 900, 1, 'bandpass'); },
     land: t => { burst(t, 0, .05, .35, 220, 1); burst(t, .012, .04, .18, 1100, 2, 'bandpass'); },
     spin: t => { for (let k = 0; k < 14; k++) burst(t, 1.15 * Math.pow(k / 14, 1.7), .02, .16, 1600 + (k % 3) * 180, 3, 'bandpass'); },
@@ -75,7 +75,7 @@
   for (const id of ['se001', 'se002']) fetch('/sfx/' + id + '.wav').then(r => r.ok ? r.arrayBuffer() : null).then(b => { if (b) takeClip(id, b); }).catch(() => {});
   function playClip(id) {
     const buf = clips[id]; if (!buf || !buf.getChannelData) return false;
-    const src = actx.createBufferSource(); src.buffer = buf; const g = actx.createGain(); g.gain.value = .9;
+    const src = actx.createBufferSource(); src.buffer = buf; const g = actx.createGain(); g.gain.value = .28;
     src.connect(g).connect(master); src.start(); return true;
   }
   function sfx(name) {
@@ -94,7 +94,7 @@
   // Buttons, cards and links use the original click. Close and Back use the original second click. The board itself is not a button.
   addEventListener('pointerdown', e => {
     const el = e.target.closest && e.target.closest('button, [role="button"], a, summary, .row, .tcard, .pchip');
-    if (!el || el.disabled || el.id === 'soundBtn' || el.getAttribute('aria-disabled') === 'true') return;
+    if (!el || el.disabled || el.id === 'soundBtn' || el.closest('#nav') || el.getAttribute('aria-disabled') === 'true') return;
     const label = (el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim();
     sfx(/^(close|back)\b/i.test(label) || el.classList.contains('x') ? 'back' : 'click');
   }, true);

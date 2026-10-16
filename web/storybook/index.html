@@ -227,12 +227,7 @@ function show(group, name) {
     .concat(m.toks.filter(t => t.dim && t.out == null).map(t => ({ hits: x => x === t, sound: () => sfx('ko') })))
     .concat(m.toks.filter(t => t.sel).map(t => ({ hits: x => x === t, sound: () => sfx('select') })))
     .concat(m.toks.filter(t => dmgSound(t)).map(t => ({ hits: x => x === t, sound: () => sfx(dmgSound(t)[2]) })));
-  if (!arrivals.length) {
-    draw(m); startEvo();
-    if (m.catalog) FIGURE_SOUNDS.forEach((s, k) => show.timers.push(setTimeout(() => { if (current !== m) return; $('note').textContent = s[0] + '  ' + s[1]; sfx(s[2]); }, 700 + k * 650)));
-    else if (m.toks.some(t => !t.atk && !t.chain)) show.timers.push(setTimeout(() => sfx('land'), 400));
-    return;
-  }
+  if (!arrivals.length) { draw(m); startEvo(); return; }
   const plain = t => ({ ...t, status: '', wait: false, mpd: 0, mp: t.mpd ? String(+t.mp - t.mpd) : t.mp, badge: t.status || t.mpd || t.wait || t.dim || t.sel || dmgSound(t) ? '' : t.badge, dim: false, sel: false });
   const upTo = n => ({ ...m, toks: m.toks.map(t => arrivals.findIndex(a => a.hits(t)) >= n ? plain(t) : t) });   // only the first n arrivals applied
   draw(upTo(0));

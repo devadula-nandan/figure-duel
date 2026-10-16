@@ -530,7 +530,7 @@ if (matchMedia('(hover: hover)').matches) {
 const slotText = slot => slot.st.map((id, k) => id == null ? null : figText(id, slot.mod[k])).filter(Boolean).join(' → ') + slot.forms.map((id, k) => id == null ? '' : ' ⇄ ' + figText(id, slot.fmod[k])).join('');
 // ---------- saved teams ----------
 // Six figures (with their attachments, levels and boosts) and the plates, kept on this device under a name. The list starts with a few themed teams.
-const TEAMS_KEY = 'figureduel.teams.v1';
+const TEAMS_KEY = 'pokemonduelweb.teams.v1';
 // Starter teams, built from a community figure tier list (r/pokemonduel, May 2019). Only the first is a deck a player there said they ran;
 // the others are put together from the list's top tiers and its groupings. A figure is "Name", optionally "RARITY:Name" where two figures share
 // a name, and "+Name" for each thing attached to it beyond its automatic evolutions: a Mega, a form, or an evolution the automatic pick skips.
@@ -565,9 +565,12 @@ function starterTeams() {   // a team with anything missing is left out rather t
   team = keep; return out;
 }
 let savedTeams = null;
-const SEED_KEY = 'figureduel.teams.seed', SEED = '2';   // raised when the starter teams change, so an existing list gains the new ones once
+const SEED_KEY = 'pokemonduelweb.teams.seed', SEED = '2';   // raised when the starter teams change, so an existing list gains the new ones once
+function kept(key) {   // a value saved under the previous name is copied across once, then the old entry is removed
+  try { const now = localStorage.getItem(key); if (now != null) return now; const oldKey = key.replace('pokemonduelweb.', 'figureduel.'), old = localStorage.getItem(oldKey); if (old == null) return null; localStorage.setItem(key, old); localStorage.removeItem(oldKey); return old; } catch (e) { return null; }
+}
 function loadSaved() {
-  let seeded = null; try { savedTeams = JSON.parse(localStorage.getItem(TEAMS_KEY)); seeded = localStorage.getItem(SEED_KEY); } catch (e) {}
+  let seeded = null; try { savedTeams = JSON.parse(kept(TEAMS_KEY)); seeded = kept(SEED_KEY); } catch (e) {}
   if (!Array.isArray(savedTeams)) savedTeams = starterTeams();
   else if (seeded !== SEED) savedTeams = starterTeams().filter(t => !savedTeams.some(o => o.name === t.name)).concat(savedTeams);   // the player's own teams, and anything they kept, stay
   else return;
@@ -708,9 +711,9 @@ $('go').onclick = () => {
 // Data: ArenaLeagueMaster (rating thresholds, stars per win / loss, booster roulettes, items locked per league), ArenaRewardBox* and ItemSet
 // masters (booster -> reward table -> one weighted draw per item set), constants (starting rating 1150, 10 keys per key booster, at most 4 keys from losses).
 // The original's servers decided matchmaking, rating changes and the starting collection; those three are filled in here and marked as such.
-const PKEY = 'figureduel.profile.v1', LG = D.leagues, CONST = D.consts, TIME_SLOTS = 3;
+const PKEY = 'pokemonduelweb.profile.v1', LG = D.leagues, CONST = D.consts, TIME_SLOTS = 3;
 let profile = null, ownedMode = false, leagueGame = null, homeTick = 0;
-try { const saved = JSON.parse(localStorage.getItem(PKEY)); if (saved && saved.v === 1) profile = saved; } catch (e) {}
+try { const saved = JSON.parse(kept(PKEY)); if (saved && saved.v === 1) profile = saved; } catch (e) {}
 const saveProfile = () => { try { localStorage.setItem(PKEY, JSON.stringify(profile)); } catch (e) {} };
 const leagueOf = () => LG.find(l => l.id === profile.league) || LG[0];
 const weighted = list => { let r = Math.random() * list.reduce((t, x) => t + x[1], 0); for (const x of list) if ((r -= x[1]) < 0) return x; return list[list.length - 1]; };
@@ -844,7 +847,7 @@ function playerEntry(color, slots, plates) { // the original Player(UserDeck, co
 // copy of the original APK once and the library is read out of it in the browser and remembered on this device.
 const ENGINE_FILE = 'lib/armeabi-v7a/libTFG.so', WORKERS = 3;
 let enginePool = null, engineSeq = 0;
-const idb = (mode, fn) => new Promise((ok, bad) => { const o = indexedDB.open('figure-duel', 1); o.onupgradeneeded = () => o.result.createObjectStore('kv'); o.onerror = () => bad(o.error);
+const idb = (mode, fn, name = 'pokemon-duel-web') => new Promise((ok, bad) => { const o = indexedDB.open(name, 1); o.onupgradeneeded = () => o.result.createObjectStore('kv'); o.onerror = () => bad(o.error);
   o.onsuccess = () => { const r = fn(o.result.transaction('kv', mode).objectStore('kv')); r.onsuccess = () => ok(r.result); r.onerror = () => bad(r.error); }; });
 async function libFromApk(file) { // minimal zip reader: central directory -> the one entry -> inflate
   const buf = new Uint8Array(await file.arrayBuffer()), v = new DataView(buf.buffer);
@@ -863,6 +866,7 @@ async function libFromApk(file) { // minimal zip reader: central directory -> th
 }
 async function engineBytes() {
   try { const cached = await idb('readonly', st => st.get('lib')); if (cached) return cached; } catch (e) {}
+  try { const names = (await indexedDB.databases()).map(d => d.name); if (names.includes('figure-duel')) { const old = await idb('readonly', st => st.get('lib'), 'figure-duel'); if (old) { await idb('readwrite', st => st.put(old, 'lib')); return old; } } } catch (e) {}
   let bytes = null;
   try { const r = await fetch('libTFG.so'); if (r.ok && !(r.headers.get('content-type') || '').includes('html')) bytes = await r.arrayBuffer(); } catch (e) {}
   if (!bytes) bytes = await new Promise(ok => {
@@ -895,7 +899,7 @@ async function engineCmd(text) {
 // every state; the guest receives status / legal moves / effects and answers with the index of the legal move it picks. Transport: PeerJS (WebRTC).
 let net = null;
 const loadPeer = () => window.Peer ? Promise.resolve() : new Promise((ok, bad) => { const t = document.createElement('script'); t.src = 'https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js'; t.onload = ok; t.onerror = () => bad(new Error('could not load the connection library')); document.head.appendChild(t); });
-const roomId = code => 'figure-duel-room-' + code.toLowerCase().replace(/[^a-z0-9]/g, '');
+const roomId = code => 'pokemon-duel-web-room-' + code.toLowerCase().replace(/[^a-z0-9]/g, '');
 async function hostRoom() { // resolves with the guest's deck
   await loadPeer();
   const code = Array.from({ length: 5 }, () => 'abcdefghjkmnpqrstuvwxyz23456789'[Math.floor(Math.random() * 31)]).join('').toUpperCase();
@@ -1013,7 +1017,8 @@ function startClock() {
 // ---------- the duel in the address ----------
 // A duel is its record (decks, seed, moves), so it is kept on this device under its seed and the seed is put in the address (#g=seed).
 // Reloading, or switching between the flat and the 3D table, picks the same duel up again. Online duels are not kept: the connection would be gone.
-const GAME_KEY = 'figureduel.game.';
+const GAME_KEY = 'pokemonduelweb.game.';
+try { const oldGame = 'figureduel.game.'; for (const k of Object.keys(localStorage)) if (k.startsWith(oldGame)) { const next = GAME_KEY + k.slice(oldGame.length); if (localStorage.getItem(next) == null) localStorage.setItem(next, localStorage.getItem(k)); localStorage.removeItem(k); } } catch (e) {}
 // Every page of the site, as links in the top bar on wide screens (narrow screens keep the single 2D / 3D switch). The two game views carry
 // the running duel's address along, so switching between them keeps the duel.
 const viewHref = () => {
@@ -1032,7 +1037,7 @@ function forgetGame() {
 }
 async function resumeGame() {
   const m = /^#g=(\d+)$/.exec(location.hash); let g = null;
-  try { g = JSON.parse(localStorage.getItem(GAME_KEY + (m && m[1]))); } catch (e) {}
+  try { g = JSON.parse(kept(GAME_KEY + (m && m[1]))); } catch (e) {}
   if (!g) return forgetGame();
   $('home').hidden = true; $('game').hidden = false; $('status').textContent = 'resuming the duel…';
   await startEngines();
