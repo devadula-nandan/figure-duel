@@ -1,6 +1,6 @@
-# Figure Duel
+# pokemon duel web
 
-A web client for a figure board game whose rules are computed by the original game's own rule engine, run in the browser under an ARM emulator. Nothing is installed and nothing runs on a server.
+A web client for [Pokémon Duel](https://en.wikipedia.org/wiki/Pokémon_Duel). The rules are computed by the original game's own rule engine, run in the browser under an ARM emulator. Nothing is installed and nothing runs on a server.
 
 - `web/` is the whole site (static files): the game on its 3D table at `/`, the same game on a flat board at `/2d/`, the 3D storybook at `/storybook/`.
 - `play.py` serves `web/` locally at http://localhost:8765 and hands the page the engine library straight from the APK next to it.

@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <base href="../">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<title>Figure Duel · 3D storybook</title>
+<title>pokemon duel web · 3D storybook</title>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js"></script>
 <script src="sound.js"></script>
@@ -20,14 +20,24 @@
   .paths { display:none; }
   @media (min-width:861px) { .paths { display:flex; gap:4px; margin:0 6px; } .paths a { padding:4px 10px; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; border:1px solid var(--line); border-radius:4px; background:var(--ctl); }
     .paths a:hover { background:var(--ctl2); border-color:var(--dim); } .paths a.on { background:var(--ink); border-color:var(--ink); color:var(--bg); } }
-  #board3d { flex:1; min-height:0; background:var(--bd); } #board3d canvas { display:block; }
-  pre { margin:0; padding:10px 16px; border-top:1px solid var(--line); background:var(--bar); color:var(--dim); font:12px/1.4 Consolas,monospace; max-height:22dvh; overflow:auto; white-space:pre-wrap; }
+  #board3d { position:relative; flex:1; min-height:0; background:var(--bd); } #board3d canvas { display:block; }
+  /* the same evolution moment the duel plays: a glowing ball blasts open, then the figure on the table is the new form */
+  #evoanim { position:absolute; z-index:8; width:120px; height:120px; margin:-60px 0 0 -60px; pointer-events:none; }
+  #evoanim[hidden] { display:none; }
+  #evoanim .ball { position:absolute; left:50%; top:46%; width:34px; height:34px; margin:-17px; border-radius:50%; animation:evoBall .72s ease-in forwards;
+    background:radial-gradient(circle, #fff 0 18%, #fff4b0 36%, #9ad7ff 64%, rgba(120,190,255,0) 72%);
+    box-shadow:0 0 16px 6px rgba(255,255,255,.9), 0 0 32px 10px rgba(120,190,255,.65); }
+  #evoanim .ring { position:absolute; left:50%; top:46%; width:24px; height:24px; margin:-12px; border-radius:50%; border:2px solid rgba(255,255,255,.9); box-shadow:0 0 10px #9ad7ff; animation:evoRing .72s ease-out forwards; }
+  #evoanim .ring.b { animation-delay:.08s; border-color:#fff4b0; }
+  @keyframes evoBall { 0% { opacity:0; transform:scale(.15); } 18% { opacity:1; transform:scale(1); } 50% { opacity:1; transform:scale(1.35); } 100% { opacity:0; transform:scale(3.6); } }
+  @keyframes evoRing { 0% { opacity:0; transform:scale(.3); } 24% { opacity:1; } 100% { opacity:0; transform:scale(4.6); } }
+  pre { margin:0; padding:10px 16px; border-top:1px solid var(--line); background:var(--bar); color:var(--dim); font:12px/1.45 Consolas,monospace; max-height:34dvh; overflow:auto; white-space:pre-wrap; }
   @media (max-width:700px) { body { grid-template-columns:1fr; grid-template-rows:38dvh 1fr; } #nav { border-right:0; border-bottom:1px solid var(--line); } }
 </style>
 </head>
 <body>
 <nav id="nav"><h1>3D STORYBOOK</h1><p>Every state the 3D table can draw. <a href="./">Play in 3D</a></p></nav>
-<main><header><div><b id="title"></b><div id="note"></div></div><nav class="paths" aria-label="Pages"><a href="./" title="Back to the game">Game</a><a href="storybook/" class="on" aria-current="page">Storybook</a></nav><button id="soundBtn"></button><button id="themeBtn"></button></header><div id="board3d"></div><pre id="props"></pre></main>
+<main><header><div><b id="title"></b><div id="note"></div></div><nav class="paths" aria-label="Pages"><a href="./" title="Back to the game">Game</a><a href="storybook/" class="on" aria-current="page">Storybook</a></nav><button id="soundBtn"></button><button id="themeBtn"></button></header><div id="board3d"><div id="evoanim" hidden></div></div><pre id="props"></pre></main>
 <script src="data.js"></script>
 <script src="board.js"></script>
 <script>
@@ -51,6 +61,19 @@ function table(mv = [], toks = []) {
 const STATUS = ['poison', 'bad_poison', 'burn', 'paralyze', 'sleep', 'freeze', 'panic', 'curse'], MARKERS = Object.keys(D.conds).filter(k => !D.conds[k].includes('{0}') && !STATUS.includes(k) && !/^mp_|^plus_|faint|melt/.test(k));
 const mpd = d => ({ mp: String(fig.mp + d), mpd: d, badge: d ? 'MP ' + (d > 0 ? '+' : '') + d : 'normal' });
 const some = n => D.figures.filter(f => f.dex <= 1025 && !/ /.test(f.n)).slice(0, n);
+const named = n => D.figures.find(f => f.n === n);
+// one figure per line, on the points given. `branch` means the first form can become any of the later ones, rather than each stage in order.
+function evoTable(lines, ats) {
+  const toks = [];
+  lines.forEach((spec, i) => {
+    const names = Array.isArray(spec) ? spec : spec.names, branch = !Array.isArray(spec) && !!spec.branch;
+    const chain = names.map(named).filter(Boolean);
+    if (chain.length < 2) return;
+    const f = chain[0];
+    toks.push({ f, at: ats[i], evo: true, chain, branch, step: 0, mp: String(f.mp) });
+  });
+  return table([], toks);
+}
 const STORIES = {
   Figure: {
     'Blue team (you)': ['A figure on its base. The base carries the team colour; the number is its movement points.', () => row([{}])],
@@ -80,29 +103,198 @@ const STORIES = {
     'Excluded figures': ['Figures removed from the duel sit in a row past their side\'s bench: yours along the near edge, the opponent\'s along the far edge.', () => table([], some(10).map((f, i) => i < 3 ? { f, out: i, team: 0, dim: true, mp: '' } : i < 5 ? { f, out: i - 3, team: 1, dim: true, mp: '' } : { f, at: [28, 29, 34, 35, 18][i - 5], team: i < 7 || i === 9 ? 0 : 1, mp: String(f.mp) }))],
     'Mid duel': ['', () => table([], some(8).map((f, i) => ({ f, at: [24, 18, 13, 29, 3, 9, 14, 35][i], team: i < 4 ? 0 : 1, mp: String(f.mp), status: i === 1 ? 'burn' : i === 5 ? 'freeze' : '', badge: i === 1 ? 'burned' : i === 5 ? 'frozen' : '' })))],
   },
+  Evolution: {
+    'Magikarp': ['One evolution. A glowing ball blasts open, then the figure on the table is the next form. Click Evolve to play the next step now.', () => evoTable([['Magikarp', 'Gyarados']], [14])],
+    'Charmander line': ['Each stage plays in turn, then the line starts again.', () => evoTable([['Charmander', 'Charmeleon', 'Charizard']], [14])],
+    'Eevee': ['Eevee can become any of these. Each one plays from Eevee, then the next.', () => evoTable([{ branch: true, names: ['Eevee', 'Vaporeon', 'Jolteon', 'Flareon', 'Espeon', 'Umbreon'] }], [14])],
+    'Starter lines': ['Bulbasaur, Charmander and Squirtle, one line after another.', () => evoTable([['Bulbasaur', 'Ivysaur', 'Venusaur'], ['Charmander', 'Charmeleon', 'Charizard'], ['Squirtle', 'Wartortle', 'Blastoise']], [8, 14, 20])],
+  },
+  Sounds: {
+    'Figure sounds': ['Every clip the original game names for something that happens to a figure. The list under the table is the whole set.', () => ({ ...row([{ badge: 'figure sounds' }]), catalog: true })],
+  },
 };
+// Clips named in the original client's sound list for a figure. The 7.0.16 APK contains Se001 (decide) and Se002 (cancel) only;
+// every clip below is downloaded, so the page plays its stand-in and the line under the table names the original clip.
+const MISSING = 'recording is not in the 7.0.16 APK, so the stand-in plays';
+const COND_SOUND = {
+  poison: ['Se091', 'Poisoned', 'st_poison'], bad_poison: ['Se092', 'Badly poisoned', 'st_bad_poison'],
+  burn: ['Se093', 'Burned', 'st_burn'], paralyze: ['Se090', 'Paralyzed', 'st_paralyze'], sleep: ['Se089', 'Asleep', 'st_sleep'],
+  freeze: ['Se094', 'Frozen', 'st_freeze'], melt: ['Se094', 'Frozen', 'st_freeze'], panic: ['Se088', 'Confused', 'st_panic'], curse: ['Se095', 'Cursed', 'st_curse'],
+  charge: ['Se096', 'Charged', 'ability'], flame_charge: ['Se096', 'Charged', 'ability'], ice_charge: ['Se096', 'Charged', 'st_freeze'], thunder_charge: ['Se096', 'Charged', 'st_paralyze'],
+  lock_on: ['Se097', 'Lock-On', 'st_other'], imprison: ['Se107', 'Restrained', 'st_curse'], gliding: ['Se109', 'Flight', 'st_other'], disappeared: ['Se111', 'Excluded', 'st_other'],
+  mp_minus_1: ['Se098', 'Slowed', 'mp_down'], mp_minus_2: ['Se098', 'Slowed', 'mp_down'], mp_minus_3: ['Se098', 'Slowed', 'mp_down'],
+  plus_10: ['Se099', 'A small marker is added', 'mp_up'], plus_20: ['Se100', 'A medium marker is added', 'mp_up'], faint: ['Se038', 'Knocked out, to the P.C.', 'ko']
+};
+const FIGURE_SOUNDS = [
+  ['Se011', 'A figure is set on the table', 'land'],
+  ['Se017_2', 'Evolution finishes', 'evolve'],
+  ['Se028', 'A figure is selected', 'select'],
+  ['Se029', 'Figure selection cancelled', 'cancel'],
+  ['Se031', 'Figure steps across plaster', 'step'],
+  ['Se032', 'Figure steps across glass', 'step'],
+  ['Se033', 'Figure steps across metal', 'step'],
+  ['Se034', 'The computer moves a figure', 'step'],
+  ['Se038', 'A knocked-out figure moves to the P.C.', 'ko'],
+  ['Se039', 'Evolution starts', 'evolve'],
+  ['Se048', 'A figure swaps or makes a special move', 'step'],
+  ['Se049', 'The last figure is set on the table', 'land'],
+  ['Se056', 'Figure steps across wood', 'step'],
+  ['Se068', 'An ordinary hit lands', 'hit'],
+  ['Se087', 'A status condition is inflicted', 'st_other'],
+  ['Se088', 'Confused', 'st_panic'],
+  ['Se089', 'Asleep', 'st_sleep'],
+  ['Se090', 'Paralyzed', 'st_paralyze'],
+  ['Se091', 'Poisoned', 'st_poison'],
+  ['Se092', 'Badly poisoned', 'st_bad_poison'],
+  ['Se093', 'Burned', 'st_burn'],
+  ['Se094', 'Frozen', 'st_freeze'],
+  ['Se095', 'Cursed', 'st_curse'],
+  ['Se096', 'Charged', 'ability'],
+  ['Se097', 'Lock-On', 'st_other'],
+  ['Se098', 'Slowed', 'mp_down'],
+  ['Se099', 'A small marker is added', 'mp_up'],
+  ['Se100', 'A medium marker is added', 'mp_up'],
+  ['Se101', 'A large marker is added', 'mp_up'],
+  ['Se102', 'A marker is lowered', 'mp_down'],
+  ['Se103', 'Wait', 'wait'],
+  ['Se104', 'Ice marker', 'st_freeze'],
+  ['Se105', 'Ground marker', 'st_other'],
+  ['Se106', 'Water marker', 'st_other'],
+  ['Se107', 'Restrained', 'st_curse'],
+  ['Se108', 'Sent back', 'step'],
+  ['Se109', 'Flight', 'st_other'],
+  ['Se110', 'Sealed', 'st_other'],
+  ['Se111', 'Excluded', 'st_other'],
+  ['Se112', 'Siren', 'st_other'],
+  ['Se121', 'A helpful ability is granted', 'ability'],
+  ['Se122', 'A harmful ability is granted', 'st_curse'],
+  ['Se125', 'A figure action is cancelled', 'cancel'],
+  ['Se127', 'The first step of a move', 'step'],
+  ['Se131', 'The evolved figure lands', 'land'],
+  ['Se143', 'The evolved figure comes down', 'land'],
+  ['Se165', 'Sparks as the evolution bursts', 'evolve'],
+  ['Se196', 'Fainted, as a status', 'ko'],
+  ['Se233', 'A figure appears on the battle screen', 'select']
+];
+function dmgSound(t) {
+  const b = t.badge || ''; if (!/dmg/.test(b)) return null;
+  if (b.startsWith('-')) return ['Se102', 'A marker is lowered', 'mp_down'];
+  if (b.includes('20')) return ['Se100', 'A medium marker is added', 'mp_up'];
+  return ['Se099', 'A small marker is added', 'mp_up'];
+}
+function soundsFor(t) {
+  const rows = [];
+  if (t.chain) rows.push(['Se039', 'Evolution starts'], ['Se165', 'Sparks as the evolution bursts'], ['Se017_2', 'Evolution finishes'], ['Se131', 'The evolved figure lands']);
+  if (t.status && COND_SOUND[t.status]) rows.push(COND_SOUND[t.status]);
+  else if (t.status) rows.push(['', cond(t.status) + ' has no clip of its own in the sound list']);
+  if (t.mpd > 0) rows.push([t.mpd >= 3 ? 'Se101' : t.mpd === 2 ? 'Se100' : 'Se099', 'MP raised']);
+  if (t.mpd < 0) rows.push(['Se102', 'MP lowered']);
+  if (t.wait) rows.push(['Se103', 'Wait']);
+  if (t.out != null) rows.push(['Se111', 'Excluded']);
+  else if (t.dim) rows.push(['Se038', 'Knocked out, to the P.C.']);
+  if (t.sel) rows.push(['Se028', 'A figure is selected']);
+  if (t.atk) rows.push(['Se068', 'An ordinary hit lands when the battle starts. The red ring itself is silent.']);
+  const dmg = dmgSound(t); if (dmg) rows.push(dmg);
+  if (!rows.length && !t.atk) rows.push(['Se011', 'A figure is set on the table']);
+  return rows;
+}
+function soundText(m) {
+  if (m.catalog) return 'Se001  Decide (original recording, UI)\nSe002  Cancel (original recording, UI)\n' + FIGURE_SOUNDS.map(s => s[0] + '  ' + s[1] + '\n       ' + MISSING).join('\n');
+  const lines = [], seen = new Set();
+  for (const t of m.toks) for (const [id, name] of soundsFor(t)) { const line = (id ? id + '  ' : '') + name; if (!seen.has(line)) { seen.add(line); lines.push(line); } }
+  return lines.length ? lines.join('\n') + '\n' + MISSING : '';
+}
 let current = null;
 function show(group, name) {
+  stopEvo();
   const [note, make] = STORIES[group][name], m = make(); current = m;
+  const heard = soundText(m);
   $('title').textContent = group + ' / ' + name; $('note').textContent = note; location.hash = encodeURIComponent(group + '/' + name);
-  $('props').textContent = m.toks.map(t => JSON.stringify({ team: t.team, mp: t.mp, mpd: t.mpd, status: t.status, wait: t.wait, badge: t.badge, sel: t.sel, atk: t.atk, dim: t.dim })).join('\n') || '(no figures)';
+  const body = m.toks.some(t => t.chain) ? m.toks.filter(t => t.chain).map(t => t.branch ? t.chain[0].n + ' → ' + t.chain.slice(1).map(f => f.n).join(' / ') : t.chain.map(f => f.n).join(' → ')).join('\n')
+    : m.toks.map(t => JSON.stringify({ team: t.team, mp: t.mp, mpd: t.mpd, status: t.status, wait: t.wait, badge: t.badge, sel: t.sel, atk: t.atk, dim: t.dim })).join('\n') || '(no figures)';
+  $('props').textContent = heard ? heard + '\n\n' + body : body;
   for (const b of $('nav').querySelectorAll('button')) b.classList.toggle('on', b.dataset.g === group && b.dataset.n === name);
   // A story whose figures carry a status condition or an MP change shows them without it first; after a second it is applied (ring, tint,
   // lettering, badge) and its sound plays, the way it arrives during a duel.
   (show.timers || []).forEach(clearTimeout); show.timers = [];
   const draw = x => { window.board3dModel = x; if (window.Board3D) Board3D.draw(x); };
   // what arrives after the story opens, in order: each status condition, then each figure's MP change
-  const arrivals = [...new Set(m.toks.map(t => t.status).filter(Boolean))].map(kind => ({ hits: t => t.status === kind, sound: () => statusSfx(kind) }))
-    .concat(m.toks.filter(t => t.mpd).map(t => ({ hits: x => x === t, sound: () => mpSfx(t.mpd) })));
-  if (!arrivals.length) return draw(m);
-  const plain = t => ({ ...t, status: '', wait: false, mpd: 0, mp: t.mpd ? String(+t.mp - t.mpd) : t.mp, badge: t.status || t.mpd ? '' : t.badge });
+  const playStatus = kind => { const row = COND_SOUND[kind]; if (row) sfx(row[2]); else statusSfx(kind); };
+  const arrivals = [...new Set(m.toks.map(t => t.status).filter(Boolean))].map(kind => ({ hits: t => t.status === kind, sound: () => playStatus(kind) }))
+    .concat(m.toks.filter(t => t.mpd).map(t => ({ hits: x => x === t, sound: () => mpSfx(t.mpd) })))
+    .concat(m.toks.filter(t => t.wait).map(t => ({ hits: x => x === t, sound: () => sfx('wait') })))
+    .concat(m.toks.filter(t => t.out != null).map(t => ({ hits: x => x === t, sound: () => sfx('st_other') })))
+    .concat(m.toks.filter(t => t.dim && t.out == null).map(t => ({ hits: x => x === t, sound: () => sfx('ko') })))
+    .concat(m.toks.filter(t => t.sel).map(t => ({ hits: x => x === t, sound: () => sfx('select') })))
+    .concat(m.toks.filter(t => dmgSound(t)).map(t => ({ hits: x => x === t, sound: () => sfx(dmgSound(t)[2]) })));
+  if (!arrivals.length) {
+    draw(m); startEvo();
+    if (m.catalog) FIGURE_SOUNDS.forEach((s, k) => show.timers.push(setTimeout(() => { if (current !== m) return; $('note').textContent = s[0] + '  ' + s[1]; sfx(s[2]); }, 700 + k * 650)));
+    else if (m.toks.some(t => !t.atk && !t.chain)) show.timers.push(setTimeout(() => sfx('land'), 400));
+    return;
+  }
+  const plain = t => ({ ...t, status: '', wait: false, mpd: 0, mp: t.mpd ? String(+t.mp - t.mpd) : t.mp, badge: t.status || t.mpd || t.wait || t.dim || t.sel || dmgSound(t) ? '' : t.badge, dim: false, sel: false });
   const upTo = n => ({ ...m, toks: m.toks.map(t => arrivals.findIndex(a => a.hits(t)) >= n ? plain(t) : t) });   // only the first n arrivals applied
   draw(upTo(0));
   arrivals.forEach((a, k) => show.timers.push(setTimeout(() => { draw(upTo(k + 1)); a.sound(); }, 1000 + k * 600)));
 }
 
 for (const g in STORIES) { $('nav').insertAdjacentHTML('beforeend', `<h2>${g}</h2>`); for (const n in STORIES[g]) { const b = document.createElement('button'); b.textContent = n; b.dataset.g = g; b.dataset.n = n; b.onclick = () => show(g, n); $('nav').appendChild(b); } }
-window.boardPick = fig => { if (fig == null || !current) return; for (const t of current.toks) t.sel = t.i === fig && !t.sel; Board3D.draw(current); };   // click a figure to toggle its selection ring
+let evoJob = 0;
+function stopEvo() { evoJob++; const el = $('evoanim'); if (el) { el.hidden = true; el.innerHTML = ''; } if (window.Board3D && Board3D.clearBlasts) Board3D.clearBlasts(); }
+function evoSleep(ms, job) {   // ends early when Evolve is clicked (current.rush) or the story changes
+  return new Promise(resolve => {
+    const done = ok => { clearInterval(id); clearTimeout(t); resolve(ok); };
+    const t = setTimeout(() => done(job === evoJob), ms);
+    const id = setInterval(() => { if (job !== evoJob) done(false); else if (current && current.rush) { current.rush = false; done(true); } }, 40);
+  });
+}
+function showForm(t, step) {
+  const f = t.chain[step]; t.step = step; t.img = art(f); t.name = f.n; t.mp = String(f.mp); t.evo = t.branch || step < t.chain.length - 1;
+  if (window.Board3D) Board3D.draw(current);
+}
+function flashEvo(t, job, reveal) {
+  sfx('evolve');   // Se039 starts it, Se165 is the burst
+  if (!(window.Board3D && Board3D.blast)) { if (job === evoJob && reveal) { reveal(); sfx('land'); } return Promise.resolve(); }
+  const b = Board3D.blast(t.i);
+  return (async () => {
+    try { await b.ready; if (job === evoJob && reveal) { reveal(); sfx('land'); } }   // Se131, the new form lands
+    finally { b.release(); }
+    await b.done;
+  })();
+}
+async function startEvo() {
+  const job = ++evoJob;
+  if (!current || !current.toks.some(t => t.chain && t.chain.length > 1)) return;
+  while (!window.Board3D && job === evoJob) { if (!(await evoSleep(50, job))) return; }
+  while (job === evoJob) {
+    for (const t of current.toks) {
+      if (!t.chain || t.chain.length < 2 || job !== evoJob) continue;
+      if (t.branch) {
+        for (let k = 1; k < t.chain.length && job === evoJob; k++) {
+          showForm(t, 0); if (!(await evoSleep(700, job))) return;
+          await flashEvo(t, job, () => showForm(t, k)); if (job !== evoJob) return;
+          if (!(await evoSleep(900, job))) return;
+        }
+      } else {
+        showForm(t, 0); if (!(await evoSleep(700, job))) return;
+        for (let s = 0; s < t.chain.length - 1 && job === evoJob; s++) {
+          await flashEvo(t, job, () => showForm(t, s + 1)); if (job !== evoJob) return;
+          if (!(await evoSleep(900, job))) return;
+        }
+      }
+    }
+  }
+}
+window.boardPick = (fig, pt, act) => {   // click a figure to toggle its selection ring; Evolve skips the wait and plays the next step
+  if (act && String(act).startsWith('evo:')) { if (current) current.rush = true; return; }
+  if (fig == null || !current) return;
+  const picked = current.toks.find(t => t.i === fig);
+  const on = picked && !picked.sel;
+  for (const t of current.toks) t.sel = t.i === fig && !t.sel;
+  sfx(on ? 'select' : 'cancel');   // Se028 selects, Se029 cancels
+  Board3D.draw(current);
+};
 const [g0, n0] = decodeURIComponent(location.hash.slice(1)).split('/'); show(...(STORIES[g0] && STORIES[g0][n0] ? [g0, n0] : ['Figure', 'Interaction states']));
 import(new URL('board3d.js', document.baseURI));
 </script>

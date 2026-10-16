@@ -36,8 +36,8 @@ const band = (r, w, h) => {   // a ring of radius r, w wide and h tall, lying in
   const hole = new THREE.Path(); hole.absarc(0, 0, r - w / 2, 0, Math.PI * 2, true); outer.holes.push(hole);
   const g = new THREE.ExtrudeGeometry(outer, { depth: h, bevelEnabled: false, curveSegments: 40 }); g.translate(0, 0, -h / 2); return g;
 };
-const G = { pt: new THREE.CylinderGeometry(.33, .33, .05, 36), rim: new THREE.CylinderGeometry(.4, .4, .03, 36), goal: new THREE.CylinderGeometry(.5, .5, .04, 40), slot: new THREE.RingGeometry(.38, .46, 36), dot: new THREE.CylinderGeometry(.135, .135, .05, 28), entry: band(.3, .06, .05), arrow: new THREE.CylinderGeometry(.16, .16, .05, 3), ring2: band(.43, .06, .05), goalDisc: new THREE.CircleGeometry(.38, 36), goalRim: new THREE.RingGeometry(.38, .46, 36), spot: new THREE.CylinderGeometry(.4, .4, .14, 16), aura: new THREE.RingGeometry(.465, .615, 48), words: new THREE.PlaneGeometry(1.33, 1.33),
-  base: new THREE.CylinderGeometry(.36, .4, .16, 32), cap: new THREE.CylinderGeometry(.33, .36, .03, 32), ring: band(.5, .07, .05), hit: new THREE.CylinderGeometry(.38, .38, 1.2, 12) };
+const G = { pt: new THREE.CylinderGeometry(.33, .33, .05, 36), rim: new THREE.CylinderGeometry(.4, .4, .03, 36), goal: new THREE.CylinderGeometry(.5, .5, .04, 40), slot: new THREE.RingGeometry(.38, .46, 36), dot: new THREE.CylinderGeometry(.135, .135, .05, 28), entry: band(.3, .06, .05), arrow: new THREE.CylinderGeometry(.16, .16, .05, 3), ring2: band(.43, .06, .05), goalDisc: new THREE.CircleGeometry(.38, 36), goalRim: new THREE.RingGeometry(.38, .46, 36), aura: new THREE.RingGeometry(.465, .615, 48), words: new THREE.PlaneGeometry(1.33, 1.33),
+  base: new THREE.CylinderGeometry(.36, .4, .16, 32), cap: new THREE.CylinderGeometry(.33, .36, .03, 32), ring: band(.5, .07, .05) };
 function applyTheme() {
   const bd = css('--bd', '#0c0d10'), line = css('--bd-line', '#c9ced8'), pt = css('--bd-pt', '#101216'), light = new THREE.Color(bd).getHSL({}).l > .5;
   paintTable(); scene.fog.color.set(bd).lerp(new THREE.Color(css('--bd2', '#17191e')), .5); scene.background = scene.fog.color;   // the sky is the table colour too, so there is no line where the far floor ends
@@ -53,7 +53,7 @@ const TINT = new THREE.Color();
 const AURA = { poison: 0xa855f7, bad_poison: 0x6b21a8, burn: 0xff7a1a, paralyze: 0xfde047, sleep: 0x94a3b8, freeze: 0x67e8f9, melt: 0x67e8f9, panic: 0xf472b6, curse: 0x7c3aed };
 
 function build(m) {   // routes, spots and slots never move during a duel (the far side is the near side turned around)
-  statics.clear(); for (const g of points.values()) pickable.splice(pickable.indexOf(g.userData.disc), 1); points.clear();
+  statics.clear(); for (const g of points.values()) { const i = pickable.indexOf(g.userData.mark); if (i >= 0) pickable.splice(i, 1); } points.clear();
   // a route stops at the rim of an entry point's ring, and of a goal's, instead of running through it. (Lifting the goal disc over the
   // routes is not enough: from the duel's camera distance the two are too close in depth and the line shows through.)
   const rims = m.pts.filter(p => p.goal != null || [0, 6, 21, 27].includes(p.k)).map(p => [p.x, p.z, p.goal != null ? .46 : .33]);
@@ -69,12 +69,12 @@ function build(m) {   // routes, spots and slots never move during a duel (the f
     a.scale.set(1, 1, .6); a.rotation.y = Math.atan2(dx, dz); a.position.set(s[0] + dx / len * (.475 + stem), .025, s[1] + dz / len * (.475 + stem)); a.castShadow = true; statics.add(a);   // base on the ring's centre line, or on the end of the stem
     if (stem) { const bar = new THREE.Mesh(new THREE.BoxGeometry(.06, .05, stem), M.line); bar.rotation.y = a.rotation.y; bar.position.set(s[0] + dx / len * (.43 + stem / 2), .025, s[1] + dz / len * (.43 + stem / 2)); bar.castShadow = true; statics.add(bar); }
   }
-  for (const p of m.pts) {   // `mark` is the part that turns gold and grows when the selected figure can move here; `spot` is the unseen, larger click target
-    const g = new THREE.Group(), spot = new THREE.Mesh(G.spot, M.unseen); let mark;
+  for (const p of m.pts) {   // `mark` is the dot or the goal disc, and it is the thing a tap hits
+    const g = new THREE.Group(); let mark;
     if (p.goal == null) { mark = new THREE.Mesh(G.dot, M.line); mark.position.y = .025; mark.castShadow = true; g.add(mark);
       if ([0, 6, 21, 27].includes(p.k)) { const ring = new THREE.Mesh(G.entry, M.line); ring.rotation.x = Math.PI / 2; ring.position.y = .025; ring.castShadow = true; g.add(ring); } }
     else { mark = new THREE.Mesh(G.goalDisc, p.goal === 0 ? M.blue : M.red); mark.rotation.x = -Math.PI / 2; mark.position.y = .054; const rim = new THREE.Mesh(G.ring2, M.line); rim.rotation.x = Math.PI / 2; rim.position.y = .025; rim.castShadow = true; g.add(mark, rim); }
-    spot.position.y = .07; g.add(spot); g.position.set(p.x, 0, p.z); g.userData = { disc: spot, mark, plain: mark.material, goal: p.goal != null }; spot.userData.pick = g.userData; statics.add(g); points.set(p.k, g); pickable.push(spot);
+    g.position.set(p.x, 0, p.z); g.userData = { mark, plain: mark.material, goal: p.goal != null }; mark.userData.pick = g.userData; statics.add(g); points.set(p.k, g); pickable.push(mark);
   }
   built = m.pts.length + ':' + m.slots.length + ':' + m.edges.length;
 }
@@ -91,14 +91,17 @@ function around(text, ink) {   // the state names, written round the base and re
     for (let k = 0; k < n; k++) { let a = k * 2 * Math.PI / n; for (const ch of unit) { const w = g.measureText(ch).width / R; a += w / 2; g.save(); g.rotate(a); g.translate(0, -R); g.fillText(ch, 0, 0); g.restore(); a += w / 2; } } });
 }
 const shadeTex = tex(64, 64, g => { const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(0,0,0,.5)'); r.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = r; g.fillRect(0, 0, 64, 64); });
+const evoMap = tex(256, 80, (g, w, h) => { g.fillStyle = '#e8cb4d'; g.beginPath(); g.roundRect(6, 10, w - 12, h - 20, 28); g.fill(); g.lineWidth = 6; g.strokeStyle = '#914e00'; g.stroke(); g.fillStyle = '#520000'; g.font = '800 42px Segoe UI, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('EVOLVE', w / 2, h / 2 + 1); });
 const shadeGeo = new THREE.PlaneGeometry(.62, .62);
 function token(t) {
-  const g = new THREE.Group(), base = new THREE.Mesh(G.base, mat(BLUE, 0, { transparent: true })), cap = new THREE.Mesh(G.cap, M.cap), ring = new THREE.Mesh(G.ring, mat(GOLD, 0xa07800)), hit = new THREE.Mesh(G.hit, new THREE.MeshBasicMaterial({ visible: false })), aura = new THREE.Mesh(G.aura, new THREE.MeshBasicMaterial({ transparent: true, opacity: .8, side: THREE.DoubleSide }));
+  const g = new THREE.Group(), base = new THREE.Mesh(G.base, mat(BLUE, 0, { transparent: true })), cap = new THREE.Mesh(G.cap, M.cap), ring = new THREE.Mesh(G.ring, mat(GOLD, 0xa07800)), aura = new THREE.Mesh(G.aura, new THREE.MeshBasicMaterial({ transparent: true, opacity: .8, side: THREE.DoubleSide }));
   const art = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, alphaTest: .05, depthTest: false })), tag = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false })), words = new THREE.Mesh(G.words, new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false }));
-  base.position.y = .08; base.castShadow = true; cap.position.y = .17; ring.rotation.x = Math.PI / 2; ring.position.y = .05; hit.position.y = .64; aura.rotation.x = -Math.PI / 2; aura.position.y = .02;   // body only: a wide volume would cover the next point, and the picture is chosen by where the tap lands
+  base.position.y = .08; base.castShadow = true; cap.position.y = .17; ring.rotation.x = Math.PI / 2; ring.position.y = .05; aura.rotation.x = -Math.PI / 2; aura.position.y = .02;
   art.center.set(.5, 0); art.position.y = .04; art.scale.set(1.05, 1.05, 1); art.renderOrder = 1; tag.position.set(.4, .08, .34); tag.scale.set(.36, .36, 1); tag.renderOrder = 2; words.rotation.x = -Math.PI / 2; words.position.y = .03;   // MP sits at the base's bottom right corner; the picture starts below the top of the base because the artwork has empty space under the figure
   const shade = new THREE.Mesh(shadeGeo, new THREE.MeshBasicMaterial({ map: shadeTex, transparent: true, depthWrite: false })); shade.rotation.x = -Math.PI / 2; shade.position.y = .19;
-  g.add(base, cap, shade, ring, hit, aura, words, art, tag); g.position.set(t.x, 0, t.z); g.userData = { base, cap, shade, ring, art, tag, hit, aura, words, fig: t.i }; hit.userData.pick = g.userData; scene.add(g); pickable.push(hit); tokens.set(t.i, g);
+  g.add(base, cap, shade, ring, aura, words, art, tag); g.position.set(t.x, 0, t.z); g.userData = { base, cap, shade, ring, art, tag, aura, words, fig: t.i };
+  for (const m of [base, art, tag]) { m.userData.pick = g.userData; pickable.push(m); }   // the stand, the picture and the MP badge: what is drawn
+  scene.add(g); tokens.set(t.i, g);
   return g;
 }
 
@@ -136,6 +139,7 @@ function drawTable(t) {
     if (k.mark) k.mark.forEach(([x, z]) => { const dx = Math.sign(k.x - x) * .3, dz = Math.sign(k.z - z) * .3; for (const [w, dd, ox, oz] of [[.3, .05, dx / 2, 0], [.05, .3, 0, dz / 2]]) { const b = new THREE.Mesh(new THREE.BoxGeometry(w, .03, dd), M.mv); b.position.set(x + ox, .12, z + oz); extras.add(b); } });
     hit(1.8, .4, 1.5, k.x, k.z, k.act);
   }
+  if (!t.btn.label) return;   // a same-screen game has no AI face, and nothing to press until End Turn or a Z-Move
   // the button, drawn like the board: a small rounded slab outlined in the route colour, filled with it when it can be pressed (sizes are its frame and body meshes)
   const slab = (w, d, r, h, material) => { const x = w / 2, y = d / 2, sh = new THREE.Shape(); sh.moveTo(-x + r, -y); sh.lineTo(x - r, -y); sh.absarc(x - r, -y + r, r, -Math.PI / 2, 0, false); sh.lineTo(x, y - r); sh.absarc(x - r, y - r, r, 0, Math.PI / 2, false);
     sh.lineTo(-x + r, y); sh.absarc(-x + r, y - r, r, Math.PI / 2, Math.PI, false); sh.lineTo(-x, -y + r); sh.absarc(-x + r, -y + r, r, Math.PI, Math.PI * 1.5, false);
@@ -153,15 +157,18 @@ function draw(m) {
     const g = tokens.get(t.i) || token(t), u = g.userData; seen.add(t.i);
     u.to = new THREE.Vector3(t.x, 0, t.z); if (t.moveId != null && t.path && u.moveId !== t.moveId) { u.moveId = t.moveId; u.hop = { pts: t.path.map(q => new THREE.Vector3(q[0], 0, q[1])), t: 0 }; }   // a move along a route: hop point to point
     u.base.material.color.setHex(t.team ? RED : BLUE); u.base.material.emissive.setHex(t.team ? 0x3a060c : 0x08224f);
-    u.ring.visible = t.sel || t.atk; u.ring.material = t.atk ? M.red : M.mv; u.art.material.opacity = t.dim ? .5 : 1; const hue = AURA[t.status] || (t.status ? 0xffffff : 0xcbd5e1), dark = ((hue >> 16) * 299 + (hue >> 8 & 255) * 587 + (hue & 255) * 114) / 1000 > 140;   // text goes on the ring, dark on light rings and white on dark ones
+    u.ring.visible = t.sel || t.atk; u.ring.material = t.atk ? M.red : M.mv; u.art.material.opacity = u.evoBlast ? 0 : (t.dim ? .5 : 1); const hue = AURA[t.status] || (t.status ? 0xffffff : 0xcbd5e1), dark = ((hue >> 16) * 299 + (hue >> 8 & 255) * 587 + (hue & 255) * 114) / 1000 > 140;   // text goes on the ring, dark on light rings and white on dark ones
     u.aura.visible = !!(t.status || t.badge); u.aura.material.color.setHex(hue);
     if (AURA[t.status]) u.art.material.color.setHex(0xffffff).lerp(TINT.setHex(AURA[t.status]), .5); else u.art.material.color.setHex(t.wait ? 0x8a93a8 : 0xffffff);
     if (u.img !== t.img) { u.img = t.img; u.art.material.map = t.img ? picture(t.img) : tex(128, 128, (c) => { c.fillStyle = '#fff'; c.font = '700 22px Segoe UI, sans-serif'; c.textAlign = 'center'; c.fillText(t.name.slice(0, 9), 64, 70); }); u.art.material.needsUpdate = true; }
     u.words.visible = !!t.badge; if (t.badge && u.badge !== t.badge + dark) { u.badge = t.badge + dark; u.words.material.map = around(t.badge, dark ? '#05070f' : '#fff'); u.words.material.needsUpdate = true; }
     const key = t.mp + '|' + t.mpd; if (u.key !== key) { u.key = key; u.tag.material.map = label(t.mp, t.mpd); u.tag.material.needsUpdate = true; }
+    if (t.evo) {   // the Evolve button, a billboard just above the figure
+      if (!u.evo) { u.evo = new THREE.Sprite(new THREE.SpriteMaterial({ map: evoMap, transparent: true, depthTest: false })); u.evo.center.set(.5, 0); u.evo.position.set(0, 1.22, 0); u.evo.scale.set(1.05, .34, 1); u.evo.renderOrder = 9; u.evo.userData.pick = { act: 'evo:' + t.i }; g.add(u.evo); pickable.push(u.evo); }
+    } else if (u.evo) { g.remove(u.evo); const k = pickable.indexOf(u.evo); if (k >= 0) pickable.splice(k, 1); u.evo.material.dispose(); u.evo = null; }
   }
   for (const [i, g] of tokens) if (seen.has(i) && m.snap) g.position.copy(g.userData.to);
-  for (const [i, g] of tokens) if (!seen.has(i)) { scene.remove(g); tokens.delete(i); pickable.splice(pickable.indexOf(g.userData.hit), 1); }
+  for (const [i, g] of tokens) if (!seen.has(i)) { scene.remove(g); tokens.delete(i); for (const m of [g.userData.base, g.userData.art, g.userData.tag, g.userData.evo]) { if (!m) continue; const k = pickable.indexOf(m); if (k >= 0) pickable.splice(k, 1); } }
 }
 
 // Camera: drag to orbit, wheel or pinch to zoom, no panning, kept above the table. Reset returns to the default view; Lock stops drags moving it.
@@ -196,38 +203,25 @@ document.getElementById('camReset').onclick = () => { home(true); if (!controls.
 document.getElementById('camLock').onclick = e => { controls.enabled = !controls.enabled; e.target.textContent = controls.enabled ? 'Lock view' : 'Unlock view'; keepCamera(); };
 if (kept) { controls.enabled = false; document.getElementById('camLock').textContent = 'Unlock view'; home(); }
 
-const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(), proj = new THREE.Vector3();
-function screenOf(x, y, z) {   // pixels; null when the point is behind the camera
-  proj.set(x, y, z).project(camera); if (proj.z > 1) return null;
-  const r = renderer.domElement.getBoundingClientRect();
-  return [r.left + (proj.x * .5 + .5) * r.width, r.top + (-proj.y * .5 + .5) * r.height];
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
+function spriteSolid(hit) {   // the clear margin of a picture is not part of the figure; only an opaque pixel is
+  const map = hit.object.material && hit.object.material.map, uv = hit.uv, img = map && map.image;
+  if (!map || !uv || !img || !img.width) return true;
+  let c = map.userData.ink; if (c == null) { c = document.createElement('canvas'); c.width = img.width; c.height = img.height; try { c.getContext('2d', { willReadFrequently: true }).drawImage(img, 0, 0); } catch (e) { c = false; } map.userData.ink = c; }
+  if (!c) return true;
+  try { const a = c.getContext('2d').getImageData(Math.min(c.width - 1, uv.x * c.width | 0), Math.min(c.height - 1, (1 - uv.y) * c.height | 0), 1, 1).data[3]; return a > 13; }
+  catch (e) { map.userData.ink = false; return true; }
 }
-function unitPx() { const a = screenOf(0, 0, 1), b = screenOf(1, 0, 1); return a && b ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 40; }
-// A tap lands on whichever thing it is nearest, measured on the screen. Neighbouring points are just over one board unit apart, so the
-// picture and a move node each claim under half of that: a finger on the gold node moves, a finger on the picture selects or attacks,
-// and the figure standing next to you no longer takes the tap meant for the one you are fighting.
-function tapTarget(cx, cy) {
+function tapTarget(cx, cy) {   // the ray hits the picture, the stand, the badge or the node that is actually there
   const rect = renderer.domElement.getBoundingClientRect();
   mouse.set((cx - rect.left) / rect.width * 2 - 1, -(cy - rect.top) / rect.height * 2 + 1); ray.setFromCamera(mouse, camera);
-  const first = (ray.intersectObjects(pickable, false)[0] || {}).object; const hit = first && first.userData.pick;
-  if (hit && hit.act) return { act: hit.act };   // a plate stack or the table button: its own collider
-  const px = unitPx(), coarse = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
-  const figR = px * (coarse ? .52 : .45), ptR = px * (coarse ? .5 : .4);
-  let best = null, bestD = Infinity;
-  const consider = (d, radius, pick, tie) => { if (d <= radius && (d < bestD || (tie && d === bestD))) { bestD = d; best = pick; } };
-  for (const g of tokens.values()) {
-    const u = g.userData, y = g.position.y + u.art.position.y + u.art.scale.y * (.5 - u.art.center.y);   // the middle of the picture
-    const s = screenOf(g.position.x, y, g.position.z); if (!s) continue;
-    consider(Math.hypot(s[0] - cx, s[1] - cy), figR, { fig: u.fig });
+  for (const h of ray.intersectObjects(pickable, false)) {
+    const pick = h.object.userData.pick; if (!pick) continue;
+    if (h.object.isSprite && !spriteSolid(h)) continue;
+    if (pick.act) return { act: pick.act };
+    if (pick.fig != null) return { fig: pick.fig };
+    if (pick.pt != null) return pick.mv ? { pt: pick.pt } : null;
   }
-  for (const g of points.values()) {
-    const u = g.userData; if (!u.mv || u.pt == null) continue;
-    const s = screenOf(g.position.x, .05, g.position.z); if (!s) continue;
-    consider(Math.hypot(s[0] - cx, s[1] - cy), ptR, { pt: u.pt }, true);   // the node wins the shared edge
-  }
-  if (best) return best;
-  if (hit && hit.fig != null) return { fig: hit.fig };
-  if (hit && hit.pt != null) return { pt: hit.pt };
   return null;
 }
 function chooseTap(cx, cy) {
@@ -235,7 +229,7 @@ function chooseTap(cx, cy) {
   window.boardPick(t.fig != null ? t.fig : null, t.pt != null ? t.pt : null, t.act || null);
 }
 let downAt = null, holdTimer = 0;
-const tapSlop = () => matchMedia('(pointer: coarse)').matches ? 26 : 14;
+const TAP = 12;   // a drag orbits the camera; a tap does not move
 renderer.domElement.addEventListener('pointerdown', e => {
   if (e.button) return; downAt = { x: e.clientX, y: e.clientY, held: false }; clearTimeout(holdTimer);
   holdTimer = setTimeout(() => {   // a held press opens the figure's detail (the original's long tap) and is not a move or an attack
@@ -245,13 +239,13 @@ renderer.domElement.addEventListener('pointerdown', e => {
   }, 480);
 });
 renderer.domElement.addEventListener('contextmenu', e => e.preventDefault());
-window.addEventListener('pointermove', e => { if (downAt && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > tapSlop()) clearTimeout(holdTimer); });
+window.addEventListener('pointermove', e => { if (downAt && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > TAP) clearTimeout(holdTimer); });
 window.addEventListener('pointercancel', () => { downAt = null; clearTimeout(holdTimer); });
 window.addEventListener('pointerup', e => {
   if (!downAt) return; const d = downAt; downAt = null; clearTimeout(holdTimer);
-  const moved = Math.hypot(e.clientX - d.x, e.clientY - d.y) > tapSlop();
+  const moved = Math.hypot(e.clientX - d.x, e.clientY - d.y) > TAP;
   if (d.held && !moved) window.holdClick = true;   // the release after a hold must not also select, move or attack
-  if (d.held || moved) return;   // a drag orbits; a fat finger still counts as a tap
+  if (d.held || moved) return;
   chooseTap(e.clientX, e.clientY);
 });
 
@@ -262,17 +256,74 @@ renderer.setAnimationLoop(() => {
   // camera rises from the lowest side view the picture slides down, and after a slight tilt it sits centred on the base like a token.
   // It is lifted clear of the base as it centres, or the base would hide it.
   const rise = Math.min(1, Math.max(0, (controls.maxPolarAngle - controls.getPolarAngle()) / TILT)), lie = rise * rise * (3 - 2 * rise) * .45;
-  for (const g of tokens.values()) { const u = g.userData; u.art.center.y = lie; u.art.position.y = .04 + lie * .6; if (u.aura.visible) u.aura.material.opacity = .6 + .3 * pulse; if (u.words.visible) u.words.rotation.z -= dt * .5; if (u.hop) { const h = u.hop, k = Math.floor(h.t += dt / STEP); if (k >= h.pts.length - 1) { g.position.copy(h.pts[h.pts.length - 1]); u.hop = null; } else { g.position.lerpVectors(h.pts[k], h.pts[k + 1], h.t - k); g.position.y = Math.sin((h.t - k) * Math.PI) * .45; } }
+  for (const g of tokens.values()) { const u = g.userData; u.art.center.y = lie; u.art.position.y = .04 + lie * .6; if (u.evoBlast) u.art.material.opacity = 0; if (u.aura.visible) u.aura.material.opacity = .6 + .3 * pulse; if (u.words.visible) u.words.rotation.z -= dt * .5; if (u.hop) { const h = u.hop, k = Math.floor(h.t += dt / STEP); if (k >= h.pts.length - 1) { g.position.copy(h.pts[h.pts.length - 1]); u.hop = null; } else { g.position.lerpVectors(h.pts[k], h.pts[k + 1], h.t - k); g.position.y = Math.sin((h.t - k) * Math.PI) * .45; } }
     else if (u.to) g.position.lerp(u.to, 1 - Math.pow(.001, dt)); if (u.ring.visible) u.ring.scale.setScalar(.95 + .08 * pulse); }
+  stepBlasts(dt);
   // Each figure is drawn whole, from the farthest to the nearest: its base, then its picture (which ignores depth, so its own base cannot
   // cut it off), then its MP badge. A nearer figure's base and picture therefore cover whatever stands behind them. The bases are marked
   // transparent only so that they take part in this ordering; they are fully opaque.
   [...tokens.values()].sort((p, q) => q.position.distanceToSquared(camera.position) - p.position.distanceToSquared(camera.position)).forEach((g, i) => {
-    const u = g.userData, n = 5 * i; u.base.renderOrder = n + 1; u.cap.renderOrder = n + 2; u.shade.renderOrder = n + 3; u.art.renderOrder = n + 4; u.tag.renderOrder = n + 5;
+    const u = g.userData, n = 5 * i; u.base.renderOrder = n + 1; u.cap.renderOrder = n + 2; u.shade.renderOrder = n + 3; u.art.renderOrder = n + 4; u.tag.renderOrder = n + 5; if (u.evo) u.evo.renderOrder = n + 6;
   });
   M.mv.emissiveIntensity = pulse;
   renderer.render(scene, camera);
 });
 
-window.Board3D = { draw, controls, tokens };   // controls and tokens are exposed for inspection
+// A glowing sphere in the scene, not a flat disc on the page. It swells over the figure, hides it, then fades so the new one shows through.
+const blastGeo = new THREE.SphereGeometry(1, 40, 28);
+const blastGlow = tex(128, 128, g => { const r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, 'rgba(255,255,255,.95)'); r.addColorStop(.22, 'rgba(255,244,180,.55)'); r.addColorStop(.5, 'rgba(130,210,255,.22)'); r.addColorStop(1, 'rgba(130,210,255,0)'); g.fillStyle = r; g.fillRect(0, 0, 128, 128); });
+const blasts = [];
+function endBlast(b) {
+  if (b.dead) return; b.dead = true;
+  if (b.g) b.g.userData.evoBlast = false;
+  scene.remove(b.grp); b.core.material.dispose(); b.shell.material.dispose(); b.halo.material.dispose();
+  if (!b.readyFired) { b.readyFired = true; b.markReady(); }
+  b.finish();
+}
+function blast(i) {
+  const g = tokens.get(i);
+  if (!g) { const p = Promise.resolve(); return { ready: p, done: p, release() {} }; }
+  const core = new THREE.Mesh(blastGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff4c8, emissiveIntensity: 3.2, roughness: .18, metalness: .04, transparent: true, depthTest: false, depthWrite: false }));
+  const shell = new THREE.Mesh(blastGeo, new THREE.MeshBasicMaterial({ color: 0x9ad7ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false }));
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: blastGlow, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false }));
+  const light = new THREE.PointLight(0xd7f3ff, 0, 2.2);
+  core.renderOrder = shell.renderOrder = halo.renderOrder = 20000;
+  const grp = new THREE.Group(); grp.add(shell, core, halo, light); grp.position.copy(g.position); grp.position.y += .5; scene.add(grp);
+  g.userData.evoBlast = true; g.userData.art.material.opacity = 0;
+  const b = { g, grp, core, shell, halo, light, phase: 'grow', t: 0, dead: false, readyFired: false };
+  b.ready = new Promise(r => { b.markReady = r; }); b.done = new Promise(r => { b.finish = r; });
+  b.release = () => { if (!b.dead && b.phase !== 'fade') { b.wantFade = true; if (b.phase === 'hold') { b.phase = 'fade'; b.t = 0; } } };
+  blasts.push(b);
+  return { ready: b.ready, done: b.done, release: () => b.release() };
+}
+function stepBlasts(dt) {
+  for (let n = blasts.length - 1; n >= 0; n--) {
+    const b = blasts[n]; b.t += dt;
+    b.grp.position.copy(b.g.position); b.grp.position.y += .5; b.grp.rotation.y += dt * 1.8;
+    if (b.phase === 'grow') {
+      const k = Math.min(1, b.t / .42), e = 1 - Math.pow(1 - k, 3), o = Math.min(1, k * 1.5);
+      b.core.scale.setScalar(.05 + e * .37); b.shell.scale.setScalar(.06 + e * .46); b.halo.scale.setScalar(.12 + e * .9);
+      b.core.material.opacity = o; b.shell.material.opacity = o * .5; b.halo.material.opacity = o * .95; b.light.intensity = o * 3.5;
+      if (k >= 1) { b.phase = b.wantFade ? 'fade' : 'hold'; b.t = 0; if (!b.readyFired) { b.readyFired = true; b.markReady(); } }
+    } else if (b.phase === 'hold') {
+      b.core.scale.setScalar(.42 + Math.sin(b.t * 9) * .012); b.shell.scale.setScalar(.52); b.halo.scale.setScalar(1.05);
+      b.core.material.opacity = 1; b.shell.material.opacity = .5; b.halo.material.opacity = .95; b.light.intensity = 3.5;
+      if (b.t > 2.8) { b.phase = 'fade'; b.t = 0; }
+    } else {
+      const k = Math.min(1, b.t / .55), e = k * k, o = 1 - e;
+      if (b.g.userData.evoBlast) { b.g.userData.evoBlast = false; b.g.userData.art.material.opacity = 1; }   // the new figure is there as the sphere thins
+      b.core.scale.setScalar(.42 + e * .18); b.shell.scale.setScalar(.52 + e * .28); b.halo.scale.setScalar(1.05 + e * .35);
+      b.core.material.opacity = o; b.shell.material.opacity = o * .45; b.halo.material.opacity = o * .8; b.light.intensity = o * 3.5;
+      if (k >= 1) { endBlast(b); blasts.splice(n, 1); }
+    }
+  }
+}
+function clearBlasts() { for (const b of blasts) endBlast(b); blasts.length = 0; }
+function project(i) {   // where a figure sits on the arena, so the evolution flash can land on it
+  const g = tokens.get(i); if (!g) return null;
+  const v = g.position.clone(); v.y += .7; v.project(camera);
+  const rect = renderer.domElement.getBoundingClientRect(), host = (document.querySelector('.arena') || renderer.domElement.parentElement).getBoundingClientRect();
+  return { x: (v.x * .5 + .5) * rect.width + rect.left - host.left, y: (-v.y * .5 + .5) * rect.height + rect.top - host.top };
+}
+window.Board3D = { draw, controls, tokens, project, blast, clearBlasts };   // controls and tokens are exposed for inspection
 if (window.board3dModel) draw(window.board3dModel);

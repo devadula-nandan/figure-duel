@@ -1,4 +1,4 @@
-"""Figure Duel: serves the UI and runs the original game's rule engine behind it.
+"""pokemon duel web: serves the UI and runs the original game's rule engine behind it.
 
     python play.py            ->  http://localhost:8765
 
@@ -6,7 +6,7 @@ The rules are not re-implemented: every legal move, spin, effect and AI move com
 straight out of the original APK in this folder and executed under an ARM emulator (tools/tfg.py).
 Needs:  pip install unicorn keystone-engine
 """
-import glob, http.server, json, multiprocessing, os, queue, sys, threading, webbrowser, zipfile
+import glob, http.server, json, multiprocessing, os, queue, shutil, sys, tempfile, threading, webbrowser, zipfile
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 PORT, ENGINES = 8765, 4
@@ -26,9 +26,50 @@ def engine_worker(conn, lib):
             eng = TFG(lib)
 
 
+# The 7.0.16 APK ships two UI clicks (Sounds/Se/se001 and se002). Every other effect is a downloaded bank that is not in the package.
+SFX_ASSETS = (
+    "assets/bin/Data/87ef6dde43c2944508317396c9fe1fbe",
+    "assets/bin/Data/772d7a1db667f4b5b9a59f08def032eb",
+)
+
+
+def load_sfx(apk):
+    try:
+        import UnityPy
+    except ImportError:
+        return {}
+    z = zipfile.ZipFile(apk)
+    folder = tempfile.mkdtemp(prefix="duel-sfx-")
+    try:
+        clips = _read_sfx(z, folder)
+    except Exception as e:
+        print("UI clicks were not loaded: %s" % e, flush=True)
+        clips = {}
+    shutil.rmtree(folder, ignore_errors=True)
+    return clips
+
+
+def _read_sfx(z, folder):
+    out = {}
+    for name in SFX_ASSETS:
+        base = os.path.basename(name)
+        for extra in ("", ".resource"):
+            raw = z.read(name + extra)
+            with open(os.path.join(folder, base + extra), "wb") as f:
+                f.write(raw)
+        import UnityPy
+        for obj in UnityPy.load(os.path.join(folder, base)).objects:
+            if obj.type.name != "AudioClip":
+                continue
+            for filename, wav in obj.read().samples.items():
+                out["/sfx/" + filename] = wav
+    return out
+
+
 class Handler(http.server.SimpleHTTPRequestHandler):
     pool = None
     lib = None
+    sfx = {}
 
     def __init__(self, *a, **kw):
         super().__init__(*a, directory=os.path.join(ROOT, "web"), **kw)
@@ -50,9 +91,14 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(data)
 
     def do_GET(self):
-        if self.path.split("?")[0] == "/libTFG.so" and Handler.lib:      # read from the APK at start-up, never written into web/
+        path = self.path.split("?")[0]
+        if path == "/libTFG.so" and Handler.lib:      # read from the APK at start-up, never written into web/
             self.send_response(200); self.send_header("Content-Type", "application/octet-stream"); self.send_header("Content-Length", str(len(Handler.lib)))
             self.end_headers(); self.wfile.write(Handler.lib); return
+        wav = Handler.sfx.get(path)
+        if wav is not None:
+            self.send_response(200); self.send_header("Content-Type", "audio/wav"); self.send_header("Content-Length", str(len(wav)))
+            self.end_headers(); self.wfile.write(wav); return
         super().do_GET()
 
     def do_OPTIONS(self):
@@ -80,12 +126,13 @@ if __name__ == "__main__":
     lib = zipfile.ZipFile(apk).read("lib/armeabi-v7a/libTFG.so")
     Handler.pool = queue.Queue()
     Handler.lib = lib
+    Handler.sfx = load_sfx(apk)
     for _ in range(ENGINES):
         ours, theirs = multiprocessing.Pipe()
         multiprocessing.Process(target=engine_worker, args=(theirs, lib), daemon=True).start()
         Handler.pool.put(ours)
     srv = http.server.ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
-    print("Figure Duel: http://localhost:%d   (rule engine from %s)" % (PORT, os.path.basename(apk)))
+    print("pokemon duel web: http://localhost:%d   (rule engine from %s, UI clicks %s)" % (PORT, os.path.basename(apk), ", ".join(sorted(Handler.sfx)) or "unavailable"), flush=True)
     if "--no-browser" not in sys.argv:
         threading.Timer(1.5, webbrowser.open, ["http://localhost:%d" % PORT]).start()
     try:

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
-<title>Figure Duel</title>
+<title>pokemon duel web</title>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js"></script>
 <script src="sound.js"></script>
@@ -20,8 +20,9 @@
     grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:10px 18px; padding:10px 18px; overflow:hidden; }
   #sideBtn, #sideHome { display:none; } #camBar { margin-bottom:14px; } #camBar:empty { display:none; } #camBar button { flex:1; }
   @media (max-width:860px) { #game, #setup, #home { grid-template-columns:1fr !important; }
-    #sideBtn { display:inline-flex; grid-column:4; } #game .ibar { grid-template-columns:1fr auto 1fr auto; }   /* the menu button sits at the right end of the bottom bar and opens and closes the menu, which slides in over the table only (between the score bar and this bar) */
-    #sideBtn .c, body:has(.side.open) #sideBtn .m { display:none; } body:has(.side.open) #sideBtn .c { display:block; }
+    #game .ibar { display:flex; align-items:center; gap:8px; } #ibMid { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; }   /* one 8px gap, the same inset the bar already gives Resign on the left */
+    #sideBtn { display:inline-flex; align-items:center; justify-content:center; flex:none; width:31px; height:31px; padding:0; line-height:0; } #sideBtn .m { display:flex; }
+    #sideBtn .c, body:has(.side.open) #sideBtn .m { display:none; } body:has(.side.open) #sideBtn .c { display:flex; }
     .side { position:fixed; top:var(--side-top,0); right:0; bottom:var(--side-bottom,0); z-index:3; width:min(88vw,380px); padding:12px; background:var(--bar); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .2s; }
     body:has(#game:not([hidden])) .top { display:none; } #sideHome { display:block; width:100%; margin-bottom:12px; text-align:center; }
     #game { padding:0; } .arena, .side, #board3d button, .hud .z, .clock { border:0 !important; border-radius:0 !important; outline:0 !important; }   /* the plain rules come later in this sheet, hence !important */
@@ -44,11 +45,11 @@
   .clock { margin-left:auto; font-variant-numeric:tabular-nums; font-weight:800; font-size:15px; color:#fff; opacity:.75; } .hud .pl.right .clock { margin:0 auto 0 0; } .clock.on { opacity:1; color:var(--gold); }
   .hud .turns { position:absolute; left:50%; top:22px; transform:translate(-50%,-50%); z-index:1; min-width:50px; height:30px; padding:0 10px; border-radius:15px; display:grid; place-items:center; background:var(--bar); border:1px solid var(--line); color:var(--gold); font-weight:800; font-size:15px; font-variant-numeric:tabular-nums; box-shadow:0 2px 8px rgba(0,0,0,.35); }
   :root[data-theme=light] .hud .turns { color:var(--ink); }
-  .zrow { grid-column:1 / -1; display:grid; grid-template-columns:1fr 26px 1fr; align-items:center; background:var(--bar); border-bottom:1px solid var(--line); }
-  .zg { position:relative; height:16px; background:#0c0909; overflow:hidden; } .zg i { position:absolute; top:0; bottom:0; left:0; width:var(--v,0%); background:#00ee27; transition:width .5s; } .zg.right i { left:auto; right:0; }   /* the original's bar: green #00ee27 on near-black, sampled from its z_gauge / z_bg sprites */
+  .zrow { grid-column:1 / -1; display:grid; grid-template-columns:1fr 26px 1fr; align-items:stretch; height:16px; background:var(--bar); }
+  .zg { position:relative; height:16px; background:var(--bar); overflow:hidden; } .zg i { position:absolute; top:0; bottom:0; left:0; width:var(--v,0%); background:#00ee27; transition:width .5s; } .zg.right i { left:auto; right:0; }   /* the fill stays the gauge green; the track matches the turn banner under it */
   .zg span { position:absolute; inset:0 8px; font-size:10px; font-weight:700; line-height:16px; color:#fff; text-shadow:0 0 3px #000, 0 0 3px #000; } .zg.right span { text-align:right; }
   .zg.max i { background:#67ff0c; animation:zmax 1.2s ease-in-out infinite alternate; } @keyframes zmax { from { filter:brightness(.8); } to { filter:brightness(1.2); } } .zg.max span { color:#06240a; text-shadow:none; }   /* full: its z_light glow, #67ff0c, pulsing */
-  .zi { text-align:center; font-weight:900; font-style:italic; font-size:13px; color:#00ee27; } :root[data-theme=light] .zi { color:#009900; }
+  .zi { text-align:center; font-weight:900; font-style:italic; font-size:12px; line-height:16px; color:#00ee27; } :root[data-theme=light] .zi { color:#009900; }
   .banner { grid-column:1 / -1; text-align:center; color:var(--dim); font-size:10px; font-weight:700; line-height:16px; height:16px; padding:0 8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; background:var(--bar); }   /* as thick as the Z gauge above it */ .banner b { color:var(--ink); }
   /* the table: red end at the top, blue end at the bottom */
   .table { flex:1; min-height:0; display:flex; padding:0; border-radius:8px; border:1px solid var(--line); box-shadow:0 10px 30px rgba(0,0,0,.5), inset 0 0 0 2px color-mix(in srgb, var(--bd-line) 10%, transparent);
@@ -60,7 +61,7 @@
   /* the flat board uses the 3D table's shapes: thin routes, dots, rings, team-coloured goal discs */
   .edge { stroke:var(--bd-line); stroke-width:3.2; stroke-linecap:round; }
   .dot, .arrowmark { fill:var(--bd-line); } .ringmark { fill:none; stroke:var(--bd-line); stroke-width:3.2; } .goal.g0 { fill:#1565c0; } .goal.g1 { fill:#b71c1c; }
-  .dot.mv, .goal.mv { fill:var(--gold); } .hit { fill:transparent; } .hit.mv { cursor:pointer; }
+  .dot.mv, .goal.mv { fill:var(--gold); cursor:pointer; }
   .tok { cursor:pointer; } .tok:has(image) .nm { display:none; } .tok:has(image) .bg { fill:var(--bd-pt); } .tok text { pointer-events:none; text-anchor:middle; font-weight:800; }
   .tok .ring { fill:none; stroke-width:3.4; } .tok .aura { fill:none; stroke-width:4.2; } .tok .mpb { fill:#05070f; stroke-width:1.6; }
   .tok .halo { fill:none; stroke:transparent; stroke-width:2.6; } .tok.sel .halo { stroke:var(--gold); } .tok.atk .halo { stroke:#e2494e; } .tok.dim { opacity:.55; }
@@ -138,6 +139,7 @@
   #home { grid-template-columns:minmax(0,600px); justify-content:center; padding:12px; } #home .panel { margin-bottom:0; padding:12px 14px; } #home .panel h2 { margin-bottom:8px; }
   .hlg { display:grid; grid-template-columns:auto 1fr; gap:4px 18px; align-items:center; } .hlg .big { font-size:40px; } .hlg .stats { margin:0; } .hlg .stat { padding:6px 8px; } .hlg .stat b { font-size:16px; } .hlg .wide { grid-column:1 / -1; }
   .hhead { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px; } .hhead h2, #home .hhead h2 { margin:0; } .hhead button { padding:3px 12px; font-size:12px; } .hhead .hbtns { display:flex; gap:6px; } .hhead h2, .hhead label { white-space:nowrap; } #clr { color:var(--err); border-color:var(--danger); } #clr:hover:not(:disabled) { background:var(--danger); border-color:var(--danger); color:#fff; }   /* the theme's red, as on Resign */
+  #rnd, #clr { padding:0; } #rnd svg, #clr svg { width:22px; height:22px; }
   .hfig { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; cursor:pointer; }   /* the deck: one row of six figure cards */
   .hfig > div { position:relative; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:0; padding:22px 4px 8px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); text-align:center; } .hfig:hover > div { border-color:var(--dim); }
   .hfig img { width:100%; max-width:72px; aspect-ratio:1; object-fit:contain; filter:drop-shadow(0 2px 2px rgba(0,0,0,.4)); } .hfig .chip { position:absolute; left:6px; top:6px; margin:0; font-size:10px; padding:0 5px; } .hfig .chip.r { left:auto; right:6px; background:var(--ink); color:var(--bg); }
@@ -254,11 +256,41 @@
   .pmark { fill:none; stroke:var(--gold); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
   .tbtn .o { fill:var(--bd-pt); stroke:var(--bd-line); stroke-width:1.6; } .tbtn .i { fill:none; } .tbtn text { fill:var(--bd-line); opacity:.45; font-weight:800; letter-spacing:.1em; text-transform:uppercase; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
   .tbtn.on { cursor:pointer; } .tbtn.on .i { fill:var(--bd-line); } .tbtn.on text { fill:var(--bd); opacity:1; } .tbtn.on:hover .i { fill:var(--gold); }
+  /* Evolve sits on the figure that the engine will let evolve (MiniDetailEvolveIcon). Gold pill, the original's Yes-button ink. */
+  .evobtn { cursor:pointer; } .evobtn rect { fill:#e8cb4d; stroke:#914e00; stroke-width:1.2; } .evobtn text { fill:#520000; font-weight:800; text-anchor:middle; dominant-baseline:central; pointer-events:none; letter-spacing:.02em; }
+  .evobtn:hover rect { fill:#fff100; }
+  /* Evolve?: the same card as the rest of the app. Now, then the form it becomes, then Yes. */
+  #evolve { position:absolute; inset:0; z-index:8; display:grid; place-items:center; padding:16px; background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(3px); }
+  #evolve[hidden] { display:none; }
+  .evo-panel { width:min(400px, 100%); max-height:calc(100% - 8px); overflow:auto; display:flex; flex-direction:column; gap:12px; padding:16px; background:var(--panel); color:var(--ink); border:1px solid var(--line); border-radius:8px; box-shadow:0 20px 60px rgba(0,0,0,.5); }
+  .evo-panel h2 { margin:0; font-size:16px; }
+  .evo-row { display:flex; align-items:center; justify-content:center; gap:8px; }
+  .evo-fig { flex:1; min-width:0; display:flex; flex-direction:column; align-items:center; gap:2px; padding:8px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); }
+  .evo-fig img { width:64px; height:64px; object-fit:contain; } .evo-fig b { max-width:100%; font-size:13px; text-align:center; } .evo-fig .note { font-size:10px; letter-spacing:.08em; text-transform:uppercase; }
+  .evo-go { flex:none; width:18px; height:18px; fill:none; stroke:var(--dim); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .evo-arr { flex:none; width:28px; height:28px; padding:0; display:grid; place-items:center; }
+  .evo-notes { margin:0; padding:0; list-style:none; color:var(--dim); font-size:12px; display:flex; flex-direction:column; gap:3px; }
+  .evo-btns { display:flex; justify-content:flex-end; gap:8px; } .evo-btns button { min-width:84px; text-align:center; }
+  /* the field moment: a glowing ball blasts open, and the new figure appears as it clears */
+  #evoanim { position:absolute; z-index:8; width:120px; height:120px; margin:-60px 0 0 -60px; pointer-events:none; }
+  #evoanim[hidden] { display:none; }
+  #evoanim .ball { position:absolute; left:50%; top:46%; width:34px; height:34px; margin:-17px; border-radius:50%; animation:evoBall .72s ease-in forwards;
+    background:radial-gradient(circle, #fff 0 18%, #fff4b0 36%, #9ad7ff 64%, rgba(120,190,255,0) 72%);
+    box-shadow:0 0 16px 6px rgba(255,255,255,.9), 0 0 32px 10px rgba(120,190,255,.65); }
+  #evoanim .ring { position:absolute; left:50%; top:46%; width:24px; height:24px; margin:-12px; border-radius:50%; border:2px solid rgba(255,255,255,.9); box-shadow:0 0 10px #9ad7ff; animation:evoRing .72s ease-out forwards; }
+  #evoanim .ring.b { animation-delay:.08s; border-color:#fff4b0; }
+  @keyframes evoBall { 0% { opacity:0; transform:scale(.15); } 18% { opacity:1; transform:scale(1); } 50% { opacity:1; transform:scale(1.35); } 100% { opacity:0; transform:scale(3.6); } }
+  @keyframes evoRing { 0% { opacity:0; transform:scale(.3); } 24% { opacity:1; } 100% { opacity:0; transform:scale(4.6); } }
+  /* long press: a figure that still has a next form, the same mark the original puts on its detail */
+  .fp-evo { display:flex; gap:10px; align-items:center; margin-top:12px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); }
+  .fp-evo .mark { flex:none; width:26px; height:26px; border-radius:50%; border:2px solid var(--gold); box-shadow:0 0 0 4px color-mix(in srgb, var(--gold) 28%, transparent), inset 0 0 8px color-mix(in srgb, var(--gold) 50%, transparent); }
+  .fp-evo .who { display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; } .fp-evo .who span { display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:700; } .fp-evo img { width:26px; height:26px; }
   /* the bar along the bottom: the original's three places (Give up left, the one centre button, Wait right), slim like the top bar */
   .ibar { flex:none; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px; padding:6px 8px; background:var(--bar); border-top:1px solid var(--line); }
   .ibar button { padding:5px 14px; font-size:13px; text-align:center; white-space:nowrap; }
   #ibGive { justify-self:start; color:var(--err); border-color:var(--danger); } #ibGive:hover:not(:disabled) { background:var(--danger); border-color:var(--danger); color:#fff; }   /* the theme's red, as on the remove buttons */ #ibWait { grid-column:3; justify-self:end; display:inline-flex; align-items:center; gap:8px; color:var(--dim); }
   #ibMid { grid-column:2; min-width:140px; background:var(--ink); border-color:var(--ink); color:var(--bg); } #ibMid:hover:not(:disabled) { opacity:.85; } #ibMid:disabled { background:var(--ctl); border-color:var(--line); color:var(--dim); }
+  @media (max-width:860px) { #ibMid { min-width:0; overflow:hidden; text-overflow:ellipsis; } }   /* the centre label gives up width so the menu button keeps the bar's right inset */
   #ibWait i { min-width:18px; height:18px; padding:0 5px; border-radius:4px; background:var(--ink); color:var(--bg); font:700 11px/18px "Segoe UI",system-ui,sans-serif; }
   /* the plate list (PlateChoices): a band 468 high across the bottom, plates 178 apart that snap to the centre, a frame round the centre
      one, that plate large above, Use under the band's middle and Close at its right. Dimmed and blurred behind, like the site's dialogs. */
@@ -284,6 +316,18 @@
   #cutin { position:absolute; left:0; right:0; top:50%; z-index:7; transform:translateY(-50%); padding:16px 12px; text-align:center; font:900 26px/1.2 "Segoe UI",system-ui,sans-serif; font-style:italic; letter-spacing:.04em; color:#fff; text-shadow:0 2px 4px rgba(0,0,0,.5);
     background:linear-gradient(90deg, transparent, var(--p0d) 18%, var(--p0) 50%, var(--p0d) 82%, transparent); animation:cutin 1.8s ease-out forwards; } #cutin.lose { background:linear-gradient(90deg, transparent, var(--p1d) 18%, var(--p1) 50%, var(--p1d) 82%, transparent); }
   @keyframes cutin { 0% { opacity:0; transform:translateY(-50%) scaleY(.2); } 12% { opacity:1; transform:translateY(-50%); } 85% { opacity:1; } 100% { opacity:0; } }
+  /* StadiumVersus: a roulette split between the two players. The cursor spins and stops on whoever moves first. */
+  #first { position:absolute; inset:0; z-index:9; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center; background:color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter:blur(4px); }
+  #first[hidden] { display:none; }
+  #first .roulette { display:flex; align-items:center; gap:18px; }
+  #first .disk { position:relative; width:min(220px, 56vw); aspect-ratio:1; border-radius:50%; background:conic-gradient(var(--p1) 0 180deg, var(--p0) 180deg 360deg); box-shadow:0 16px 48px rgba(0,0,0,.4); }
+  #first .nm { width:5.4em; font:800 16px/1.2 "Segoe UI",system-ui,sans-serif; }
+  #first .nm.l { text-align:right; color:var(--p0); } #first .nm.r { text-align:left; color:var(--p1); }
+  #first .needle { position:absolute; inset:0; }
+  #first .needle::before { content:""; position:absolute; left:50%; top:8%; width:0; height:0; margin-left:-12px; border-left:12px solid transparent; border-right:12px solid transparent; border-bottom:30px solid #fff; filter:drop-shadow(0 1px 1px #111); }
+  #first .hub { position:absolute; left:50%; top:50%; width:18px; height:18px; margin:-9px 0 0 -9px; border-radius:50%; background:#fff; box-shadow:0 0 0 2px #111; }
+  #first p { margin:0; font:800 22px/1.2 "Segoe UI",system-ui,sans-serif; }
+  @media (prefers-reduced-motion: reduce) { #first .needle { transition:none !important; } }
   #result { position:absolute; inset:0; z-index:7; display:flex; flex-direction:column; align-items:center; gap:14px; padding:28px 16px 20px; text-align:center; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(4px); animation:resin .35s ease-out; }
   @keyframes resin { from { opacity:0; } }
   #result h2 { margin:0; font:800 13px/1 "Segoe UI",system-ui,sans-serif; text-transform:uppercase; letter-spacing:.3em; color:var(--dim); }
@@ -332,9 +376,12 @@
       <div id="status" class="banner"></div>
     </div>
     <div class="table"><svg id="board" viewBox="0 -32 420 764" preserveAspectRatio="xMidYMid meet"></svg><div id="board3d" hidden></div><div id="tbl"></div></div>
-    <div class="ibar"><div id="ibar" style="display:contents"></div><button id="sideBtn" class="iconbtn" title="Menu" aria-label="Menu" onclick="toggleSide()"></button></div>
+    <div class="ibar"><div id="ibar" style="display:contents"></div><button id="sideBtn" title="Menu" aria-label="Menu" onclick="toggleSide()"></button></div>
     <div id="plates" hidden></div>
+    <div id="evolve" hidden></div>
+    <div id="evoanim" hidden></div>
     <div id="result" hidden></div>
+    <div id="first" hidden></div>
   </section>
   <section class="side">
     <button id="sideHome" onclick="this.parentNode.classList.remove('open');document.getElementById('newBtn').click()">Home</button>
@@ -883,9 +930,10 @@ async function joinRoom(code) {
   me = 'white'; flip = true; ctrl = { black: 'remote', white: 'human' }; ai = null; rec = null; st = null; legal = []; over = null; leagueGame = null; sel = null; logLines = []; clock = { black: 300, white: 300 };
   clearInterval(homeTick); gameId++; startClock();
   $('setupErr').textContent = ''; $('setup').hidden = $('home').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
-  log('Connected. The host moves first.');
+  log('Connected.');
   let chain = Promise.resolve();
   conn.on('data', d => {
+    if (d.t === 'first') { firstSpin(d.side); return; }
     if (d.t === 'over') { over = d.over; log(`<b>${wins(over.winner)}</b> (${esc(over.reason)})`); render(); return settle(); }
     if (d.t === 'state') chain = chain.then(async () => {
       const hop = d.mv && d.mv.value.type === 'mp_move' && !net.sent; net.sent = false;   // the opponent's move hops here; this player's own move started hopping when it was made
@@ -920,7 +968,7 @@ async function start(opts) {
   ctrl = { black: 'human', white: 'human' }; if (guest) ctrl.white = 'remote'; else if (mode !== 'hot') ctrl[other(me)] = 'ai';
   ai = mode === 'hot' || guest ? null : mode === 'default' ? { use_plate: true } : { engine_id: +mode.split(':')[0], limit_id: 0, limit_num: +mode.split(':')[1], use_plate: true };
   const decks = { [me]: [team, myPlates], [other(me)]: guest ? [guest.team, guest.plates || []] : lgMode ? [randomTeam(leaguePool()), []] : [randomTeam(), $('oplates').checked ? randomPlates() : []] };
-  rec = { id: String(seed), first_player: 'black', seed, first_seed: seed, seeds: [], all_moves: [], remaining_turns: 300, pc_limit: -1, gym_additions: [], logs: null,
+  rec = { id: String(seed), first_player: pickRandom(['black', 'white']), seed, first_seed: seed, seeds: [], all_moves: [], remaining_turns: 300, pc_limit: -1, gym_additions: [], logs: null,
     players: ['black', 'white'].map(c => playerEntry(c, decks[c][0], decks[c][1])) };
   rec.client_ai_name = (await api('name')).name; rec.ai_protocol_version = (await api('protocol_version')).protocol_version;   // as Engine.GameStart does
   const check = await api('check_record');
@@ -928,15 +976,35 @@ async function start(opts) {
   leagueGame = lgMode ? { done: false } : null; sealed.clear(); boardSt = null; battleView = null; deferredSfx = null; const btl = $('battle'); if (btl) { btl.hidden = true; btl.innerHTML = ''; } $('home').hidden = true; states = []; rewinds = 0;
   sel = null; busy = false; over = null; logLines = []; clock = { black: 300, white: 300 }; gameId++;
   $('setupErr').textContent = ''; $('setup').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
-  log(`<b style="color:${P_COL[rec.first_player]}">${label(rec.first_player)}</b> goes first.`);
+  if (net) net.conn.send({ t: 'first', side: rec.first_player });
+  await firstSpin(rec.first_player);
   startClock();
   await sync(false);
+}
+// StadiumVersus.StartAnimation: the cursor spins over a disk split between the two players, then stops. Se024 plays as it
+// appears and Se025 as it decides; those banks are not in the APK, so the spin and the landing use the page's own sounds.
+function firstSpin(side) {
+  P_COL.black = flip ? 'var(--p1)' : 'var(--p0)'; P_COL.white = flip ? 'var(--p0)' : 'var(--p1)';
+  const el = $('first'), left = me, right = other(me), mine = side === left;
+  el.innerHTML = `<div class="roulette"><span class="nm l">${esc(label(left))}</span><div class="disk"><b class="needle"></b><b class="hub"></b></div><span class="nm r">${esc(label(right))}</span></div><p>First move</p>`;
+  el.hidden = false;
+  const needle = el.querySelector('.needle'), cap = el.querySelector('p');
+  const land = (mine ? 270 : 90) + 360 * 5;
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  needle.style.transition = 'none'; needle.style.transform = 'rotate(0deg)';
+  return new Promise(ok => requestAnimationFrame(() => requestAnimationFrame(() => {
+    if (!reduce) sfx('spin');
+    needle.style.transition = reduce ? 'none' : 'transform 2.4s cubic-bezier(.12,.75,.2,1)';
+    needle.style.transform = `rotate(${land}deg)`;
+    setTimeout(() => { sfx('land'); cap.textContent = label(side) + ' goes first'; log(`<b style="color:${P_COL[side]}">${label(side)}</b> goes first.`);
+      setTimeout(() => { el.hidden = true; el.innerHTML = ''; ok(); }, reduce ? 700 : 900); }, reduce ? 40 : 2400);
+  })));
 }
 function startClock() {
   clearInterval(timer);
   timer = setInterval(() => { // 300 s chess clock per player (Monaco.ChessClock.TimeLimit); the engine itself has no clock
     const side = st && st.selective_side;
-    if (over || missionDuel() || !P_COL[side] || !$('modal').hidden || ($('battle') && !$('battle').hidden) || (busy && ctrl[side] !== 'ai')) return;   // a player is not charged while effects play or the engine works
+    if (over || missionDuel() || !P_COL[side] || !$('first').hidden || !$('modal').hidden || ($('battle') && !$('battle').hidden) || (busy && ctrl[side] !== 'ai')) return;   // a player is not charged during the opening roulette, while effects play, or while the engine works
     if (net && !net.host) { clock[side] = Math.max(0, clock[side] - 1); return drawClock(); }   // the host's clock decides a timeout
     if (--clock[side] <= 0) { over = { winner: other(side), reason: 'timeout' }; log(`<b>${wins(over.winner)}</b> (timeout)`); if (net) net.conn.send({ t: 'over', over }); render(); settle(); } else drawClock();
   }, 1000);
@@ -1076,7 +1144,7 @@ async function sync(played) {
 }
 function play(move) {
   if (over) return;
-  pick = null; plateView = null;
+  pick = null; plateView = null; closeEvolve();
   if (net && !net.host) {   // move === 'ai': the host's engine chooses
     if (move !== 'ai' && move.value.type === 'mp_move') animateMove(move);
     net.sent = move !== 'ai'; net.conn.send({ t: 'move', i: move === 'ai' ? 'ai' : legal.indexOf(move) }); legal = []; busy = true; sel = null; routeChoice = null; return render(); }
@@ -1134,7 +1202,7 @@ function badges(c) {
 // ---------- describing moves and effects (generic, so every engine move can be shown and chosen) ----------
 const TITLES = { null_move: 'End turn', resign: 'Resign', declare_battle: 'Battle', mp_move: 'Move', declare_plate: 'Use plate', turn_end: 'Turn ends', knockedout_move: 'Knocked out',
   put_circle: 'Condition', put_triangle: 'Marker', pokepower_notice: 'Ability', skill_notice: 'Attack effect', sandwich: 'Surrounded', remove_debuff: 'Conditions removed',
-  bench_move: 'To the bench', touch: 'Tag', evolve: 'Evolve', spot_move: 'Move', game_set: 'Game over', declare_pokepower: 'Use ability', use_pokepower: 'Use ability', add_wait: 'Wait', z_skill: 'Z-Move', declare_turn_end: 'Turn End' };
+  bench_move: 'To the bench', touch: 'Tag', evolve: 'Evolve', spot_move: 'Move', route_move: 'Route', game_set: 'Game over', declare_pokepower: 'Use ability', use_pokepower: 'Use ability', add_wait: 'Wait', z_skill: 'Z-Move', declare_turn_end: 'Turn End' };
 function fmt(k, x) {
   if (Array.isArray(x)) return k === 'route' ? x.map(place).join(' → ') : x.map(y => fmt(k.replace(/s$/, ''), y)).join(', ');
   if (x && typeof x === 'object') return describe(x);
@@ -1143,7 +1211,7 @@ function fmt(k, x) {
     if (k === 'from' || k === 'to') return place(x);
     if (/plate/.test(k)) return plateById.has(x) ? '<b>' + esc(plateById.get(x).n) + '</b>' : 'plate ' + x;
     if (/skill/.test(k)) return D.skills[x] ? '<b>' + esc(D.skills[x][0]) + '</b>' : 'attack ' + x;
-    if (k === 'pokepower') return D.abilities[x] ? '<b>' + esc(D.abilities[x][0]) + '</b>' : 'ability ' + x;
+    if (k === 'pokepower' || k === 'pokepower_id') return D.abilities[x] ? '<b>' + esc(D.abilities[x][0]) + '</b>' : 'ability ' + x;
   }
   if (k === 'condition' || k === 'marker') return condName(x);
   return esc(String(x));
@@ -1154,7 +1222,7 @@ function describe(v) {
   }).filter(Boolean);
   return `<span class="ink">${TITLES[v.type] || esc(String(v.type || '').replace(/_/g, ' '))}</span>${parts.length ? ' · ' + parts.join(' · ') : ''}`;
 }
-const QUIET = new Set(['add_z_gauge', 'battled_after_field_in', 'battle_info', 'declare_spin', 'base_damage_notice', 'skill_damage_notice', 'pokepower_damage_notice', 'plate_damage_notice', 'condition_damage_notice', 'overwrite_notice', 'declare_battle', 'mp_move', 'spin', 'battle_result']);
+const QUIET = new Set(['add_z_gauge', 'battled_after_field_in', 'battle_info', 'declare_spin', 'base_damage_notice', 'skill_damage_notice', 'pokepower_damage_notice', 'plate_damage_notice', 'condition_damage_notice', 'overwrite_notice', 'declare_battle', 'mp_move', 'spin', 'battle_result', 'add_faint_num', 'techno_charge_kai']);   // counters and flags the knockout or attack line already covers
 
 // ---------- sound ----------
 // (the sound effects live in sound.js, shared with the storybook)
@@ -1163,7 +1231,7 @@ $('sideBtn').innerHTML = `<span class="m">${icon('<path d="M4 7h16M4 12h16M4 17h
 const fitSide = () => { const r = document.querySelector('.table').getBoundingClientRect(), s = document.querySelector('.side').style; s.setProperty('--side-top', r.top + 'px'); s.setProperty('--side-bottom', innerHeight - r.bottom + 'px'); };
 window.toggleSide = () => { fitSide(); document.querySelector('.side').classList.toggle('open'); }; addEventListener('resize', fitSide);
 addEventListener('click', e => { const s = document.querySelector('.side'); if (s.classList.contains('open') && !e.target.closest('.side, #sideBtn')) { s.classList.remove('open'); e.stopPropagation(); } }, true);   // a click outside the open menu only closes it
-$('rnd').innerHTML = icon('<rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9v.01M15 9v.01M12 12v.01M9 15v.01M15 15v.01"/>'); $('clr').innerHTML = icon('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/>');
+$('rnd').innerHTML = icon('<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.35" fill="currentColor"/><circle cx="15" cy="9" r="1.35" fill="currentColor"/><circle cx="12" cy="12" r="1.35" fill="currentColor"/><circle cx="9" cy="15" r="1.35" fill="currentColor"/><circle cx="15" cy="15" r="1.35" fill="currentColor"/>'); $('clr').innerHTML = icon('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/>');
 $('newBtn').innerHTML = icon('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>');
 
 // A move along a route is shown as hops from point to point (STEP_MS each), with a landing sound per point. It starts the moment the move is
@@ -1202,7 +1270,7 @@ function render() {
   const routes = new Map(), targets = new Map();
   if (mine && me) for (const m of legal) {
     const v = m.value;
-    if (v.type === 'mp_move' && v.route[0] === me.index) { const to = v.route[v.route.length - 1]; (routes.get(to) || routes.set(to, []).get(to)).push(m); }
+    if ((v.type === 'mp_move' || v.type === 'route_move') && Array.isArray(v.route) && v.route.length >= 2 && v.route[0] === me.index) { const to = v.route[v.route.length - 1]; (routes.get(to) || routes.set(to, []).get(to)).push(m); }
     if (v.type === 'declare_battle' && v.from_pokemon === sel) targets.set(v.to_pokemon, m);
   }
   if (mine && !pick) for (const m of legal) if (m.value.type === 'spot_move' && m.value.to != null) { const to = m.value.to; (routes.get(to) || routes.set(to, []).get(to)).push(m); }   // after a battle the figure's landing spot is chosen on the board
@@ -1210,15 +1278,21 @@ function render() {
   const stage = pick ? pickStage() : null;
   if (stage) { routes.clear(); targets.clear();   // a choice is being made: the board offers its figures or points instead of the selected figure's moves
     if (stage.map) for (const [v, ms] of stage.map) if (stage.kind === 'fig') targets.set(v, ms); else { routes.set(v, ms); const c = st.pokemon_conditions.find(c => c.index === v); if (c) targets.set(c.pokemon_index, ms); } }
+  // two ways onto the square just tapped: light the first dots where those ways split, the same gold dots as any other move
+  if (!stage && mine && routeChoice) {
+    routes.clear(); targets.clear();
+    const rs = routeChoice.map(m => m.value.route || []); let i = 1;
+    while (rs.length && rs.every(r => r[i] != null && r[i] === rs[0][i])) i++;
+    for (const m of routeChoice) { const pt = (m.value.route || [])[i]; if (pt == null) continue; (routes.get(pt) || routes.set(pt, []).get(pt)).push(m); }
+  }
   render.routes = routes; render.targets = targets;
   // a route stops at the rim of an entry point's ring (17.9 = its radius plus half its stroke) instead of running through it to the dot
   const rimCut = (p, x, y, tx, ty) => { if (![0, 6, 21, 27].includes(p)) return [x, y]; const l = Math.hypot(tx - x, ty - y); return [x + (tx - x) * 17.9 / l, y + (ty - y) * 17.9 / l]; };
   let h = EDGES.map(([a, b]) => { const A = xy(a), B = xy(b), [x1, y1] = rimCut(a, ...A, ...B), [x2, y2] = rimCut(b, ...B, ...A); return `<line class="edge" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`; }).join('');
   for (let p = 0; p < 28; p++) {
     const [x, y] = xy(p), goal = p === (flip ? 3 : 24) ? 0 : p === (flip ? 24 : 3) ? 1 : null, mv = routes.has(p) ? ' mv' : '';
-    if (goal != null) h += `<circle class="goal g${goal}${mv}" cx="${x}" cy="${y}" r="20"/><circle class="ringmark" cx="${x}" cy="${y}" r="23.3"/>`;
-    else h += ([0, 6, 21, 27].includes(flip ? 27 - p : p) ? `<circle class="ringmark" cx="${x}" cy="${y}" r="16.3"/>` : '') + `<circle class="dot${mv}" cx="${x}" cy="${y}" r="${mv ? 11.5 : 7.3}"/>`;
-    h += `<circle class="hit${mv}" data-pt="${p}" cx="${x}" cy="${y}" r="22"/>`;   // the click target, larger than the dot
+    if (goal != null) h += `<circle class="goal g${goal}${mv}" data-pt="${p}" cx="${x}" cy="${y}" r="20"/><circle class="ringmark" cx="${x}" cy="${y}" r="23.3"/>`;
+    else h += ([0, 6, 21, 27].includes(flip ? 27 - p : p) ? `<circle class="ringmark" cx="${x}" cy="${y}" r="16.3"/>` : '') + `<circle class="dot${mv}" data-pt="${p}" cx="${x}" cy="${y}" r="${mv ? 11.5 : 7.3}"/>`;
   }
   for (let p = 28; p < 44; p++) { const [x, y] = xy(p); h += `<circle class="ringmark" cx="${x}" cy="${y}" r="23.3"/>`;
     if (p >= 40) {   // P.C. spots: a blunt arrow on the ring, the outer spot pointing at the inner one and the inner one at the bench spot below it
@@ -1238,14 +1312,16 @@ function render() {
   for (const c of st.pokemon_conditions) {
     const i = c.pokemon_index, f = figOf(i), col = colorOf(i), p = pk(i) || {}, b = badges(c);
     const hop = moveAnim && moveAnim.fig === i ? moveAnim : null, [x, y] = hop ? xy(hop.route[hop.route.length - 1]) : xy(c.index, c.index >= 44 ? (away[col] += col === low ? -48 : 48) : 0), mp = (p.mp || 0) + ((c.effect && c.effect.mp) || 0);
-    toks.push({ i, moveId: hop ? hop.id : null, path: hop ? hop.route.map(q => U(xy(q))) : null, x: U([x, y])[0], z: U([x, y])[1], team: col === low ? 0 : 1, img: sprite(f), name: f.n, mp: c.index < 40 ? String(mp) : '', badge: b.join(' · '), status: c.marker && c.marker.circle && c.marker.circle !== 'normal' ? c.marker.circle : '', wait: c.wait > 0, mpd: (c.effect && c.effect.mp) || 0, sel: i === sel, atk: targets.has(i), dim: c.index >= 40 });
+    const evoOk = mine && evolveMoves().some(m => m.value.value.pokemon === i);
+    toks.push({ i, moveId: hop ? hop.id : null, path: hop ? hop.route.map(q => U(xy(q))) : null, x: U([x, y])[0], z: U([x, y])[1], team: col === low ? 0 : 1, img: sprite(f), name: f.n, mp: c.index < 40 ? String(mp) : '', badge: b.join(' · '), status: c.marker && c.marker.circle && c.marker.circle !== 'normal' ? c.marker.circle : '', wait: c.wait > 0, mpd: (c.effect && c.effect.mp) || 0, sel: i === sel, atk: targets.has(i), dim: c.index >= 40, evo: evoOk });
     const mpd = (c.effect && c.effect.mp) || 0, circle = (c.marker || {}).circle, aura = circle && circle !== 'normal' ? (STATUS_COL[circle] || '#ffffff') : b.length ? '#cbd5e1' : '';
     h += `<g class="tok ${i === sel ? 'sel' : ''} ${targets.has(i) ? 'atk' : ''} ${c.index >= 40 ? 'dim' : ''}" data-fig="${i}" transform="translate(${x},${y}) scale(${c.index >= 44 ? .85 : 1.3})"><circle class="halo" r="27.5"/>${aura ? `<circle class="aura" r="23" stroke="${aura}"/>` : ''}
       <circle class="bg" r="19" fill="${TYPE_COL[f.t[0]] || '#888'}"/><circle class="ring" r="19" stroke="${col === low ? '#1565c0' : '#b71c1c'}"/>
       <text class="nm" y="4" font-size="8.5" fill="#10141a">${esc(f.n.replace(/^(Alolan|Shiny|Mega) /, '').slice(0, 7))}</text>
       ${sprite(f) ? `<image href="${sprite(f)}" x="-24" y="-27" width="48" height="48" style="pointer-events:none" onerror="this.remove()"/>` : ''}
       ${c.index < 40 ? `<circle class="mpb" cx="15" cy="15" r="6.6" stroke="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}"/><text x="15" y="18" font-size="8.6" fill="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}">${mp}</text>` : ''}
-      ${b.length ? `<rect x="-24" y="23" width="48" height="11" rx="5.5" fill="#10141a"/><text y="31.3" font-size="7.2" fill="#ffd88a">${esc(b[0].slice(0, 11))}${b.length > 1 ? '+' : ''}</text>` : ''}<circle r="24" fill="transparent"/></g>`;
+      ${b.length ? `<rect x="-24" y="23" width="48" height="11" rx="5.5" fill="#10141a"/><text y="31.3" font-size="7.2" fill="#ffd88a">${esc(b[0].slice(0, 11))}${b.length > 1 ? '+' : ''}</text>` : ''}</g>`;
+    if (evoOk) h += `<g class="evobtn" data-act="evo:${i}" transform="translate(${x},${y - 46})"><title>Evolve</title><rect x="-28" y="-9" width="56" height="16" rx="8"/><text y="1" font-size="8.4">Evolve</text></g>`;
   }
   const tm = tableModel(mine), B = (x, z) => [210 + x * 54.2, 350 + z * 54.2];   // the plate stacks and the AI / End Turn / Z-Move button, in board units
   for (const k of tm.stacks) {
@@ -1255,7 +1331,7 @@ function render() {
           Array.from({ length: c.c }, (_, n) => `<circle class="co" cx="${x - 13 + (k.s > 0 ? 3 : -3) + n * 6.5}" cy="${y + 27}" r="2.3"/>`).join('')) + '</g>'; }).reverse().join('') + '</g>';
     if (k.mark) h += k.mark.map(([x, z]) => { const [X, Y] = B(x, z), dx = Math.sign(k.x - x) * 16, dy = Math.sign(k.z - z) * 16; return `<path class="pmark" d="M${X + dx} ${Y}H${X}V${Y + dy}"/>`; }).join('');
   }
-  { const t = tm.btn, [x, y] = B(t.x, t.z); h += `<g class="tbtn${t.on ? ' on' : ''}" data-act="main"><rect class="o" x="${x - 54.2}" y="${y - 16.3}" width="108.4" height="32.5" rx="6"/><rect class="i" x="${x - 47.7}" y="${y - 10.8}" width="95.4" height="21.7" rx="3.5"/><text x="${x}" y="${y}" font-size="${t.size}">${esc(t.label)}</text></g>`; }
+  { const t = tm.btn; if (t.label) { const [x, y] = B(t.x, t.z); h += `<g class="tbtn${t.on ? ' on' : ''}" data-act="main"><rect class="o" x="${x - 54.2}" y="${y - 16.3}" width="108.4" height="32.5" rx="6"/><rect class="i" x="${x - 47.7}" y="${y - 10.8}" width="95.4" height="21.7" rx="3.5"/><text x="${x}" y="${y}" font-size="${t.size}">${esc(t.label)}</text></g>`; } }
   $('board').innerHTML = h;
   if (moveAnim && performance.now() < moveAnim.t0 + moveAnim.dur) {   // flat board: hop along the route, picking up where the animation was if the board was redrawn meanwhile
     const el = $('board').querySelector(`[data-fig="${moveAnim.fig}"]`), pts = moveAnim.route.map(q => xy(q)), n = pts.length - 1, kf = [];
@@ -1269,11 +1345,11 @@ function render() {
   }
   $('status').innerHTML = over ? `<b>${over.winner && P_COL[over.winner] ? wins(over.winner) : 'Draw'}</b> — ${esc(String(over.reason).replace(/_/g, ' '))}`
     : `<b style="color:${P_COL[side] || 'inherit'}">${P_COL[side] ? label(side) : '…'}</b>${busy ? ' · working…' : mine ? ' to act' : ''}`; $('turns').textContent = st.remaining_turns;
-  const onBoard = m => ['mp_move', 'declare_battle', 'resign'].includes(m.value.type) || (m.value.type === 'spot_move' && m.value.to != null);
-  const extra = !mine ? [] : routeChoice ? routeChoice : legal.filter(m => !onBoard(m));
-  $('acts').innerHTML = (routeChoice && mine ? '<span class="note">Several routes lead there — choose one:</span>' : '') + extra.map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('') +
+  const onBoard = m => ['mp_move', 'declare_battle', 'resign', 'route_move'].includes(m.value.type) || (m.value.type === 'spot_move' && m.value.to != null) || isEvolve(m);
+  const extra = !mine ? [] : legal.filter(m => !onBoard(m));
+  $('acts').innerHTML = extra.map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('') +
     (rewindTarget() >= 0 ? `<button data-rw="1">Rewind to the start of your turn (${REWIND_MAX - rewinds} left)</button>` : '') +
-    (mine ? '<button data-ai="1">Let the AI choose this move</button>' : '') + (mine && legal.some(m => m.value.type === 'resign') ? `<button data-m="${legal.findIndex(m => m.value.type === 'resign')}" class="note">Resign</button>` : '');
+    (mine && canHint() ? '<button data-ai="1">Let the AI choose this move</button>' : '') + (mine && legal.some(m => m.value.type === 'resign') ? `<button data-m="${legal.findIndex(m => m.value.type === 'resign')}" class="note">Resign</button>` : '');
   drawClock(); drawCard(me); drawPrompt(mine, stage); drawBar(mine); drawPlates(mine);
 }
 // ---------- the original's duel controls ----------
@@ -1306,7 +1382,8 @@ function pickStage() {   // what has to be chosen next: figures or points on the
 function advance() { if (pick.cands.length === 1) { const m = pick.cands[0]; pick = null; return play(m); } sel = null; routeChoice = null; render(); }
 function startPick(title, cands, back) { pick = { title, cands, step: 0, back }; advance(); }
 function choose(ms) { pick.cands = ms; pick.step++; advance(); }
-function askAi() { if (busy) return; if (net && !net.host) return play('ai'); busy = true; render(); return api('go', HINT).then(g => play(g.move)).catch(x => { busy = false; $('status').innerHTML = `<span class="err">${esc(x.message)}</span>`; }); }
+const canHint = () => !!ai || !!(net && !net.host);   // a computer opponent, or the guest asking the host: a same-screen game has no one to hand the move to
+function askAi() { if (busy || !canHint()) return; if (net && !net.host) return play('ai'); busy = true; render(); return api('go', HINT).then(g => play(g.move)).catch(x => { busy = false; $('status').innerHTML = `<span class="err">${esc(x.message)}</span>`; }); }
 // MatchPlateManager: where each plate of a stack lies relative to its device (x along the table, y its height) and where the two corner
 // markers of the stack's table button sit for a stack of n plates. Board x is the original's x mirrored.
 const PLATE_X = [-.3, -.2, -.1, 0, .1, .2, .25, .3, .35, .4, .45, .5], PLATE_Y = [.06, .04, .02, 0, -.02, -.04, -.05, -.06, -.07, -.08, -.09, -.1];
@@ -1320,20 +1397,87 @@ function tableModel(mine) {
     return { act: 'pl:' + c, s, x: s * PX, z: s * PZ, name: (plateById.get(ps[0].id) || { n: '' }).n, cards: ps.map((p, i) => { const d = plateById.get(p.id) || {}; return { x: s * (PX - PLATE_X[i]), y: .1 + PLATE_Y[i], n: d.n || '', r: d.r || 0, c: d.c || 0, used: p.condition !== 'unused' }; }),
       mark: busy || over ? null : MARK_X[ps.length - 1].map((x, k) => [s * (PX - x + (k ? -.477 : .477)), s * (PZ + (k ? -.802 : .802))]) }; });   // the marker mesh sits .675 out from its anchor, turned 45 degrees: the two opposite corners of the stack
   const zs = mine ? legal.filter(m => m.value.type === 'z_skill' && m.value.pokemon === sel) : [], end = mine && legal.find(m => m.value.type === 'null_move' || m.value.type === 'declare_turn_end');
-  tableModel.run = !mine ? null : zs.length ? () => startPick('Activate Z-Move', zs) : end ? () => play(end) : askAi;   // SetActiveZSkillButton / SetActiveTurnEndButton: one button, three faces
-  return { stacks, btn: { x: BX, z: BZ, on: !!mine, label: zs.length ? 'Activate Z-Move' : end ? 'End Turn' : 'AI', size: zs.length ? 8 : end ? 11 : 13 } };
+  const hint = canHint() && !zs.length && !end;   // the label stays AI for the whole duel against a computer; it can only be pressed on your turn
+  tableModel.run = !mine ? null : zs.length ? () => startPick('Activate Z-Move', zs) : end ? () => play(end) : hint ? askAi : null;   // Z-Move, else End Turn once the engine allows a pass; AI only when a computer can choose
+  return { stacks, btn: { x: BX, z: BZ, on: !!tableModel.run, label: zs.length ? 'Activate Z-Move' : end ? 'End Turn' : hint ? 'AI' : '', size: zs.length ? 8 : end ? 11 : 13 } };
 }
-function tableAct(a) { if (a === 'main') { if (tableModel.run) tableModel.run(); return; } plateView = a.slice(3); pick = null; render(); }
+function tableAct(a) { if (String(a).startsWith('evo:')) return openEvolve(+a.slice(4)); if (a === 'main') { if (tableModel.run) tableModel.run(); return; } plateView = a.slice(3); pick = null; render(); }
+// Evolution is a declare_pokepower whose value is { type:'evolve', pokemon }. The original asks on EvolveSelect, then flashes the figure into its next form.
+const isEvolve = m => m.value.type === 'declare_pokepower' && m.value.value && m.value.value.type === 'evolve';
+function evolveMoves() { return legal.filter(isEvolve); }
+function evoNext(i) {   // the next form attached to this figure, plus any form change that leaves it. A finished figure has neither.
+  if (!st) return [];
+  const mon = pk(i); if (!mon) return [];
+  const seen = new Set(), out = [];
+  const add = idx => { if (idx == null || idx < 0 || idx === i || seen.has(idx)) return; const x = pk(idx); if (!x) return; seen.add(idx); out.push(x); };
+  add(mon.evolution);
+  for (const p of st.players) for (const x of p.pokemons) if (x.form_index === i) add(x.pokemon_index);
+  return out;
+}
+function evolveInto(m) {   // the figure it becomes: a named target on the move, otherwise the next form attached to this one
+  const v = (m.value && m.value.value) || {}, named = ['evolution', 'evolved', 'next', 'to'].map(k => v[k]).find(x => typeof x === 'number' && pk(x));
+  if (named != null) return figOf(named);
+  const e = pk(v.pokemon); return e && e.evolution >= 0 && pk(e.evolution) ? figOf(e.evolution) : figOf(v.pokemon);
+}
+let evoUi = null;
+function closeEvolve() { evoUi = null; const el = $('evolve'); if (el) { el.hidden = true; el.innerHTML = ''; } }
+function openEvolve(i) {
+  const ms = evolveMoves().filter(m => m.value.value.pokemon === i); if (!ms.length || busy) return;
+  evoUi = { i, ms, at: 0 }; drawEvolve();
+}
+function drawEvolve() {
+  if (!evoUi) return closeEvolve();
+  const m = evoUi.ms[evoUi.at], cur = figOf(evoUi.i), nxt = evolveInto(m), many = new Set(evoUi.ms.map(x => evolveInto(x).n)).size > 1;
+  const face = (f, cap) => `<div class="evo-fig">${sprite(f) ? `<img src="${sprite(f)}" alt="">` : ''}<b>${esc(f.n)}</b><span class="note">${esc(cap)}</span></div>`;
+  $('evolve').innerHTML = `<div class="evo-panel"><h2>Evolve?</h2><div class="evo-row">${many ? '<button class="evo-arr" data-evo="prev" aria-label="Previous form">‹</button>' : ''}${face(cur, 'Now')}<svg class="evo-go" viewBox="0 0 18 18"><path d="M4 9h10M10 5l4 4-4 4"/></svg>${face(nxt, 'Next')}${many ? '<button class="evo-arr" data-evo="next" aria-label="Next form">›</button>' : ''}</div>
+    <ul class="evo-notes"><li>Each evolution adds +10 damage and ★+1.</li><li>If you decline, the condition must be met again.</li><li>An evolution cannot be undone.</li><li>Markers and status conditions from before are cleared.</li></ul>
+    <div class="evo-btns"><button data-evo="no">No</button><button class="primary" data-evo="yes">Yes</button></div></div>`;
+  $('evolve').hidden = false;
+}
+function figScreen(i) {
+  const arena = document.querySelector('#game .arena').getBoundingClientRect();
+  if (VIEW3D && window.Board3D && Board3D.project) { const p = Board3D.project(i); if (p) return p; }
+  const el = $('board').querySelector(`[data-fig="${i}"]`); if (!el) return { x: arena.width / 2, y: arena.height / 2 };
+  const r = el.getBoundingClientRect(); return { x: r.left + r.width / 2 - arena.left, y: r.top + r.height / 2 - arena.top };
+}
+function showEvolveAnim(i, swap) {
+  sfx('evolve');
+  if (VIEW3D && window.Board3D && Board3D.blast) return (async () => {
+    const b = Board3D.blast(i);
+    try { await b.ready; const pending = swap && swap(); if (pending && pending.then) await pending; }
+    finally { b.release(); }
+    await b.done;
+  })();
+  const p = figScreen(i), el = $('evoanim');
+  el.style.left = p.x + 'px'; el.style.top = p.y + 'px';
+  el.innerHTML = `<div class="ball"></div><i class="ring"></i><i class="ring b"></i>`;
+  el.hidden = false;
+  return (async () => { await sleep(420); try { const pending = swap && swap(); if (pending && pending.then) await pending; } finally { await sleep(500); el.hidden = true; el.innerHTML = ''; } })();
+}
+async function confirmEvolve() {
+  if (!evoUi || busy) return;
+  const m = evoUi.ms[evoUi.at], i = evoUi.i;
+  closeEvolve(); busy = true; render();
+  try { await showEvolveAnim(i, () => play(m)); }
+  finally { const el = $('evoanim'); if (el) { el.hidden = true; el.innerHTML = ''; } }
+}
+function declineEvolve() {
+  const ev = evolveMoves(), rest = legal.filter(m => !ev.includes(m));
+  closeEvolve();
+  if (rest.length === 1 && (rest[0].value.type === 'null_move' || rest[0].value.type === 'declare_turn_end')) return play(rest[0]);
+  render();
+}
+$('evolve').onclick = e => { const b = e.target.closest('[data-evo]'); if (!b || !evoUi || busy) return; if (b.dataset.evo === 'yes') return confirmEvolve(); if (b.dataset.evo === 'no') return declineEvolve(); evoUi.at = (evoUi.at + (b.dataset.evo === 'next' ? 1 : evoUi.ms.length - 1)) % evoUi.ms.length; drawEvolve(); };
 function drawPrompt(mine, stage) {   // the choice in progress, and whatever else the engine offers that has no button of its own (evolution and other choices)
   let h = '';
   if (mine && stage) { drawPrompt.opts = stage.list || []; h = `<b>${esc(pick.title)}</b>` + (stage.map ? `<span>${stage.kind === 'fig' ? 'Choose a figure' : 'Choose a point'}</span>` : drawPrompt.opts.map((m, k) => `<button data-c="${k}">${describe(m.value)}</button>`).join('')); }
-  else if (mine && routeChoice) h = '<b>Several routes lead there</b>' + routeChoice.map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
-  else if (mine && legal.some(m => m.value.type === 'spot_move' && m.value.to != null)) h = '<b>Choose a point</b>' + legal.filter(m => !['mp_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
-  else if (mine) h = legal.filter(m => !['mp_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
+  else if (mine && routeChoice) h = '';
+  else if (mine && legal.some(m => m.value.type === 'spot_move' && m.value.to != null)) h = '<b>Choose a point</b>' + legal.filter(m => !['mp_move', 'route_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
+  else if (mine) h = legal.filter(m => !['mp_move', 'route_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
   $('tbl').innerHTML = h;
 }
 function drawBar(mine) {
-  const give = mine ? legal.findIndex(m => m.value.type === 'resign') : -1, own = sel != null && pk(sel) ? pk(sel).pokepower : null, all = mine ? legal.filter(m => m.value.type === 'declare_pokepower') : [];
+  const give = mine ? legal.findIndex(m => m.value.type === 'resign') : -1, own = sel != null && pk(sel) ? pk(sel).pokepower : null, all = mine ? legal.filter(m => m.value.type === 'declare_pokepower' && !isEvolve(m)) : [];
   const abil = all.some(m => m.value.pokepower_id === own) ? all.filter(m => m.value.pokepower_id === own) : all, name = abil.length && D.abilities[abil[0].value.pokepower_id] ? D.abilities[abil[0].value.pokepower_id][0] : 'Use Ability';
   drawBar.mid = pick || routeChoice ? () => { plateView = (pick && pick.back) || null; pick = null; routeChoice = null; render(); } : abil.length ? () => startPick(name, abil) : null;
   $('ibar').innerHTML = `<button id="ibGive" data-m="${give}" ${give < 0 ? 'disabled' : ''}>Resign</button><button id="ibMid" ${drawBar.mid ? '' : 'disabled'}>${pick || routeChoice ? 'Cancel' : 'Use Ability'}</button>` +
@@ -1419,15 +1563,16 @@ function badgeTips(c) {
   if (m.circle && m.circle !== 'normal') out.push(`Special condition: ${condName(m.circle)}. ${COND_RULE[m.circle] || 'Set by an attack, ability or plate.'} A figure has one special condition at a time; it is cleared by evolving, by being sent to the bench or P.C., or by a plate that heals it.`);
   if (c.wait > 0) out.push(`Wait ${c.wait}: this figure cannot move or attack for ${c.wait} more of its owner's turns. Figures get Wait when they come back from the P.C. and from some attacks and abilities.`);
   if (m.triangle && m.triangle !== 'empty') out.push(`Marker: ${condName(m.triangle)}. Put on this figure by an attack, ability or plate${m.triangle_remain > 0 ? `; ${m.triangle_remain} turn${m.triangle_remain === 1 ? '' : 's'} left` : ''}.`);
-  if (c.effect && c.effect.damage_plus) {
-    const d = c.effect.damage_plus, side = colorOf(c.pokemon_index), why = [];
+    if (c.effect && c.effect.damage_plus) {
+    const d = c.effect.damage_plus, side = colorOf(c.pokemon_index), why = [], named = [].concat(c.effect.plate_id || []).map(id => plateById.has(id) ? plateById.get(id).n : '').filter(Boolean);
     if (c.evolution_ring > 0) why.push(`it has evolved ${c.evolution_ring} time${c.evolution_ring === 1 ? '' : 's'} in this duel (each evolution adds +10 damage and ★+1)`);
     for (const o of st.pokemon_conditions) {   // abilities in play on its own side that talk about raising or lowering damage
       const ab = D.abilities[(pk(o.pokemon_index) || {}).pokepower];
       if (ab && o.index < 28 && colorOf(o.pokemon_index) === side && /damage/i.test(ab[1]) && /[+-]\s?\d|increase|more damage|less damage/i.test(ab[1])) why.push(`the ability ${ab[0]} of ${figOf(o.pokemon_index).n}${o === c ? ' (its own)' : ''}`);
     }
-    out.push(`${d > 0 ? '+' : ''}${d} damage: the engine is ${d > 0 ? 'adding' : 'taking'} ${Math.abs(d)} ${d > 0 ? 'to' : 'from'} this figure's White and Gold attack damage right now. The engine reports the total, not the cause. ` +
-      (why.length ? 'In this duel it could come from: ' + why.join('; ') + '. A plate used this turn can also do it.' : 'Nothing on the board explains it by itself, so it most likely comes from a plate or a lasting attack effect.'));
+    out.push(named.length ? `${d > 0 ? '+' : ''}${d} damage from ${named.join(' and ')}.` + (why.length ? ' Also in this duel: ' + why.join('; ') + '.' : '')
+      : `${d > 0 ? '+' : ''}${d} damage: the engine is ${d > 0 ? 'adding' : 'taking'} ${Math.abs(d)} ${d > 0 ? 'to' : 'from'} this figure's White and Gold attack damage right now. The engine reports the total, not the cause. ` +
+        (why.length ? 'In this duel it could come from: ' + why.join('; ') + '. A plate used this turn can also do it.' : 'Nothing on the board explains it by itself, so it most likely comes from a plate or a lasting attack effect.'));
   }
   return out;
 }
@@ -1458,54 +1603,34 @@ function boardDetail(i) {   // MiniDetailFigure: a long press opens this figure 
     return Object.assign({}, x, off ? { sealed: true } : {}, dmg !== x.speed_or_damage ? { speed_or_damage: dmg } : {});
   });
   const abBox = ab ? `<div class="fp-ab"><span class="h">Ability</span><b>${esc(ab[0])}</b><div class="desc">${esc(ab[1])}</div></div>` : '', long = ab && ab[1].length > 150;
-  const tips = badgeTips(c);
+  const tips = badgeTips(c), nxt = evoNext(i), ready = evolveMoves().some(m => m.value.value.pokemon === i);
+  const evoBox = nxt.length ? `<div class="fp-evo"><i class="mark" title="Can evolve"></i><div><span class="h">Can evolve</span><div class="who">${nxt.map(m => { const g = figOf(m.pokemon_index); return `<span>${sprite(g) ? `<img src="${sprite(g)}" alt="">` : ''}<b>${esc(g.n)}</b></span>`; }).join('')}</div>${ready ? '<div class="note">Ready now.</div>' : ''}</div></div>` : '';
   const p = $('figpop');
   p.innerHTML = `<button class="x" data-close title="Close" aria-label="Close">${X_ICON}</button>
     <div class="fp-head">${sprite(f) ? `<img src="${sprite(f)}" alt="">` : ''}<div><div class="fp-name">${nameOf(i)}<span class="chip rar${f.r}">${RAR[f.r] || ''}</span><span class="chip">MP ${mp}</span></div><div class="note">${typeNames(f)} · ${place(c.index)}${c.evolution_ring ? ` · evolved ${c.evolution_ring}` : ''}</div></div></div>
+    ${evoBox}
     ${badges(c).length ? `<div style="margin-top:10px">${badges(c).map((b, k) => `<div class="desc"><b>${esc(b)}</b> — ${esc(tips[k] || '')}</div>`).join('')}</div>` : ''}
     <div class="fp-body"><div class="fp-side"><div class="fp-wheel">${wheelSvg(skills, 180)}</div>${long ? '' : abBox}</div>
       <div class="fp-atk"><span class="h">Attack</span><span class="h">Size</span><span class="h">Power</span>${skills.filter(x => x.range > 0).map(x => { const k = x.sealed ? ['Miss', '', 0] : (D.skills[x.id] || ['Attack ' + x.id, '', 0]); return `<span class="an"><span class="sw" style="background:${SEG_COL[k[2]]}"></span><b>${esc(k[0])}</b></span><span>${x.range}</span><span>${power(x) || '–'}</span>${k[2] && k[1] ? `<span class="desc">${esc(k[1])}</span>` : ''}`; }).join('')}</div></div>${long ? abBox : ''}`;
   p.hidden = false; p.classList.add('pin', 'duel'); p.classList.remove('pl'); p.style.left = p.style.top = ''; p.scrollTop = 0; showInfo.pin = true; showInfo.card = null;
 }
 window.boardDetail = boardDetail;
-function boardFigAt(x, y) {   // the figure under a point, unless a move node is nearer
-  const near = el => { const b = el.getBoundingClientRect(); return Math.hypot(b.left + b.width / 2 - x, b.top + b.height / 2 - y); };
-  let fig = null, figD = Infinity, ptD = Infinity;
-  for (const el of document.elementsFromPoint(x, y)) {
-    const g = el.closest && el.closest('[data-fig]'), p = el.closest && el.closest('[data-pt]');
-    if (g) { const d = near(g); if (d < figD) { figD = d; fig = g; } }
-    if (p && p.classList.contains('mv')) { const d = near(p); if (d < ptD) ptD = d; }
-  }
-  return fig && figD < ptD ? +fig.dataset.fig : null;
-}
+function boardFigAt(x, y) { const el = document.elementFromPoint(x, y), g = el && el.closest && el.closest('[data-fig]'); return g ? +g.dataset.fig : null; }
 let figDown = null, figHold = 0, figHeld = false;
-const holdSlop = () => matchMedia('(pointer: coarse)').matches ? 26 : 14;
 $('board').addEventListener('pointerdown', e => {
   if (e.button) return; figDown = [e.clientX, e.clientY]; figHeld = false; clearTimeout(figHold);
   figHold = setTimeout(() => { if (!figDown) return; const id = boardFigAt(figDown[0], figDown[1]); if (id != null) { figHeld = true; boardDetail(id); } }, 480);
 });
-$('board').addEventListener('pointermove', e => { if (figDown && Math.hypot(e.clientX - figDown[0], e.clientY - figDown[1]) > holdSlop()) clearTimeout(figHold); });
+$('board').addEventListener('pointermove', e => { if (figDown && Math.hypot(e.clientX - figDown[0], e.clientY - figDown[1]) > 12) clearTimeout(figHold); });
 $('board').addEventListener('pointerup', e => {
   clearTimeout(figHold);
-  const moved = figDown && Math.hypot(e.clientX - figDown[0], e.clientY - figDown[1]) > holdSlop();
+  const moved = figDown && Math.hypot(e.clientX - figDown[0], e.clientY - figDown[1]) > 12;
   if (figHeld && !moved) showInfo.skip = true;   // only the release of a hold is swallowed; a later tap still selects
   figHeld = false; figDown = null;
 });
 $('board').addEventListener('pointercancel', () => { clearTimeout(figHold); figHeld = false; figDown = null; });
 $('board').addEventListener('contextmenu', e => e.preventDefault());
-$('board').onclick = e => {   // the picture and a neighbouring move node overlap on a small screen: the nearer centre wins, so the node still moves and the figure still attacks
-  const act = e.target.closest('[data-act]'); if (act && !e.target.closest('[data-fig]') && !e.target.closest('[data-pt]')) return boardPick(null, null, act.dataset.act);
-  const near = el => { const b = el.getBoundingClientRect(); return Math.hypot(b.left + b.width / 2 - e.clientX, b.top + b.height / 2 - e.clientY); };
-  let fig = null, figD = Infinity, pt = null, ptD = Infinity;
-  for (const el of document.elementsFromPoint(e.clientX, e.clientY)) {
-    const g = el.closest && el.closest('[data-fig]'), p = el.closest && el.closest('[data-pt]');
-    if (g) { const d = near(g); if (d < figD) { figD = d; fig = g; } }
-    if (p && p.classList.contains('mv')) { const d = near(p); if (d <= ptD) { ptD = d; pt = p; } }
-  }
-  if (pt && ptD <= figD) return boardPick(null, +pt.dataset.pt, null);
-  if (fig) return boardPick(+fig.dataset.fig, null, null);
-  const raw = e.target.closest('[data-pt]'); if (raw) boardPick(null, +raw.dataset.pt, null);
-};
+$('board').onclick = e => { const g = e.target.closest('[data-fig]'), pt = e.target.closest('[data-pt]'), a = e.target.closest('[data-act]'); boardPick(g ? +g.dataset.fig : null, pt ? +pt.dataset.pt : null, a && a.dataset.act); };
 $('acts').onclick = $('tbl').onclick = e => {
   const t = e.target.closest('[data-c]'); if (t) return choose([drawPrompt.opts[+t.dataset.c]]);
   if (e.target.closest('[data-rw]')) return rewind();
@@ -1583,14 +1708,14 @@ async function showSpin(e, result, notices, opt) {
       const r = sp.results[n];
       if (info.frozen) { await turn(r.num + .5, 0, 0); landed = at(r.num); if (r.displace && segs[landed]) { landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, 0, 0, r.displace < 0); } break; }   // GetBattleFrizes: a frozen or melted wheel does not spin
       if (n) { if (!shut && disk) { disk.insertAdjacentHTML('beforeend', '<div class="more">More</div>'); sfx('select'); } await wait(500); const m = disk && disk.querySelector('.more'); if (m) m.remove(); sec = Math.min(1, Math.max(.1, sec * .6)); if (!shut) sfx('spin'); }
-      await turn(r.num + .5, sec * (n ? 1 : .8 + Math.random() * .4), n ? 2 : 3); if (!shut) sfx('step');
+      await turn(r.num + .5, sec * (n ? 1 : .8 + Math.random() * .4), n ? 2 : 3); if (!shut) sfx('land');
       landed = at(r.num);
-      if (r.displace && segs.length) { await wait(500); landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, .3, 0, r.displace < 0); if (!shut) sfx('step'); }
+      if (r.displace && segs.length) { await wait(500); landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, .3, 0, r.displace < 0); if (!shut) sfx('land'); }
       const landedId = (segs[landed] || {}).id, sid = info.marker.skill_id;
       if (r.type === 'battle' && info.marker.triangle === 'imprison' && (sid == null || sid < 0 || sid === landedId)) break;   // SpinNext: an imprisoned battle attack does not spin on
     }
     const x = segs[landed] || {}, col = x.sealed ? 0 : (D.skills[x.id] || [0, 0, 0])[2];
-    if (battle && battleView) battleView.landed[sp.pokemon] = { miss: !x.id && !segs.length ? true : x.sealed || col === 0 };
+    if (battle && battleView) battleView.landed[sp.pokemon] = { miss: !x.id && !segs.length ? true : x.sealed || col === 0, col };
     if (el) { const pt = (t, rad) => [100 + rad * Math.sin(t / 96 * 2 * Math.PI), 100 - rad * Math.cos(t / 96 * 2 * Math.PI)];
       el.insertAdjacentHTML('beforeend', `<svg class="dimw" viewBox="0 0 200 200">${segs.map((y, n) => { if (n === landed || segs.length < 2) return ''; const [x1, y1] = pt(starts[n], 88), [x2, y2] = pt(starts[n] + y.range, 88); return `<path d="M100 100L${x1} ${y1}A88 88 0 ${y.range > 48 ? 1 : 0} 1 ${x2} ${y2}Z" fill="#000" opacity=".5"/>`; }).join('')}</svg>`); }
     const resNow = result || (battleView && battleView.lastResult), side = resNow && [resNow.value.attack, resNow.value.defence].find(y => y && y.pokemon === sp.pokemon), cap = $('r' + k), steps = (notices || []).filter(y => y.value.pokemon === sp.pokemon && y.value.value);
@@ -1617,8 +1742,9 @@ async function showSpin(e, result, notices, opt) {
       for (const side of sides) { const w = battleMark(side.result), k = battleView.ids.indexOf(side.pokemon); if (w === 1) winner = k; else if (w === 0) drawn = true; }
       if (winner != null && winner >= 0 && $('bd' + winner)) { $('bd' + winner).classList.add('won'); battleView.ids.forEach((_, k) => { if (k !== winner && $('bd' + k)) $('bd' + k).classList.add('lost'); }); }
       const bothMiss = winner == null && !drawn && sides.length >= 2 && sides.every(side => { const hit = battleView.landed[side.pokemon]; return hit && hit.miss; });
-      if (!shut) { const fl = $('flare'), spk = $('sparks'); if (fl) fl.classList.add('on'); if (spk) spk.classList.add('on'); sfx('hit'); }
       const who = winner != null ? sides.find(s => battleMark(s.result) === 1) : null;
+      const strike = !who ? 'hit' : /knock|faint/.test(String(who.result)) ? 'ko' : ((battleView.landed[who.pokemon] || {}).miss ? 'miss' : { 2: 'purple', 3: 'gold', 4: 'blue' }[(battleView.landed[who.pokemon] || {}).col] || 'hit');
+      if (!shut) { const fl = $('flare'), spk = $('sparks'); if (fl) fl.classList.add('on'); if (spk) spk.classList.add('on'); sfx(bothMiss ? 'miss' : drawn ? 'draw' : strike); }
       const vd = $('verdict'); if (vd) vd.innerHTML = who ? `${nameOf(who.pokemon)} wins` : drawn ? 'Draw' : bothMiss ? 'Both miss' : '';
     }
     await wait(1300); closeSpin();
@@ -1643,17 +1769,21 @@ async function playEffects(list, opt) {
     } else if (t === 'disable_skill') { sealed.set(v.pokemon, [].concat(v.skill_id || [])); if (sealed.get(v.pokemon).length) log(`${nameOf(v.pokemon)}: ${sealed.get(v.pokemon).map(id => fmt('skill', id)).join(', ')} sealed`); }
     else if (t === 'remove_debuff') { for (const i of v.pokemons || []) sealed.delete(i); log(describe(v)); }
     else if (t === 'mp_move') log(`${nameOf(figAt(v.route))} moves ${v.route.map(place).join(' → ')}`);
-    else if (t === 'declare_battle') log(`${nameOf(v.from_pokemon)} attacks ${nameOf(v.to_pokemon)}`);
+    else if (t === 'declare_battle') { sfx('attack'); log(`${nameOf(v.from_pokemon)} attacks ${nameOf(v.to_pokemon)}`); }
     else if (t === 'turn_end') { log('<span class="note">— turn ends —</span>'); if (P_COL[logSide]) logSide = other(logSide); }   // what follows in the same list already belongs to the next player
     else if (t === 'game_set') { over = { winner: v.win, reason: v.reason }; log(`<b>${P_COL[v.win] ? wins(v.win) : 'Draw'}</b> (${esc(String(v.reason).replace(/_/g, ' '))})`); }
+    else if (t === 'spot_move' && v.from >= 40 && v.from < 44 && v.to >= 40 && v.to < 44) continue;   // the P.C. slides a figure between its two spots; the knockout line already said it went there
     else if (t === 'sandwich' && !(v.pokemons || []).length) continue;
+    else if (t === 'pokepower_notice' && Object.keys(v).every(k => k === 'type' || k === 'pokemon' || k === 'pokepower')) continue;   // a bare notice is the ability being in effect, not it triggering
+    else if (t === 'pokepower_notice') { sfx('ability'); log(describe(v)); }
+    else if (t === 'disable_plate') { const names = ['black', 'white'].flatMap(c => (v[c] || []).map(id => plateById.has(id) ? plateById.get(id).n : 'plate ' + id)); if (names.length) { sfx('plate'); log('Plate spent · ' + names.map(n => '<b>' + esc(n) + '</b>').join(', ')); } }
     else if (!QUIET.has(t)) log(describe(v));
   }
 }
 const figAt = route => { const c = st.pokemon_conditions.find(c => c.index === route[route.length - 1]); return c ? c.pokemon_index : -1; };
 
 $('mode').onchange = () => { $('room').hidden = $('mode').value !== 'join'; $('go').textContent = $('mode').value === 'join' ? 'Join duel' : $('mode').value === 'host' ? 'Open room' : 'Start duel'; };
-$('ticker').firstElementChild.textContent = `${D.figures.length} figures · ${D.plates.length} plates · ${Object.keys(D.skills).length} attacks · ${Object.keys(D.abilities).length} abilities ◆ Parity: every legal move, spin, attack effect, ability, plate, evolution and AI decision is computed by the original game's own rule engine, not re-implemented ◆ Deck rules, levels, chain boosts, Rewind, league thresholds and booster odds follow the original client and its master data ◆ Not original: the look, the league opponent (the original AI with a random deck), fixed rating points, the starter set ◆ Missing because their data did not survive: quests, shop, level-up costs ◆ Everything runs in this page: no install, no server ◆ Online: one player opens a room and shares the code, the other joins with it`;
+$('ticker').firstElementChild.textContent = `pokemon duel web ◆ ${D.figures.length} figures · ${D.plates.length} plates · ${Object.keys(D.skills).length} attacks · ${Object.keys(D.abilities).length} abilities ◆ Parity: every legal move, spin, attack effect, ability, plate, evolution and AI decision is computed by the original game's own rule engine, not re-implemented ◆ Deck rules, levels, chain boosts, Rewind, league thresholds and booster odds follow the original client and its master data ◆ Not original: the look, the league opponent (the original AI with a random deck), fixed rating points, the starter set ◆ Missing because their data did not survive: quests, shop, level-up costs ◆ Everything runs in this page: no install, no server ◆ Online: one player opens a room and shares the code, the other joins with it`;
 drawList(); drawTeam(); drawSaved(); viewHref(); if (/^#g=\d+$/.test(location.hash)) resumeGame().catch(x => { showHome(); drawHome.msg = x.message; drawHome(); }); else showHome();
 </script>
 </body>

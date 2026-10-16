@@ -1,5 +1,5 @@
 <!doctype html>
-<meta charset="utf-8"><title>Figure Duel</title>
+<meta charset="utf-8"><title>pokemon duel web</title>
 <script>
 // The flat board is the same game with the board drawn flat (the client shows it when its address ends in /2d/). Load the one client from the parent folder, resolving its files there.
 fetch('../index.html').then(r => r.text()).then(h => { document.open(); document.write(h.replace('<head>', '<head><base href="../">')); document.close(); });
