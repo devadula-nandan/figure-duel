@@ -16,17 +16,21 @@
   @keyframes tick { to { transform:translateX(-100%); } }
   @media (prefers-reduced-motion:reduce) { .ticker { white-space:normal; padding:6px 16px; } .ticker span { animation:none; padding-left:0; } }
   main { display:grid; gap:18px; padding:18px; max-width:1260px; width:100%; margin:0 auto; flex:1; min-height:0; overflow:auto; align-content:start; }
-  #game { grid-template-columns:minmax(280px, calc((100dvh - 140px) * var(--board-ar, .517))) minmax(280px,420px);   /* the board column is as wide as the table's shape allows at this height: 140px is the bars above it, --board-ar the table's width / height */
-    grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:10px 18px; padding:10px 18px; overflow:hidden; }
-  #sideBtn, #sideHome { display:none; } #camBar { margin-bottom:14px; } #camBar:empty { display:none; } #camBar button { flex:1; }
-  @media (max-width:860px) { #game, #setup, #home { grid-template-columns:1fr !important; }
-    #game .ibar { display:flex; align-items:center; gap:8px; } #ibMid { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; }   /* one 8px gap, the same inset the bar already gives Resign on the left */
-    #sideBtn { display:inline-flex; align-items:center; justify-content:center; flex:none; width:31px; height:31px; padding:0; line-height:0; } #sideBtn .m { display:flex; }
-    #sideBtn .c, body:has(.side.open) #sideBtn .m { display:none; } body:has(.side.open) #sideBtn .c { display:flex; }
-    .side { position:fixed; top:var(--side-top,0); right:0; bottom:var(--side-bottom,0); z-index:3; width:min(88vw,380px); padding:12px; background:var(--bar); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .2s; }
-    body:has(#game:not([hidden])) .top { display:none; } #sideHome { display:block; width:100%; margin-bottom:12px; text-align:center; }
-    #game { padding:0; } .arena, .side, #board3d button, .hud .z, .clock { border:0 !important; border-radius:0 !important; outline:0 !important; }   /* the plain rules come later in this sheet, hence !important */
-    .side.open { transform:none; box-shadow:-20px 0 60px rgba(0,0,0,.7); } }
+  #game { --g:12px; height:100%; container-type:size; grid-template-columns:auto minmax(200px,420px); grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:var(--g); padding:var(--g); overflow:hidden; }   /* one gap: around the frame, between the board and the side, and down the side */
+  #game .arena { --ar:var(--board-ar, .72); --fit:min(100cqh, calc((100cqw - 200px - var(--g)) / var(--ar))); height:var(--fit); width:calc(var(--fit) * var(--ar)); justify-self:center; align-self:center; }   /* full height of the row; the width is that height times the table's shape, and it shrinks only when the side column would drop under 200px */
+  #sideBtn, #sideHome { display:none; } #camBar { margin-bottom:14px; } #camBar:empty { display:none; }
+  @media (max-width:860px) { #setup, #home { grid-template-columns:1fr !important; } #fsBtn, #fsGame { display:none !important; } #camBar:not(:has(#camReset)) { display:none; } }   /* a phone is already the full-screen view, so the switch that leaves it is not offered there */
+  /* mobile view: the board fills the screen and the log sits in the menu. On a phone this is on by itself; the fullscreen button turns it on anywhere. */
+  html.mview #game { grid-template-columns:1fr !important; max-width:none; padding:0; }
+  html.mview #game .ibar { display:flex; align-items:center; gap:8px; } html.mview #ibMid { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+  html.mview #sideBtn, html.mview #fsGame { display:inline-flex; align-items:center; justify-content:center; flex:none; width:31px; height:31px; padding:0; line-height:0; } html.mview #sideBtn .m { display:flex; }
+  html.mview #sideBtn .c, html.mview:has(.side.open) #sideBtn .m { display:none; } html.mview:has(.side.open) #sideBtn .c { display:flex; }
+  html.mview .side { position:fixed; top:var(--side-top,0); right:0; bottom:var(--side-bottom,0); z-index:3; width:min(88vw,380px); padding:12px; background:var(--bar); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .2s; }
+  html.mview:has(#game:not([hidden])) .top { display:none; } html.mview #sideHome { display:block; width:100%; text-align:center; }
+  html.mview #game .arena { --fit:100cqh; height:100%; width:100%; aspect-ratio:auto; margin:0; align-self:stretch; justify-self:stretch; }   /* the whole screen, not the table's shape */
+  html.mview .arena, html.mview .side, html.mview #board3d button, html.mview .hud .z, html.mview .clock { border:0 !important; border-radius:0 !important; outline:0 !important; }
+  html.mview .side.open { transform:none; box-shadow:-20px 0 60px rgba(0,0,0,.7); }
+  #fsGame { display:none; } #fsBtn[aria-pressed=true], #fsGame[aria-pressed=true] { background:var(--ink); color:var(--bg); border-color:var(--ink); }
   .arena { display:flex; flex-direction:column; gap:8px; min-height:0; } .side { min-height:0; overflow:auto; }
   .panel { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:14px; margin-bottom:14px; box-shadow:0 2px 10px rgba(0,0,0,.18); }
   .panel h2 { font:800 12px/1 "Segoe UI",system-ui,sans-serif; text-transform:uppercase; letter-spacing:.14em; color:var(--accent); margin:0 0 10px; }
@@ -70,7 +74,8 @@
   .chip { display:inline-block; padding:0 8px; border-radius:4px; font-size:11px; font-weight:700; background:var(--ctl2); color:var(--ink); margin-right:4px; } .chip.w { background:var(--ink); color:var(--bg); }
   .atkrow { display:grid; grid-template-columns:14px 1fr auto; gap:6px; padding:5px 0; border-top:1px solid var(--line); align-items:start; }
   .sw { width:12px; height:12px; border-radius:50%; margin-top:4px; border:1px solid rgba(255,255,255,.4); } .desc { color:var(--dim); font-size:12px; grid-column:2 / 4; }
-  #log { height:160px; overflow:auto; font-size:12px; color:var(--dim); } #log > div { padding:1px 6px; border-radius:3px; background:color-mix(in srgb, var(--dim) 12%, transparent); }   /* neutral lines are grey; the two below tint a player's lines */ #log > .me { background:color-mix(in srgb, var(--p0) 11%, transparent); } #log > .op { background:color-mix(in srgb, var(--p1) 11%, transparent); } #log b, .ink { color:var(--ink); font-weight:700; }
+  #log { height:160px; overflow:auto; font-size:12px; color:var(--dim); } #log > div { padding:3px 8px; border-radius:0; background:color-mix(in srgb, var(--dim) 12%, transparent); }   /* neutral lines are grey; the two below tint a player's lines */ #log > .me { background:color-mix(in srgb, var(--p0) 11%, transparent); } #log > .op { background:color-mix(in srgb, var(--p1) 11%, transparent); } #log b, .ink { color:var(--ink); font-weight:700; }
+  #log > div:first-child { border-top-left-radius:8px; border-top-right-radius:8px; } #log > div:last-child { border-bottom-left-radius:8px; border-bottom-right-radius:8px; }
   #list, #plist { height:300px; overflow:auto; } .row { display:flex; gap:8px; padding:6px 8px; border-radius:8px; cursor:pointer; align-items:center; }
   .row:hover { background:var(--ctl2); } .row .n { flex:1; } .team .row { background:var(--ctl); margin-bottom:4px; border:1px solid var(--line); }
   .chip.rar1 { background:#8a8f98; color:#fff; } .chip.rar2 { background:#2e9e5b; color:#fff; } .chip.rar3 { background:#2f7fe0; color:#fff; } .chip.rar4 { background:#d9a514; color:#111; } .chip.rar5 { background:#c0392b; color:#fff; }   /* rarity: C, UC, R, EX, UX */
@@ -104,14 +109,16 @@
   /* the details panel of a figure card */
   #figpop { position:fixed; z-index:8; width:420px; max-height:calc(100dvh - 16px); overflow:auto; padding:16px; border:1px solid var(--dim); border-radius:8px; background:var(--panel); box-shadow:0 10px 30px rgba(0,0,0,.5); pointer-events:none; }
   #figpop.pl { width:300px; } #figpop.pin { pointer-events:auto; } #figpop > .x { position:absolute; top:12px; right:12px; display:none; } #figpop.pin > .x { display:inline-flex; }
-  #figpop.duel { left:50%; right:auto; top:auto; bottom:16px; transform:translateX(-50%); width:min(520px, calc(100vw - 24px)); max-height:min(70dvh, 560px); }   /* the match's mini detail, held open over the table */
+  #figpop.duel { position:absolute; left:0; right:0; top:auto; bottom:0; transform:none; width:auto; max-width:none; max-height:78%; z-index:9; border-width:1px 0 0; border-radius:14px 14px 0 0; box-shadow:0 -10px 28px rgba(0,0,0,.4); padding-top:8px; touch-action:pan-y; }   /* long-press detail: a sheet inside the arena */
+  #figpop .fp-grab { display:none; } #figpop.duel .fp-grab { display:flex; justify-content:center; align-items:center; height:22px; margin:-2px 0 4px; cursor:grab; touch-action:none; } #figpop.duel .fp-grab i { width:40px; height:4px; border-radius:2px; background:var(--dim); opacity:.7; }
+  #figpop.duel.drag { transition:none; overflow:hidden; }
   .fp-head { display:flex; gap:12px; align-items:center; padding-right:36px; } .fp-head img { width:56px; height:56px; } .fp-name { display:flex; gap:8px; align-items:center; flex-wrap:wrap; } .fp-name b { font-size:18px; line-height:1.2; } .fp-name .chip { margin:0; }
   .fp-line { display:flex; align-items:center; gap:4px; margin-top:12px; overflow-x:auto; } .fp-line button { flex:none; display:flex; align-items:center; gap:6px; padding:4px 8px 4px 4px; font-size:12px; } .fp-line img { width:28px; height:28px; } .fp-line .on { border-color:var(--ink); background:var(--ctl2); }
   .fp-side { display:grid; gap:12px; justify-items:center; } .fp-body { display:grid; grid-template-columns:180px minmax(0,1fr); gap:16px; align-items:start; margin-top:12px; padding-top:12px; border-top:1px solid var(--line); }
   .fp-atk { display:grid; grid-template-columns:minmax(0,1fr) auto auto; } .fp-atk > * { padding:6px 0 6px 12px; border-top:1px solid var(--line); text-align:right; font-weight:700; } .fp-atk > .h { padding-top:0; border-top:0; }
   .fp-atk > .an, .fp-atk > .h:first-child { padding-left:0; text-align:left; } .fp-atk .an { display:flex; gap:8px; align-items:flex-start; font-weight:400; } .fp-atk .an .sw { flex:none; } .fp-atk .an { align-items:center; } .fp-atk .an b { font-weight:600; } .fp-atk > .desc { grid-column:1 / -1; padding:0 0 8px 20px; border-top:0; text-align:left; font-weight:400; }   /* an attack's effect runs the table's full width under its row */
   .fp-body + .fp-ab { margin-top:12px; } .fp-ab { justify-self:stretch; padding:8px 12px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); } .fp-ab .h { margin-bottom:4px; } .fp-ab .desc { margin-top:4px; }
-  @media (max-width:860px) { #figpop, #figpop.duel { left:0; right:0; bottom:0; transform:none; width:auto; max-height:72dvh; border-width:1px 0 0; border-radius:0; } .fp-body { grid-template-columns:minmax(0,1fr); } .fp-side { display:contents; } .fp-wheel { justify-self:center; } .fp-ab { order:3; } }
+  @media (max-width:860px) { #figpop:not(.duel) { left:0; right:0; bottom:0; transform:none; width:auto; max-height:72dvh; border-width:1px 0 0; border-radius:0; } #figpop.duel { max-height:78%; border-radius:14px 14px 0 0; } .fp-body { grid-template-columns:minmax(0,1fr); } .fp-side { display:contents; } .fp-wheel { justify-self:center; } .fp-ab { order:3; } }
   @media (max-width:860px) { #list.cards { height:46dvh; } .cards { grid-template-columns:repeat(auto-fill,minmax(96px,1fr)); } .card img { width:68px; height:68px; } }
   /* Saved teams: a strip of small cards that scrolls sideways (name, plate count and delete on one line, the six figures under it), so the
      panel is the same height however many teams there are. The name box and Save sit on the heading's line. */
@@ -162,15 +169,14 @@
      the right column (team, saved teams, opponent) scrolls by itself with the Start button pinned at its foot. Narrow screen: one scrolling
      column with the team first, then figures, plates, saved teams and opponent, and the Start button pinned to the bottom of the screen. */
   /* opponent and Start on one line: the picker, then the button */
-  .gobar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; } .gobar #oppPanel { display:contents; } .gobar #mode { flex:1 1 150px; min-width:0; } .gobar #room { flex:0 1 96px; min-width:0; } .gobar #go { order:1; } .gobar #setupErr { order:3; flex:1 1 100%; } .gobar #setupErr:empty { display:none; }
+  .gobar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; } .gobar #oppPanel { display:contents; } .gobar #mode { flex:1 1 150px; min-width:0; } .gobar #room { flex:0 1 96px; min-width:0; } .gobar #go { order:1; min-width:8.5em; text-align:center; } .gobar #setupErr { order:3; flex:1 1 100%; } .gobar #setupErr:empty { display:none; }
   #setup > section:last-child > .panel:last-child { padding:10px 12px; } #setup > section:last-child > .panel:last-child p.note { display:none; }
   @media (min-width:861px) {
     #setup { grid-template-rows:minmax(0,1fr); align-content:stretch; overflow:hidden; }
     #setup > section { display:flex; flex-direction:column; gap:14px; min-width:0; min-height:0; overflow:auto; } #setup > section > .panel { margin-bottom:0; flex:none; }
     #setup > section:first-child > .panel { display:flex; flex-direction:column; } #setup > section:first-child > .panel:nth-child(1) { flex:1.7 1 0; min-height:230px; } #setup > section:first-child > .panel:nth-child(2) { flex:1 1 0; min-height:170px; }
     #list.cards, #plist.cards { height:auto; flex:1 1 0; min-height:0; }
-    #game .side { margin:-14px -12px; padding-left:12px; padding-right:12px; }   /* its fade padding hangs outside the row, so its first panel lines up with the board's top edge */
-    #setup > section, #game .side { padding-top:14px; padding-bottom:14px; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+    #setup > section { padding-top:14px; padding-bottom:14px; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
     #setup { padding-top:4px; padding-bottom:4px; }
     /* the right column is kept short enough to fit the window (compact team cards, the saved teams as one strip); it scrolls only when the window is too short */
     #setup > section:last-child > .panel:first-child { flex:1 0 auto; } #tmsg { min-height:18px; }   /* the team panel takes the height that is left, so plates arriving from a saved team fill space it already has instead of pushing the panels under it; the message line under the saved teams is always there for the same reason */
@@ -185,8 +191,15 @@
     #list.cards { height:52dvh; } #plist.cards { height:40dvh; grid-template-columns:1fr; } .teamcards .card { min-height:96px; } .teamcards .card img { width:52px; height:52px; }
     #setup .bar select, #setup .bar input:not([type=checkbox]) { min-width:0; max-width:100%; } #mode { width:100%; }
   }
-  #acts { display:grid; gap:6px; max-height:34dvh; overflow:auto; } #acts button { width:100%; padding:10px 14px; }
-  #acts:empty:before { content:"Nothing to choose right now."; color:var(--dim); font-size:12px; }
+  #acts { display:grid; gap:6px; max-height:34dvh; overflow:auto; align-content:start; } #acts button { width:100%; padding:10px 14px; background:var(--ink); border:2px solid var(--bg); color:var(--bg); }
+  #acts button:hover:not(:disabled) { background:var(--ink); border-color:var(--bg); opacity:1; } #acts button .ink { color:inherit; }
+  #game .side > .panel:has(#acts) { background:var(--ink); color:var(--bg); border-color:var(--bg); } #game .side > .panel:has(#acts) h2 { color:var(--bg); }
+  #acts button:first-child { border-radius:8px 8px 4px 4px; } #acts button:last-child { border-radius:4px 4px 8px 8px; } #acts button:only-child { border-radius:8px; }
+  #acts:empty:before { content:"Nothing to choose right now."; color:var(--bg); font-size:12px; }
+  /* the fade sits in the padding, so the first and last rows are fully there and only the overflow softens */
+  #log { padding:14px 0; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); mask-image:linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%); }
+  #game .side { display:flex; flex-direction:column; gap:var(--g); overflow:hidden; } #game .side > .panel, #game #camBar, #game #sideHome { margin:0; } #game #camBar { gap:var(--g); } #game .side > .panel:has(#log), #game .side > .panel:has(#acts) { flex:1 1 0; min-height:0; display:flex; flex-direction:column; } #game .side > #card { flex:0 1 auto; max-height:40%; min-height:0; overflow:auto; }
+  #game .side > .panel:has(#log) #log, #game .side > .panel:has(#acts) #acts { flex:1 1 0; height:auto; max-height:none; min-height:0; }
   #modal { position:fixed; inset:0; background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(3px); display:grid; place-items:center; padding:16px; z-index:5; }
   /* the team slot editor */
   .ed-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
@@ -284,7 +297,7 @@
   /* long press: a figure that still has a next form, the same mark the original puts on its detail */
   .fp-evo { display:flex; gap:10px; align-items:center; margin-top:12px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); }
   .fp-evo .mark { flex:none; width:26px; height:26px; border-radius:50%; border:2px solid var(--gold); box-shadow:0 0 0 4px color-mix(in srgb, var(--gold) 28%, transparent), inset 0 0 8px color-mix(in srgb, var(--gold) 50%, transparent); }
-  .fp-evo .who { display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; } .fp-evo .who span { display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:700; } .fp-evo img { width:26px; height:26px; }
+  .fp-evo .who { display:flex; flex-wrap:wrap; gap:8px; margin-top:2px; } .fp-evo .who button, .fp-evo .who span { display:inline-flex; align-items:center; gap:4px; font-size:13px; font-weight:700; } .fp-evo .who button { padding:2px 8px 2px 4px; cursor:pointer; } .fp-evo .who button.on { border-color:var(--ink); background:var(--ctl2); } .fp-evo img { width:26px; height:26px; }
   /* the bar along the bottom: the original's three places (Give up left, the one centre button, Wait right), slim like the top bar */
   .ibar { flex:none; display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px; padding:6px 8px; background:var(--bar); border-top:1px solid var(--line); }
   .ibar button { padding:5px 14px; font-size:13px; text-align:center; white-space:nowrap; }
@@ -296,7 +309,7 @@
      one, that plate large above, Use under the band's middle and Close at its right. Dimmed and blurred behind, like the site's dialogs. */
   #plates { position:absolute; inset:0; z-index:5; overflow:hidden; background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(3px); } #plates[hidden] { display:none; } #plates > * { position:absolute; }
   .pband { left:0; right:0; top:calc(50% + 238 * var(--u)); height:calc(468 * var(--u)); background:var(--bar); border-top:1px solid var(--line); }
-  .plist { left:0; right:0; top:calc(50% + 284 * var(--u)); height:calc(240 * var(--u)); display:flex; overflow-x:auto; scroll-snap-type:x mandatory; padding:0 calc(50% - 89 * var(--u)); scrollbar-width:none; } .plist::-webkit-scrollbar { display:none; }
+  .plist { left:0; right:0; top:calc(50% + 260 * var(--u)); height:calc(306 * var(--u)); display:flex; align-items:center; overflow-x:auto; overflow-y:hidden; scroll-snap-type:x mandatory; padding:calc(24 * var(--u)) calc(50% - 89 * var(--u)) calc(36 * var(--u)); scrollbar-width:none; } .plist::-webkit-scrollbar { display:none; }   /* room for the plate's shadow inside the scroller, so the shadow is not cut off; the cards stay where they were */
   .plist > div { flex:none; width:calc(178 * var(--u)); scroll-snap-align:center; display:grid; place-items:center; cursor:pointer; }
   .psel { left:calc(50% - 88.5 * var(--u)); top:calc(50% + 278.5 * var(--u)); width:calc(177 * var(--u)); height:calc(251 * var(--u)); border:2px solid var(--p0); border-radius:calc(14 * var(--u)); pointer-events:none; } .psel.opp { border-color:var(--p1); }
   .pbig { left:50%; top:calc(50% + 18 * var(--u)); transform:translate(-50%,-50%); }
@@ -339,6 +352,7 @@
   .rbtns { display:flex; flex-wrap:wrap; justify-content:center; gap:8px; } .rbtns button { min-width:130px; padding:10px 18px; text-align:center; }
   .note { color:var(--dim); font-size:12px; } .err { color:var(--err); }
 </style>
+<script>if (matchMedia('(max-width:860px)').matches) document.documentElement.classList.add('mview')</script>
 </head>
 <body>
 <div class="top"><div class="ticker" id="ticker"><span></span></div><nav class="paths" id="paths" aria-label="Pages"></nav><button id="soundBtn" class="iconbtn"></button><button id="themeBtn" class="iconbtn"></button><a id="viewLink" class="iconbtn"></a><button id="newBtn" class="iconbtn" title="Home" aria-label="Home"></button></div>
@@ -376,7 +390,7 @@
       <div id="status" class="banner"></div>
     </div>
     <div class="table"><svg id="board" viewBox="0 -32 420 764" preserveAspectRatio="xMidYMid meet"></svg><div id="board3d" hidden></div><div id="tbl"></div></div>
-    <div class="ibar"><div id="ibar" style="display:contents"></div><button id="sideBtn" title="Menu" aria-label="Menu" onclick="toggleSide()"></button></div>
+    <div class="ibar"><div id="ibar" style="display:contents"></div><button id="fsGame" class="iconbtn" title="Fullscreen" aria-label="Fullscreen" aria-pressed="false"></button><button id="sideBtn" title="Menu" aria-label="Menu" onclick="toggleSide()"></button></div>
     <div id="plates" hidden></div>
     <div id="evolve" hidden></div>
     <div id="evoanim" hidden></div>
@@ -385,7 +399,7 @@
   </section>
   <section class="side">
     <button id="sideHome" onclick="this.parentNode.classList.remove('open');document.getElementById('newBtn').click()">Home</button>
-    <div class="bar" id="camBar"></div>
+    <div class="bar" id="camBar"><button id="fsBtn" class="iconbtn" title="Fullscreen" aria-label="Fullscreen" aria-pressed="false"></button></div>
     <div class="panel"><h2>Log</h2><div id="log"></div></div>
     <div class="panel"><h2>Actions</h2><div id="acts"></div></div>
     <div class="panel" id="card"></div>
@@ -506,19 +520,25 @@ function figInfo(id, src, at) {
 }
 // Pointing at a card's "i" previews its details; pressing it pins the panel open so it can be read, scrolled
 // and stepped through. A click anywhere else closes it. On a narrow screen the panel is a sheet along the bottom.
+function placeFigpop(duel) {   // duel sheet lives in the arena; home / deck details stay on the page as a fixed panel
+  const p = $('figpop'), arena = document.querySelector('#game .arena'), host = duel && arena ? arena : document.body, before = duel ? null : $('modal');
+  if (p.parentNode !== host) host.insertBefore(p, before && before.parentNode === host ? before : null);
+  if (!duel) { p.style.left = p.style.top = p.style.transform = ''; p.classList.remove('drag'); }
+}
 function showInfo(card, pin, at) {
-  const p = $('figpop'); p.innerHTML = card.dataset.plate ? plateInfo(+card.dataset.plate) : figInfo(+card.dataset.info, card.dataset.src, at || 0); p.hidden = false; p.classList.remove('duel'); p.classList.toggle('pin', !!pin); p.classList.toggle('pl', !!card.dataset.plate); p.scrollTop = 0;
+  const p = $('figpop'); placeFigpop(false); p.innerHTML = card.dataset.plate ? plateInfo(+card.dataset.plate) : figInfo(+card.dataset.info, card.dataset.src, at || 0); p.hidden = false; p.classList.remove('duel'); p.classList.toggle('pin', !!pin); p.classList.toggle('pl', !!card.dataset.plate); p.scrollTop = 0;
   if (at == null) { showInfo.card = card; const r = card.getBoundingClientRect(), wide = innerWidth > 860;
     p.style.left = wide ? (r.right + 8 + p.offsetWidth <= innerWidth ? r.right + 8 : Math.max(8, r.left - 8 - p.offsetWidth)) + 'px' : ''; p.style.top = wide ? Math.max(8, Math.min(r.top, innerHeight - p.offsetHeight - 8)) + 'px' : ''; }
   showInfo.pin = !!pin;
 }
 const plateInfo = id => { const d = plateById.get(id); return `<button class="x" data-close title="Close" aria-label="Close">${X_ICON}</button><div class="fp-name" style="padding-right:36px"><b>${esc(d.n)}</b><span class="chip rar${d.r}">${RAR[d.r] || ''}</span><span class="chip">cost ${d.c}</span><span class="chip">Plate</span></div><p style="margin:12px 0 0;line-height:1.5">${esc(d.d)}</p>`; };
-const hideInfo = () => { clearTimeout(showInfo.wait); const p = $('figpop'); p.hidden = true; p.classList.remove('duel'); showInfo.pin = false; showInfo.card = null; };
+const hideInfo = () => { clearTimeout(showInfo.wait); const p = $('figpop'); p.hidden = true; p.classList.remove('duel', 'drag'); p.style.transform = ''; placeFigpop(false); showInfo.pin = false; showInfo.card = null; boardDetail.root = null; };
 document.addEventListener('click', e => {
   if (showInfo.skip || window.holdClick) { showInfo.skip = false; window.holdClick = false; e.stopPropagation(); e.preventDefault(); return; }   // the click that ends a long press opens the detail; it must not also close it or play the tap
-  const p = $('figpop'), b = e.target.closest('.card.fig .info, .card.plate .info, #home .cards:not([data-act]) > .card.fig'), tab = e.target.closest('#figpop [data-at]');
+  const p = $('figpop'), b = e.target.closest('.card.fig .info, .card.plate .info, #home .cards:not([data-act]) > .card.fig'), tab = e.target.closest('#figpop [data-at]'), evo = e.target.closest('#figpop [data-evo]');
   if (b) { e.stopPropagation(); e.preventDefault(); const c = b.closest('.card'); showInfo.pin && showInfo.card === c ? hideInfo() : showInfo(c, true); }
   else if (tab) showInfo(showInfo.card, true, +tab.dataset.at);
+  else if (evo) { e.stopPropagation(); boardDetail(+evo.dataset.root, +evo.dataset.evo); }
   else if (!p.hidden && (!p.contains(e.target) || e.target.closest('[data-close]'))) hideInfo();
 }, true);
 if (matchMedia('(hover: hover)').matches) {
@@ -702,9 +722,10 @@ $('rnd').onclick = () => {
 };
 $('clr').onclick = () => { team = []; myPlates = []; drawTeam(); };
 $('newBtn').onclick = () => showHome();
-$('go').onclick = () => {
+  $('go').onclick = () => {
   if (ownedMode) { profile.deck = team.map(sl => ({ st: sl.st.slice(), forms: sl.forms.slice() })); profile.deckPlates = myPlates.slice(); saveProfile(); return showHome(); }
-  start().catch(e => { $('setupErr').textContent = e.message; });
+  const go = $('go'), label = go.textContent; go.disabled = true; go.textContent = 'Starting...';
+  start().catch(e => { go.disabled = false; go.textContent = label; $('setupErr').textContent = e.message; });
 };
 
 // ---------- league mode: the original's league ladder and reward boosters ----------
@@ -790,7 +811,7 @@ $('home').onclick = e => {
   if (act === 'league') { $('game').hidden = true; team = profile.deck.map(slotFrom); myPlates = deckPlates(); return start({ league: true }).catch(x => { showHome(); drawHome.msg = x.message; drawHome(); }); }
   ownedMode = act === 'deck';
   team = ownedMode && profile.deck ? profile.deck.map(slotFrom) : []; myPlates = ownedMode ? deckPlates() : [];
-  $('oppPanel').hidden = $('oplLabel').hidden = ownedMode; $('go').textContent = ownedMode ? 'Save deck' : 'Start duel'; $('setupErr').textContent = '';
+  $('oppPanel').hidden = $('oplLabel').hidden = ownedMode; $('go').disabled = false; $('go').textContent = ownedMode ? 'Save deck' : 'Start duel'; $('setupErr').textContent = '';
   $('setup').hidden = false; drawList(); drawTeam();
 };
 function finishLeague() { // MatchResultRank: rating, keys (stars), boosters, league change
@@ -963,7 +984,7 @@ async function api(cmd, extra) {
   return j;
 }
 async function start(opts) {
-  $('setupErr').textContent = 'starting the rule engine…'; await startEngines();
+  await startEngines();
   const lgMode = !!(opts && opts.league), mode = lgMode ? '1:60' : $('mode').value, seed = 1 + Math.floor(Math.random() * 2147483646);
   me = mode === 'hot' ? 'black' : pickRandom(['black', 'white']); flip = me === 'white';
   if (mode === 'join') return joinRoom($('room').value.trim());
@@ -1232,6 +1253,17 @@ const QUIET = new Set(['add_z_gauge', 'battled_after_field_in', 'battle_info', '
 // ---------- sound ----------
 // (the sound effects live in sound.js, shared with the storybook)
 $('sideBtn').innerHTML = `<span class="m">${icon('<path d="M4 7h16M4 12h16M4 17h16"/>')}</span><span class="c">${icon('<path d="M6 6l12 12M18 6L6 18"/>')}</span>`;
+const FS_IN = '<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>', FS_OUT = '<path d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/>';
+const fsNarrow = matchMedia('(max-width:860px)'); let fsUser = false, fsOff = false;   // a phone turns the view on by itself; fsUser is the desktop choice and fsOff is a phone turned back off
+const fsOn = () => (fsNarrow.matches && !fsOff) || fsUser;
+function paintFs() {
+  const on = fsOn(); document.documentElement.classList.toggle('mview', on);
+  const title = on ? 'Exit fullscreen' : 'Fullscreen';
+  for (const id of ['fsBtn', 'fsGame']) { const b = $(id); b.innerHTML = icon(on ? FS_OUT : FS_IN); b.title = title; b.setAttribute('aria-label', title); b.setAttribute('aria-pressed', String(on)); }
+}
+function toggleFs() { if (fsNarrow.matches) fsOff = fsOn(); else fsUser = !fsOn(); paintFs(); document.querySelector('.side').classList.remove('open'); fitSide(); }
+$('fsBtn').onclick = toggleFs; $('fsGame').onclick = toggleFs;
+fsNarrow.addEventListener('change', e => { if (e.matches) fsOff = false; paintFs(); }); paintFs();
 // The narrow-screen menu covers the table only, so its top and bottom are measured from the table when it opens (and when the window changes).
 const fitSide = () => { const r = document.querySelector('.table').getBoundingClientRect(), s = document.querySelector('.side').style; s.setProperty('--side-top', r.top + 'px'); s.setProperty('--side-bottom', innerHeight - r.bottom + 'px'); };
 window.toggleSide = () => { fitSide(); document.querySelector('.side').classList.toggle('open'); }; addEventListener('resize', fitSide);
@@ -1600,26 +1632,62 @@ window.boardPick = (fig, pt, act) => {   // a figure index and / or a field poin
   if (fig != null) { if (render.targets && render.targets.has(fig)) return play(render.targets.get(fig)); sel = fig; routeChoice = null; sfx('select'); return render(); }
   if (pt != null && render.routes && render.routes.has(pt)) { const r = render.routes.get(pt); if (r.length === 1) return play(r[0]); routeChoice = r; render(); }
 };
-function boardDetail(i) {   // MiniDetailFigure: a long press opens this figure as it is now (its wheel, ability and status) and leaves it up
+function boardDetail(i, view) {   // MiniDetailFigure: a long press opens this figure as a sheet in the arena; evolutions are tabs in the same panel
   const c = st && st.pokemon_conditions.find(x => x.pokemon_index === i); if (!c) return;
-  const pkm = pk(i) || { skills: [], mp: 0 }, f = figOf(i), ab = D.abilities[pkm.pokepower], mp = (pkm.mp || 0) + ((c.effect && c.effect.mp) || 0), plus = (c.effect && c.effect.damage_plus) || 0;
+  const viewI = view != null && pk(view) ? view : i, live = viewI === i;
+  const pkm = pk(viewI) || { skills: [], mp: 0 }, f = figOf(viewI), ab = D.abilities[pkm.pokepower];
+  const mp = (pkm.mp || 0) + (live && c.effect && c.effect.mp ? c.effect.mp : 0), plus = live && c.effect ? (c.effect.damage_plus || 0) : 0;
   const skills = (pkm.skills || []).map(x => {   // the wheel as it is now: a sealed attack is a Miss, and White and Gold show the engine's current damage
-    const off = (sealed.get(i) || []).includes(x.id), col = off ? 0 : (D.skills[x.id] || [0, 0, 0])[2], dmg = (col === 1 || col === 3) && plus ? Math.max(0, (x.speed_or_damage || 0) + plus) : x.speed_or_damage;
+    const off = live && (sealed.get(i) || []).includes(x.id), col = off ? 0 : (D.skills[x.id] || [0, 0, 0])[2], dmg = (col === 1 || col === 3) && plus ? Math.max(0, (x.speed_or_damage || 0) + plus) : x.speed_or_damage;
     return Object.assign({}, x, off ? { sealed: true } : {}, dmg !== x.speed_or_damage ? { speed_or_damage: dmg } : {});
   });
   const abBox = ab ? `<div class="fp-ab"><span class="h">Ability</span><b>${esc(ab[0])}</b><div class="desc">${esc(ab[1])}</div></div>` : '', long = ab && ab[1].length > 150;
   const tips = badgeTips(c), nxt = evoNext(i), ready = evolveMoves().some(m => m.value.value.pokemon === i);
-  const evoBox = nxt.length ? `<div class="fp-evo"><i class="mark" title="Can evolve"></i><div><span class="h">Can evolve</span><div class="who">${nxt.map(m => { const g = figOf(m.pokemon_index); return `<span>${sprite(g) ? `<img src="${sprite(g)}" alt="">` : ''}<b>${esc(g.n)}</b></span>`; }).join('')}</div>${ready ? '<div class="note">Ready now.</div>' : ''}</div></div>` : '';
-  const p = $('figpop');
-  p.innerHTML = `<button class="x" data-close title="Close" aria-label="Close">${X_ICON}</button>
-    <div class="fp-head">${sprite(f) ? `<img src="${sprite(f)}" alt="">` : ''}<div><div class="fp-name">${nameOf(i)}<span class="chip rar${f.r}">${RAR[f.r] || ''}</span><span class="chip">MP ${mp}</span></div><div class="note">${typeNames(f)} · ${place(c.index)}${c.evolution_ring ? ` · evolved ${c.evolution_ring}` : ''}</div></div></div>
+  const chain = [i, ...nxt.map(m => m.pokemon_index)], pic = g => sprite(g) ? `<img src="${sprite(g)}" alt="">` : '';
+  const evoBox = chain.length > 1 ? `<div class="fp-evo"><i class="mark" title="Can evolve"></i><div><span class="h">${live ? 'Can evolve' : 'Evolution'}</span><div class="who">${chain.map(idx => { const g = figOf(idx); return `<button type="button" data-root="${i}" data-evo="${idx}" class="${idx === viewI ? 'on' : ''}">${pic(g)}<b>${esc(g.n)}</b></button>`; }).join('')}</div>${ready && live ? '<div class="note">Ready now.</div>' : ''}</div></div>` : '';
+  const p = $('figpop'); placeFigpop(true); boardDetail.root = i;
+  p.innerHTML = `<div class="fp-grab" aria-hidden="true"><i></i></div><button class="x" data-close title="Close" aria-label="Close">${X_ICON}</button>
+    <div class="fp-head">${pic(f)}<div><div class="fp-name">${nameOf(viewI)}<span class="chip rar${f.r}">${RAR[f.r] || ''}</span><span class="chip">MP ${mp}</span></div><div class="note">${typeNames(f)} · ${place(c.index)}${c.evolution_ring ? ` · evolved ${c.evolution_ring}` : ''}${!live ? ' · preview' : ''}</div></div></div>
     ${evoBox}
-    ${badges(c).length ? `<div style="margin-top:10px">${badges(c).map((b, k) => `<div class="desc"><b>${esc(b)}</b> — ${esc(tips[k] || '')}</div>`).join('')}</div>` : ''}
+    ${live && badges(c).length ? `<div style="margin-top:10px">${badges(c).map((b, k) => `<div class="desc"><b>${esc(b)}</b> — ${esc(tips[k] || '')}</div>`).join('')}</div>` : ''}
     <div class="fp-body"><div class="fp-side"><div class="fp-wheel">${wheelSvg(skills, 180)}</div>${long ? '' : abBox}</div>
       <div class="fp-atk"><span class="h">Attack</span><span class="h">Size</span><span class="h">Power</span>${skills.filter(x => x.range > 0).map(x => { const k = x.sealed ? ['Miss', '', 0] : (D.skills[x.id] || ['Attack ' + x.id, '', 0]); return `<span class="an"><span class="sw" style="background:${SEG_COL[k[2]]}"></span><b>${esc(k[0])}</b></span><span>${x.range}</span><span>${power(x) || '–'}</span>${k[2] && k[1] ? `<span class="desc">${esc(k[1])}</span>` : ''}`; }).join('')}</div></div>${long ? abBox : ''}`;
-  p.hidden = false; p.classList.add('pin', 'duel'); p.classList.remove('pl'); p.style.left = p.style.top = ''; p.scrollTop = 0; showInfo.pin = true; showInfo.card = null;
+  p.hidden = false; p.classList.add('pin', 'duel'); p.classList.remove('pl', 'drag'); p.style.left = p.style.top = p.style.transform = ''; p.scrollTop = 0; showInfo.pin = true; showInfo.card = null;
 }
 window.boardDetail = boardDetail;
+(() => {   // swipe the duel sheet down to dismiss (grab bar, or pull down when already scrolled to the top)
+  const p = $('figpop'); let y0 = null, dy = 0, dragging = false, pid = null;
+  const end = () => {
+    if (y0 == null) return;
+    if (dragging) {
+      p.classList.remove('drag');
+      if (dy > 90) { p.style.transform = ''; hideInfo(); }
+      else { p.style.transition = 'transform .18s ease-out'; p.style.transform = ''; setTimeout(() => { p.style.transition = ''; }, 200); }
+    }
+    if (pid != null) try { p.releasePointerCapture(pid); } catch (_) {}
+    y0 = null; dy = 0; dragging = false; pid = null;
+  };
+  p.addEventListener('pointerdown', e => {
+    if (!p.classList.contains('duel') || p.hidden || e.button) return;
+    if (e.target.closest('button:not(.x), a, input')) return;
+    const fromGrab = !!e.target.closest('.fp-grab');
+    if (!fromGrab && p.scrollTop > 0) return;
+    y0 = e.clientY; dy = 0; dragging = false; pid = e.pointerId;
+  });
+  p.addEventListener('pointermove', e => {
+    if (y0 == null || e.pointerId !== pid) return;
+    dy = e.clientY - y0;
+    if (!dragging) {
+      if (dy < 10) return;   // wait for a clear downward pull so the sheet can still scroll
+      if (p.scrollTop > 0) { y0 = null; return; }
+      dragging = true; p.classList.add('drag');
+      try { p.setPointerCapture(pid); } catch (_) {}
+    }
+    if (dy < 0) dy = 0;
+    p.style.transform = `translateY(${dy}px)`; e.preventDefault();
+  }, { passive: false });
+  p.addEventListener('pointerup', end); p.addEventListener('pointercancel', end);
+})();
 function boardFigAt(x, y) { const el = document.elementFromPoint(x, y), g = el && el.closest && el.closest('[data-fig]'); return g ? +g.dataset.fig : null; }
 let figDown = null, figHold = 0, figHeld = false;
 $('board').addEventListener('pointerdown', e => {
@@ -1787,7 +1855,7 @@ async function playEffects(list, opt) {
 }
 const figAt = route => { const c = st.pokemon_conditions.find(c => c.index === route[route.length - 1]); return c ? c.pokemon_index : -1; };
 
-$('mode').onchange = () => { $('room').hidden = $('mode').value !== 'join'; $('go').textContent = $('mode').value === 'join' ? 'Join duel' : $('mode').value === 'host' ? 'Open room' : 'Start duel'; };
+$('mode').onchange = () => { $('room').hidden = $('mode').value !== 'join'; $('go').disabled = false; $('go').textContent = $('mode').value === 'join' ? 'Join duel' : $('mode').value === 'host' ? 'Open room' : 'Start duel'; };
 $('ticker').firstElementChild.textContent = `pokemon duel web ◆ ${D.figures.length} figures · ${D.plates.length} plates · ${Object.keys(D.skills).length} attacks · ${Object.keys(D.abilities).length} abilities ◆ Parity: every legal move, spin, attack effect, ability, plate, evolution and AI decision is computed by the original game's own rule engine, not re-implemented ◆ Deck rules, levels, chain boosts, Rewind, league thresholds and booster odds follow the original client and its master data ◆ Not original: the look, the league opponent (the original AI with a random deck), fixed rating points, the starter set ◆ Missing because their data did not survive: quests, shop, level-up costs ◆ Everything runs in this page: no install, no server ◆ Online: one player opens a room and shares the code, the other joins with it`;
 drawList(); drawTeam(); drawSaved(); viewHref(); if (/^#g=\d+$/.test(location.hash)) resumeGame().catch(x => { showHome(); drawHome.msg = x.message; drawHome(); }); else showHome();
 </script>

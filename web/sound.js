@@ -16,8 +16,12 @@
     }
     return actx;
   }
+  // Button clicks stay quiet. Other effects that were much softer are brought up toward the louder ones.
+  const UI_GAIN = .1;
+  function level(vol, ui) { return ui || vol >= .32 ? vol : vol + (.32 - vol) * .78; }
   // a slice of noise through a filter, shaped so it knocks or whooshes instead of beeping
-  function burst(t, at, dur, vol, freq, q, type) {
+  function burst(t, at, dur, vol, freq, q, type, ui) {
+    vol = level(vol, ui);
     const src = actx.createBufferSource(), f = actx.createBiquadFilter(), g = actx.createGain();
     src.buffer = noiseBuf; f.type = type || 'lowpass'; f.frequency.setValueAtTime(Math.max(40, freq), t + at); f.Q.value = q || .7;
     g.gain.setValueAtTime(vol, t + at); g.gain.exponentialRampToValueAtTime(.0001, t + at + dur);
@@ -25,6 +29,7 @@
     return f;
   }
   function tone(t, type, f0, f1, at, dur, vol) {
+    vol = level(vol);
     const o = actx.createOscillator(), g = actx.createGain(); o.type = type; o.frequency.setValueAtTime(f0, t + at);
     if (f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(40, f1), t + at + dur);
     g.gain.setValueAtTime(.0001, t + at); g.gain.exponentialRampToValueAtTime(vol, t + at + Math.min(.02, dur * .3)); g.gain.exponentialRampToValueAtTime(.0001, t + at + dur);
@@ -32,8 +37,8 @@
   }
   const bank = {
     select: t => burst(t, 0, .03, .22, 2400, 1, 'highpass'),
-    click: t => burst(t, 0, .03, .08, 2400, 1, 'highpass'),
-    back: t => burst(t, 0, .04, .07, 900, 1, 'bandpass'),
+    click: t => burst(t, 0, .03, .05, 2400, 1, 'highpass', true),
+    back: t => burst(t, 0, .04, .045, 900, 1, 'bandpass', true),
     step: t => { burst(t, 0, .07, .4, 140, .8); burst(t, .01, .03, .12, 900, 1, 'bandpass'); },
     land: t => { burst(t, 0, .05, .35, 220, 1); burst(t, .012, .04, .18, 1100, 2, 'bandpass'); },
     spin: t => { for (let k = 0; k < 14; k++) burst(t, 1.15 * Math.pow(k / 14, 1.7), .02, .16, 1600 + (k % 3) * 180, 3, 'bandpass'); },
@@ -75,7 +80,7 @@
   for (const id of ['se001', 'se002']) fetch('/sfx/' + id + '.wav').then(r => r.ok ? r.arrayBuffer() : null).then(b => { if (b) takeClip(id, b); }).catch(() => {});
   function playClip(id) {
     const buf = clips[id]; if (!buf || !buf.getChannelData) return false;
-    const src = actx.createBufferSource(); src.buffer = buf; const g = actx.createGain(); g.gain.value = .28;
+    const src = actx.createBufferSource(); src.buffer = buf; const g = actx.createGain(); g.gain.value = UI_GAIN;
     src.connect(g).connect(master); src.start(); return true;
   }
   function sfx(name) {

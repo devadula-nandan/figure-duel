@@ -197,11 +197,15 @@ new ResizeObserver(fit).observe(host); fit();
 host.style.position = 'relative';
 // the camera buttons go in the page's menu when it has a place for them (id "camBar"), else in a corner of the table
 const camBar = document.getElementById('camBar');
-if (camBar) camBar.innerHTML = '<button id="camReset">Reset view</button><button id="camLock">Lock view</button>';
-else host.insertAdjacentHTML('beforeend', '<div style="position:absolute;left:8px;bottom:8px;display:flex;gap:6px"><button id="camReset" style="padding:3px 10px;font-size:12px">Reset view</button><button id="camLock" style="padding:3px 10px;font-size:12px">Lock view</button></div>');
+const camBtn = (id, name, body) => `<button id="${id}" class="iconbtn" title="${name}" aria-label="${name}">${window.icon(body)}</button>`;
+const CAM_RESET = '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 5v5h5"/>', CAM_LOCK = '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/>', CAM_OPEN = '<rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.4-2"/>';
+const camHtml = camBtn('camReset', 'Reset view', CAM_RESET) + camBtn('camLock', 'Lock view', CAM_LOCK);
+if (camBar) camBar.insertAdjacentHTML('afterbegin', camHtml);   /* keep the fullscreen button that already sits in this bar */
+else host.insertAdjacentHTML('beforeend', `<div style="position:absolute;left:8px;bottom:8px;display:flex;gap:6px">${camHtml}</div>`);
+function paintLock() { const b = document.getElementById('camLock'), locked = !controls.enabled; b.title = locked ? 'Unlock view' : 'Lock view'; b.setAttribute('aria-label', b.title); b.innerHTML = window.icon(locked ? CAM_OPEN : CAM_LOCK); }
 document.getElementById('camReset').onclick = () => { home(true); if (!controls.enabled) keepCamera(); };
-document.getElementById('camLock').onclick = e => { controls.enabled = !controls.enabled; e.target.textContent = controls.enabled ? 'Lock view' : 'Unlock view'; keepCamera(); };
-if (kept) { controls.enabled = false; document.getElementById('camLock').textContent = 'Unlock view'; home(); }
+document.getElementById('camLock').onclick = () => { controls.enabled = !controls.enabled; paintLock(); keepCamera(); };
+if (kept) { controls.enabled = false; paintLock(); home(); }
 
 const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
 function spriteSolid(hit) {   // the clear margin of a picture is not part of the figure; only an opaque pixel is

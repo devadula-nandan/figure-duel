@@ -72,7 +72,13 @@ function evoTable(lines, ats) {
     const f = chain[0];
     toks.push({ f, at: ats[i], evo: true, chain, branch, step: 0, mp: String(f.mp) });
   });
-  return table([], toks);
+  const m = table([], toks);
+  if (m.toks.length) {   // the full table camera leaves the evolving figure a speck; frame the line so the burst and the new form fill the view
+    const xs = m.toks.map(t => t.x), zs = m.toks.map(t => t.z), cx = (Math.min(...xs) + Math.max(...xs)) / 2, cz = (Math.min(...zs) + Math.max(...zs)) / 2, many = m.toks.length > 1;
+    m.cam = many ? { pos: [cx, 9, cz + 6.5], at: [cx, 0, cz], width: Math.max(...xs) - Math.min(...xs) + 5 }
+      : { pos: [cx, 4.6, cz + 4.2], at: [cx, .4, cz], width: 3.2 };
+  }
+  return m;
 }
 const STORIES = {
   Figure: {
