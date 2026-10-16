@@ -37,7 +37,7 @@ const band = (r, w, h) => {   // a ring of radius r, w wide and h tall, lying in
   const g = new THREE.ExtrudeGeometry(outer, { depth: h, bevelEnabled: false, curveSegments: 40 }); g.translate(0, 0, -h / 2); return g;
 };
 const G = { pt: new THREE.CylinderGeometry(.33, .33, .05, 36), rim: new THREE.CylinderGeometry(.4, .4, .03, 36), goal: new THREE.CylinderGeometry(.5, .5, .04, 40), slot: new THREE.RingGeometry(.38, .46, 36), dot: new THREE.CylinderGeometry(.135, .135, .05, 28), entry: band(.3, .06, .05), arrow: new THREE.CylinderGeometry(.16, .16, .05, 3), ring2: band(.43, .06, .05), goalDisc: new THREE.CircleGeometry(.38, 36), goalRim: new THREE.RingGeometry(.38, .46, 36), spot: new THREE.CylinderGeometry(.4, .4, .14, 16), aura: new THREE.RingGeometry(.465, .615, 48), words: new THREE.PlaneGeometry(1.33, 1.33),
-  base: new THREE.CylinderGeometry(.36, .4, .16, 32), cap: new THREE.CylinderGeometry(.33, .36, .03, 32), ring: band(.5, .07, .05), hit: new THREE.CylinderGeometry(.7, .7, 1.7, 12) };
+  base: new THREE.CylinderGeometry(.36, .4, .16, 32), cap: new THREE.CylinderGeometry(.33, .36, .03, 32), ring: band(.5, .07, .05), hit: new THREE.CylinderGeometry(.38, .38, 1.2, 12) };
 function applyTheme() {
   const bd = css('--bd', '#0c0d10'), line = css('--bd-line', '#c9ced8'), pt = css('--bd-pt', '#101216'), light = new THREE.Color(bd).getHSL({}).l > .5;
   paintTable(); scene.fog.color.set(bd).lerp(new THREE.Color(css('--bd2', '#17191e')), .5); scene.background = scene.fog.color;   // the sky is the table colour too, so there is no line where the far floor ends
@@ -95,7 +95,7 @@ const shadeGeo = new THREE.PlaneGeometry(.62, .62);
 function token(t) {
   const g = new THREE.Group(), base = new THREE.Mesh(G.base, mat(BLUE, 0, { transparent: true })), cap = new THREE.Mesh(G.cap, M.cap), ring = new THREE.Mesh(G.ring, mat(GOLD, 0xa07800)), hit = new THREE.Mesh(G.hit, new THREE.MeshBasicMaterial({ visible: false })), aura = new THREE.Mesh(G.aura, new THREE.MeshBasicMaterial({ transparent: true, opacity: .8, side: THREE.DoubleSide }));
   const art = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, alphaTest: .05, depthTest: false })), tag = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false })), words = new THREE.Mesh(G.words, new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false }));
-  base.position.y = .08; base.castShadow = true; cap.position.y = .17; ring.rotation.x = Math.PI / 2; ring.position.y = .05; hit.position.y = .9; aura.rotation.x = -Math.PI / 2; aura.position.y = .02;   // the hit volume covers the picture, not only the base, so a tap on the figure attacks
+  base.position.y = .08; base.castShadow = true; cap.position.y = .17; ring.rotation.x = Math.PI / 2; ring.position.y = .05; hit.position.y = .64; aura.rotation.x = -Math.PI / 2; aura.position.y = .02;   // body only: a wide volume would cover the next point, and the picture is chosen by where the tap lands
   art.center.set(.5, 0); art.position.y = .04; art.scale.set(1.05, 1.05, 1); art.renderOrder = 1; tag.position.set(.4, .08, .34); tag.scale.set(.36, .36, 1); tag.renderOrder = 2; words.rotation.x = -Math.PI / 2; words.position.y = .03;   // MP sits at the base's bottom right corner; the picture starts below the top of the base because the artwork has empty space under the figure
   const shade = new THREE.Mesh(shadeGeo, new THREE.MeshBasicMaterial({ map: shadeTex, transparent: true, depthWrite: false })); shade.rotation.x = -Math.PI / 2; shade.position.y = .19;
   g.add(base, cap, shade, ring, hit, aura, words, art, tag); g.position.set(t.x, 0, t.z); g.userData = { base, cap, shade, ring, art, tag, hit, aura, words, fig: t.i }; hit.userData.pick = g.userData; scene.add(g); pickable.push(hit); tokens.set(t.i, g);
@@ -147,7 +147,7 @@ function drawTable(t) {
 function draw(m) {
   if (m.table) drawTable(m.table);
   const cam = JSON.stringify(m.cam) !== JSON.stringify(last && last.cam); last = m; if (built !== m.pts.length + ':' + m.slots.length + ':' + m.edges.length) build(m); if (cam) home();
-  for (const p of m.pts) { const u = points.get(p.k).userData; u.pt = p.p; u.mark.material = p.mv ? M.mv : u.plain; u.mark.scale.setScalar(p.mv && !u.goal ? 1.6 : 1); }
+  for (const p of m.pts) { const u = points.get(p.k).userData; u.pt = p.p; u.mv = !!p.mv; u.mark.material = p.mv ? M.mv : u.plain; u.mark.scale.setScalar(p.mv && !u.goal ? 1.6 : 1); }
   const seen = new Set();
   for (const t of m.toks) {
     const g = tokens.get(t.i) || token(t), u = g.userData; seen.add(t.i);
@@ -196,14 +196,63 @@ document.getElementById('camReset').onclick = () => { home(true); if (!controls.
 document.getElementById('camLock').onclick = e => { controls.enabled = !controls.enabled; e.target.textContent = controls.enabled ? 'Lock view' : 'Unlock view'; keepCamera(); };
 if (kept) { controls.enabled = false; document.getElementById('camLock').textContent = 'Unlock view'; home(); }
 
-const ray = new THREE.Raycaster(), mouse = new THREE.Vector2();
-let downAt = [0, 0]; renderer.domElement.addEventListener('pointerdown', e => { downAt = [e.clientX, e.clientY]; });
-renderer.domElement.addEventListener('click', e => {
-  if (Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 12) return;   // a slightly unsteady tap is still a tap; a real drag orbits the camera
-  const r = renderer.domElement.getBoundingClientRect(); mouse.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1); ray.setFromCamera(mouse, camera);
-  const hit = (ray.intersectObjects(pickable, false)[0] || {}).object; if (!hit) return;   // the nearest thing only: the figure when the picture was tapped, the point when a move dot was
-  const u = hit.userData.pick || {};
-  window.boardPick(u.fig != null ? u.fig : null, u.pt != null ? u.pt : null, u.act || null);
+const ray = new THREE.Raycaster(), mouse = new THREE.Vector2(), proj = new THREE.Vector3();
+function screenOf(x, y, z) {   // pixels; null when the point is behind the camera
+  proj.set(x, y, z).project(camera); if (proj.z > 1) return null;
+  const r = renderer.domElement.getBoundingClientRect();
+  return [r.left + (proj.x * .5 + .5) * r.width, r.top + (-proj.y * .5 + .5) * r.height];
+}
+function unitPx() { const a = screenOf(0, 0, 1), b = screenOf(1, 0, 1); return a && b ? Math.hypot(b[0] - a[0], b[1] - a[1]) : 40; }
+// A tap lands on whichever thing it is nearest, measured on the screen. Neighbouring points are just over one board unit apart, so the
+// picture and a move node each claim under half of that: a finger on the gold node moves, a finger on the picture selects or attacks,
+// and the figure standing next to you no longer takes the tap meant for the one you are fighting.
+function tapTarget(cx, cy) {
+  const rect = renderer.domElement.getBoundingClientRect();
+  mouse.set((cx - rect.left) / rect.width * 2 - 1, -(cy - rect.top) / rect.height * 2 + 1); ray.setFromCamera(mouse, camera);
+  const first = (ray.intersectObjects(pickable, false)[0] || {}).object; const hit = first && first.userData.pick;
+  if (hit && hit.act) return { act: hit.act };   // a plate stack or the table button: its own collider
+  const px = unitPx(), coarse = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+  const figR = px * (coarse ? .52 : .45), ptR = px * (coarse ? .5 : .4);
+  let best = null, bestD = Infinity;
+  const consider = (d, radius, pick, tie) => { if (d <= radius && (d < bestD || (tie && d === bestD))) { bestD = d; best = pick; } };
+  for (const g of tokens.values()) {
+    const u = g.userData, y = g.position.y + u.art.position.y + u.art.scale.y * (.5 - u.art.center.y);   // the middle of the picture
+    const s = screenOf(g.position.x, y, g.position.z); if (!s) continue;
+    consider(Math.hypot(s[0] - cx, s[1] - cy), figR, { fig: u.fig });
+  }
+  for (const g of points.values()) {
+    const u = g.userData; if (!u.mv || u.pt == null) continue;
+    const s = screenOf(g.position.x, .05, g.position.z); if (!s) continue;
+    consider(Math.hypot(s[0] - cx, s[1] - cy), ptR, { pt: u.pt }, true);   // the node wins the shared edge
+  }
+  if (best) return best;
+  if (hit && hit.fig != null) return { fig: hit.fig };
+  if (hit && hit.pt != null) return { pt: hit.pt };
+  return null;
+}
+function chooseTap(cx, cy) {
+  const t = tapTarget(cx, cy); if (!t) return;
+  window.boardPick(t.fig != null ? t.fig : null, t.pt != null ? t.pt : null, t.act || null);
+}
+let downAt = null, holdTimer = 0;
+const tapSlop = () => matchMedia('(pointer: coarse)').matches ? 26 : 14;
+renderer.domElement.addEventListener('pointerdown', e => {
+  if (e.button) return; downAt = { x: e.clientX, y: e.clientY, held: false }; clearTimeout(holdTimer);
+  holdTimer = setTimeout(() => {   // a held press opens the figure's detail (the original's long tap) and is not a move or an attack
+    if (!downAt) return; const t = tapTarget(downAt.x, downAt.y);
+    if (!t || t.fig == null || t.pt != null || t.act) return;
+    downAt.held = true; if (window.boardDetail) window.boardDetail(t.fig);
+  }, 480);
+});
+renderer.domElement.addEventListener('contextmenu', e => e.preventDefault());
+window.addEventListener('pointermove', e => { if (downAt && Math.hypot(e.clientX - downAt.x, e.clientY - downAt.y) > tapSlop()) clearTimeout(holdTimer); });
+window.addEventListener('pointercancel', () => { downAt = null; clearTimeout(holdTimer); });
+window.addEventListener('pointerup', e => {
+  if (!downAt) return; const d = downAt; downAt = null; clearTimeout(holdTimer);
+  const moved = Math.hypot(e.clientX - d.x, e.clientY - d.y) > tapSlop();
+  if (d.held && !moved) window.holdClick = true;   // the release after a hold must not also select, move or attack
+  if (d.held || moved) return;   // a drag orbits; a fat finger still counts as a tap
+  chooseTap(e.clientX, e.clientY);
 });
 
 const clock = new THREE.Clock(), TILT = .3, STEP = .17;   // TILT: how far (radians) the camera must rise from the lowest side view before figures are fully centred on their bases   // seconds per hop, the same pace as the flat board
