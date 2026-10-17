@@ -23,9 +23,12 @@ body { margin:0; color:var(--ink); background:var(--bg); font:14px/1.45 "Segoe U
 #assetGate .ag-pack-body b em { font-style:normal; color:var(--dim); font-weight:600; font-size:11px; }
 #assetGate .ag-pack-body > span { font-size:12px; color:var(--dim); line-height:1.35; }
 #assetGate .ag-pack-st { color:var(--ok) !important; font-weight:700; font-size:11px !important; }
-#assetGate .ag-bar { height:7px; background:var(--ctl2); border-radius:99px; overflow:hidden; margin:0 0 8px; }
+#assetGate .ag-progress { margin:0 0 4px; }
+#assetGate .ag-bar { height:8px; background:var(--ctl2); border-radius:99px; overflow:hidden; margin:0 0 8px; }
 #assetGate .ag-bar i { display:block; height:100%; width:0%; background:var(--ink); transition:width .12s linear; }
 #assetGate .ag-meta { min-height:1.2em; margin:0 0 12px; font-size:12px; color:var(--dim); font-variant-numeric:tabular-nums; text-align:center; }
+#assetGate.busy .ag-packs { opacity:.55; pointer-events:none; }
+#assetGate.busy .ag-box > p { opacity:.55; }
 #assetGate .ag-actions { display:flex; flex-direction:column; gap:8px; }
 #assetGate .ag-actions button { width:100%; text-align:center; justify-content:center; }
 #assetGate .ag-actions button.linkish { background:transparent; border-color:transparent; color:var(--dim); font-weight:600; }

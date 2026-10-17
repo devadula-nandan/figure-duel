@@ -6,7 +6,6 @@
   const META_KEY = 'pokemonduelweb.assetPacks';
   const IDB_NAME = 'pokemon-duel-web';
   const CONCUR = 4;
-  const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
 
   const SFX_IDS = ['jingle001','jingle002','se001','se002','se003','se004','se005','se006','se009','se010','se011','se012','se013','se014','se017','se017_2','se022','se023','se024','se026','se027','se028','se029','se030','se034','se035','se036_1','se036_1shot','se037','se038','se039','se042','se043','se044','se045','se046','se047','se048','se051','se052','se053','se054','se055','se057','se058','se059','se060','se061','se063','se064','se065','se066','se067','se070','se071','se072','se073','se074','se075','se076','se077','se078','se079','se080','se081','se082','se083','se084','se085','se086','se087','se088','se089','se090','se091','se092','se093','se094','se114','se116','se121','se122','se123','se124','se125','se129','se130','se132','se133','se134','se135','se136','se137','se138','se139','se140','se141','se142','se147','se148','se149','se152','se153','se154','se156','se157','se158','se160','se165','se166','se169','se170','se171','se172','se173','se174','se175','se176','se177','se178','se179','se180','se181','se182','se183','se184','se185','se186','se187','se188','se189','se190','se191','se192','se193','se194','se198','se203','se205','se206','se207','se208','se209','se210','se211','se212','se213','se214','se215','se216','se217','se218','se219','se221','se222','se223','se223_2','se224','se226','se227','se229','se230','se231','se233','se235','se238'];
 
@@ -31,20 +30,18 @@
       note: 'UI clicks, spins, hits, statuses, jingles',
       size: '71 MB',
       files: SFX_IDS.map(id => 'sfx/' + id + '.wav'),
-      defaultOn: true,
-      unlockAudio: true
+      defaultOn: true
     },
     bgm: {
       label: 'Music',
       note: 'Menu and duel background tracks',
       size: '9 MB',
       files: ['bgm/bgm001.wav', 'bgm/menu.ogg', 'bgm/duel.ogg', 'bgm/tense.ogg', 'bgm/epic.ogg'],
-      defaultOn: true,
-      unlockAudio: true
+      defaultOn: true
     }
   };
 
-  let armed = false, silenceEl = null;
+  let armed = false;
   const readyWaiters = [];
   const href = path => new URL(path, document.baseURI || location.href).href;
 
@@ -102,25 +99,6 @@
       }
     }
     return href(path);
-  }
-
-  function setPlaybackSession() {
-    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
-  }
-
-  function primeAudio() {
-    setPlaybackSession();
-    try {
-      if (!silenceEl) {
-        silenceEl = new Audio(SILENT_WAV);
-        silenceEl.loop = true;
-        silenceEl.volume = 0.01;
-        silenceEl.setAttribute('playsinline', '');
-        silenceEl.playsInline = true;
-        silenceEl.setAttribute('x-webkit-airplay', 'deny');
-      }
-      return silenceEl.play().catch(() => {});
-    } catch (e) { return Promise.resolve(); }
   }
 
   async function registerSw() {
@@ -196,45 +174,56 @@
     return t.content.firstChild;
   }
 
-  async function showGate() {
+  function finishOk() {
+    if (window.sfx) try { window.sfx('click'); } catch (e) {}
+    if (window.bgm && window.bgm.play) {
+      const onGame = document.getElementById('game') && !document.getElementById('game').hidden;
+      try { window.bgm.play(onGame ? 'duel' : 'menu'); } catch (e) {}
+    }
+  }
+
+  // force: reopen from long-press (show every pack). Boot only shows missing packs; skips entirely if all cached.
+  async function showGate(force) {
     if (document.getElementById('assetGate')) return;
-    const host = document.body || document.documentElement;
     const statuses = {};
     await Promise.all(Object.keys(PACKS).map(async id => { statuses[id] = await packProgress(id); }));
+    const missing = Object.keys(PACKS).filter(id => !statuses[id].done);
+    if (!force && !missing.length) { markArmed(); return; }
 
-    const allDone = Object.keys(PACKS).every(id => statuses[id].done);
+    const showIds = force ? Object.keys(PACKS) : missing;
+    const host = document.body || document.documentElement;
     const root = el(`<div id="assetGate" role="dialog" aria-modal="true" aria-labelledby="agTitle">
       <div class="ag-box">
-        <h2 id="agTitle">${allDone ? 'Enable assets' : 'Download assets'}</h2>
-        <p>${allDone
-          ? 'Packs are cached on this device. Tap continue to unlock sound and start.'
-          : 'Choose what to keep on this device so play does not stall on first use. Long-press the sound button later to open this again.'}</p>
+        <h2 id="agTitle">Download assets</h2>
+        <p>Choose what to keep on this device so play does not stall on first use. Long-press the sound button later to open this again.</p>
         <div class="ag-packs" id="agPacks"></div>
-        <div class="ag-bar" hidden id="agBar"><i id="agFill"></i></div>
-        <p class="ag-meta" id="agMeta"></p>
-        <div class="ag-actions">
-          <button type="button" class="primary" id="agGo">${allDone ? 'Continue' : 'Download & continue'}</button>
+        <div class="ag-progress" id="agProgress" hidden>
+          <div class="ag-bar"><i id="agFill"></i></div>
+          <p class="ag-meta" id="agMeta">Starting…</p>
+        </div>
+        <div class="ag-actions" id="agActions">
+          <button type="button" class="primary" id="agGo">Download &amp; continue</button>
           <button type="button" class="linkish" id="agSkip">Continue without downloading</button>
         </div>
       </div>
     </div>`);
     host.appendChild(root);
     const packsEl = root.querySelector('#agPacks');
+    const prog = root.querySelector('#agProgress');
     const metaEl = root.querySelector('#agMeta');
-    const bar = root.querySelector('#agBar');
     const fill = root.querySelector('#agFill');
     const go = root.querySelector('#agGo');
     const skip = root.querySelector('#agSkip');
+    const actions = root.querySelector('#agActions');
 
-    for (const id of Object.keys(PACKS)) {
+    for (const id of showIds) {
       const p = PACKS[id], st = statuses[id];
-      const checked = p.defaultOn || st.done;
       const row = el(`<label class="ag-pack${st.done ? ' ready' : ''}">
-        <input type="checkbox" data-pack="${id}" ${checked ? 'checked' : ''}>
+        <input type="checkbox" data-pack="${id}" ${(st.done || p.defaultOn) ? 'checked' : ''}>
         <span class="ag-pack-body">
           <b>${p.label} <em>${p.size}</em></b>
           <span>${p.note}</span>
-          <span class="ag-pack-st" data-st="${id}">${st.done ? 'Cached' : st.have ? (st.have + ' / ' + st.total) : 'Not cached'}</span>
+          <span class="ag-pack-st" data-st="${id}">${st.done ? 'Cached' : st.have ? (st.have + ' / ' + st.total + ' cached') : 'Not cached'}</span>
         </span>
       </label>`);
       packsEl.appendChild(row);
@@ -242,14 +231,22 @@
 
     const close = () => { root.remove(); markArmed(); };
 
-    skip.onclick = () => { primeAudio(); close(); };
+    skip.onclick = () => { close(); };
 
     go.onclick = async () => {
       const selected = [...root.querySelectorAll('input[data-pack]:checked')].map(i => i.dataset.pack);
       go.disabled = true; skip.disabled = true;
       root.querySelectorAll('input[data-pack]').forEach(i => { i.disabled = true; });
-      if (selected.some(id => PACKS[id].unlockAudio)) await primeAudio();
-      else await primeAudio();
+      root.classList.add('busy');
+      actions.hidden = true;
+      prog.hidden = false;
+      fill.style.width = '2%';
+      metaEl.textContent = 'Preparing…';
+
+      const setProg = (pct, text) => {
+        fill.style.width = Math.max(2, Math.min(100, pct)) + '%';
+        if (text) metaEl.textContent = text;
+      };
 
       try {
         await registerSw();
@@ -259,63 +256,57 @@
           if (!st.done) todo.push(id);
         }
         if (!todo.length) {
-          metaEl.textContent = 'Ready.';
+          setProg(100, 'Ready.');
           close();
-          if (window.bgm && window.bgm.play) {
-            const onGame = document.getElementById('game') && !document.getElementById('game').hidden;
-            try { window.bgm.play(onGame ? 'duel' : 'menu'); } catch (e) {}
-          }
-          if (window.sfx) try { window.sfx('click'); } catch (e) {}
+          finishOk();
           return;
         }
 
-        bar.hidden = false;
-        let fileDone = 0, fileTotal = todo.reduce((n, id) => n + PACKS[id].files.length, 0);
-        // subtract already-cached files from total for nicer progress
+        let totalFiles = 0, haveFiles = 0;
         for (const id of todo) {
           const st = await packProgress(id);
-          fileTotal -= st.have;
-          fileDone += 0;
+          totalFiles += st.total;
+          haveFiles += st.have;
         }
-        if (fileTotal < 1) fileTotal = 1;
-        let completed = 0;
+        let fetched = 0;
+        setProg(Math.round((haveFiles / Math.max(1, totalFiles)) * 100) || 2, 'Downloading…');
+
         for (const id of todo) {
           const stEl = root.querySelector(`[data-st="${id}"]`);
           if (stEl) stEl.textContent = 'Downloading…';
-          await downloadPack(id, (have, total, file) => {
-            completed++;
-            const pct = Math.min(100, Math.round((completed / (todo.reduce((n, x) => n + PACKS[x].files.length, 0))) * 100));
-            fill.style.width = pct + '%';
-            metaEl.textContent = PACKS[id].label + ': ' + have + ' / ' + total;
+          const before = (await packProgress(id)).have;
+          await downloadPack(id, (have, total) => {
+            const newly = Math.max(0, have - before);
+            const pct = Math.round(((haveFiles + fetched + newly) / Math.max(1, totalFiles)) * 100);
+            setProg(pct, PACKS[id].label + ' — ' + have + ' / ' + total + ' (' + pct + '%)');
             if (stEl) stEl.textContent = have + ' / ' + total;
           });
+          const after = await packProgress(id);
+          fetched += Math.max(0, after.have - before);
           if (stEl) stEl.textContent = 'Cached';
           const lab = root.querySelector(`input[data-pack="${id}"]`)?.closest('.ag-pack');
           if (lab) lab.classList.add('ready');
         }
-        fill.style.width = '100%';
-        metaEl.textContent = 'All selected packs cached.';
+        setProg(100, 'All selected packs cached.');
         close();
-        if (window.sfx) try { window.sfx('click'); } catch (e) {}
-        if (window.bgm && window.bgm.play) {
-          const onGame = document.getElementById('game') && !document.getElementById('game').hidden;
-          try { window.bgm.play(onGame ? 'duel' : 'menu'); } catch (e) {}
-        }
+        finishOk();
       } catch (err) {
-        metaEl.textContent = (err && err.message) || 'Download failed.';
+        root.classList.remove('busy');
+        actions.hidden = false;
+        setProg(0, (err && err.message) || 'Download failed.');
         go.disabled = false; skip.disabled = false;
         root.querySelectorAll('input[data-pack]').forEach(i => { i.disabled = false; });
       }
     };
   }
 
-  // Long-press sound button re-opens the gate.
+  // Long-press sound button re-opens the gate (all packs).
   function bindReopen() {
     for (const b of document.querySelectorAll('[data-sound-btn], #soundBtn')) {
       if (b._assetBound) continue;
       b._assetBound = 1;
       let t = 0;
-      const start = () => { t = setTimeout(() => { showGate(); }, 650); };
+      const start = () => { t = setTimeout(() => { showGate(true); }, 650); };
       const clear = () => clearTimeout(t);
       b.addEventListener('pointerdown', start);
       b.addEventListener('pointerup', clear);
@@ -327,11 +318,11 @@
   window.Assets = {
     CACHE, PACKS, href, mediaUrl, getBuffer, packProgress, whenReady,
     isArmed: () => armed,
-    primeAudio, showGate, registerSw
+    showGate, registerSw
   };
 
   registerSw();
-  const boot = () => { showGate(); bindReopen(); };
+  const boot = async () => { await showGate(false); bindReopen(); };
   if (document.body) boot();
   else addEventListener('DOMContentLoaded', boot);
   addEventListener('DOMContentLoaded', () => setTimeout(bindReopen, 0));
