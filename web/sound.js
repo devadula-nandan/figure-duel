@@ -5,7 +5,7 @@
 (() => {
   const SOUND_KEY = 'pokemonduelweb.sound';
   const MODES = ['all', 'sfx', 'off'];
-  let actx = null, noiseBuf = null, master = null, musicGain = null, mode = 'all', bgmSrc = null, bgmId = null, resumeWait = null;
+  let actx = null, noiseBuf = null, master = null, musicGain = null, mode = 'all', bgmSrc = null, bgmId = null, resumeWait = null, unlocked = false;
   const loopSrc = {}; // logical name -> BufferSource currently looping
   try {
     let saved = localStorage.getItem(SOUND_KEY);
@@ -24,6 +24,7 @@
   const musicOn = () => mode === 'all';
   const persist = () => { try { localStorage.setItem(SOUND_KEY, mode); } catch (e) {} };
 
+  // iOS/WebKit stay silent until resume + a buffer start run inside a user gesture.
   function ensureCtx() {
     if (!sfxOn()) return Promise.resolve(null);
     try {
@@ -34,6 +35,14 @@
     if (!noiseBuf) {
       const n = actx.sampleRate, d = (noiseBuf = actx.createBuffer(1, n, n)).getChannelData(0); let s = 1;
       for (let i = 0; i < n; i++) { s = (s * 16807) % 2147483647; d[i] = s / 1073741823.5 - 1; }
+    }
+    if (!unlocked) {
+      unlocked = true;
+      try {
+        const tick = actx.createBuffer(1, 1, actx.sampleRate || 44100);
+        const src = actx.createBufferSource();
+        src.buffer = tick; src.connect(actx.destination); src.start(0);
+      } catch (e) {}
     }
     if (actx.state === 'running') return Promise.resolve(actx);
     if (!resumeWait) {
@@ -171,17 +180,19 @@
   const ALL_IDS = ['jingle001','jingle002','se001','se002','se003','se004','se005','se006','se009','se010','se011','se012','se013','se014','se017','se017_2','se022','se023','se024','se026','se027','se028','se029','se030','se034','se035','se036_1','se036_1shot','se037','se038','se039','se042','se043','se044','se045','se046','se047','se048','se051','se052','se053','se054','se055','se057','se058','se059','se060','se061','se063','se064','se065','se066','se067','se070','se071','se072','se073','se074','se075','se076','se077','se078','se079','se080','se081','se082','se083','se084','se085','se086','se087','se088','se089','se090','se091','se092','se093','se094','se114','se116','se121','se122','se123','se124','se125','se129','se130','se132','se133','se134','se135','se136','se137','se138','se139','se140','se141','se142','se147','se148','se149','se152','se153','se154','se156','se157','se158','se160','se165','se166','se169','se170','se171','se172','se173','se174','se175','se176','se177','se178','se179','se180','se181','se182','se183','se184','se185','se186','se187','se188','se189','se190','se191','se192','se193','se194','se198','se203','se205','se206','se207','se208','se209','se210','se211','se212','se213','se214','se215','se216','se217','se218','se219','se221','se222','se223','se223_2','se224','se226','se227','se229','se230','se231','se233','se235','se238'];
 
   const raw = {}, clips = {}, decoding = {}, failed = {}, loading = {};
+  // Resolve against <base href> so /2d/ and GitHub Pages subpaths both work.
+  const sfxUrl = id => new URL('sfx/' + id + '.wav', document.baseURI || location.href).href;
 
   function fetchRaw(id) {
     if (!id || failed[id]) return Promise.resolve(null);
     if (raw[id]) return Promise.resolve(raw[id]);
     if (loading[id]) return loading[id];
-    return loading[id] = fetch('sfx/' + id + '.wav').then(r => r.ok ? r.arrayBuffer() : null).then(b => {
+    return loading[id] = fetch(sfxUrl(id)).then(r => {
       delete loading[id];
-      if (!b) { failed[id] = 1; return null; }
-      raw[id] = b;
-      return b;
-    }).catch(() => { failed[id] = 1; delete loading[id]; return null; });
+      if (r.status === 404) { failed[id] = 1; return null; }
+      if (!r.ok) return null; // transient — allow retry later
+      return r.arrayBuffer().then(b => { raw[id] = b; return b; });
+    }).catch(() => { delete loading[id]; return null; });
   }
 
   function decodeId(id) {
@@ -193,13 +204,16 @@
       return ensureCtx().then(c => {
         if (!c) return null;
         return c.decodeAudioData(bytes.slice(0)).then(buf => {
-          clips[id] = buf; return buf;
+          clips[id] = buf;
+          delete raw[id]; // free the compressed copy once decoded
+          return buf;
         }).catch(() => { failed[id] = 1; return null; });
       });
     }).finally(() => { delete decoding[id]; });
   }
 
-  ALL_IDS.forEach(id => fetchRaw(id));
+  // Warm only the UI staples — prefetching the full ~70MB bank OOMs mobile Safari.
+  ['se001', 'se002', 'se011', 'se024', 'se028', 'se029'].forEach(id => fetchRaw(id));
 
   function stopLoop(name) {
     const src = loopSrc[name];
@@ -209,6 +223,7 @@
   }
 
   function playBuf(buf, gain, dest, loop, loopKey) {
+    if (!actx || actx.state === 'closed') return null;
     if (loopKey) stopLoop(loopKey);
     const src = actx.createBufferSource(); src.buffer = buf; src.loop = !!loop;
     const g = actx.createGain(); g.gain.value = gain;
@@ -225,6 +240,12 @@
       if (!buf || !sfxOn()) return false;
       return ensureCtx().then(c => {
         if (!c || !sfxOn()) return false;
+        if (c.state === 'suspended') {
+          return c.resume().then(() => {
+            playBuf(buf, ui ? UI_GAIN : SFX_GAIN, null, !!loopKey, loopKey || null);
+            return true;
+          }).catch(() => false);
+        }
         playBuf(buf, ui ? UI_GAIN : SFX_GAIN, null, !!loopKey, loopKey || null);
         return true;
       });
@@ -273,26 +294,40 @@
   }
 
   // --- BGM -----------------------------------------------------------------
-  const BGM = {
+  // Safari/iOS cannot decode Ogg; put WAV first there so menu/duel music actually starts.
+  const canOgg = (() => {
+    try {
+      const a = document.createElement('audio');
+      return !!(a.canPlayType && a.canPlayType('audio/ogg; codecs="vorbis"'));
+    } catch (e) { return false; }
+  })();
+  const BGM = canOgg ? {
     menu: ['bgm/menu.ogg', 'bgm/bgm001.wav'],
     duel: ['bgm/duel.ogg', 'bgm/bgm001.wav'],
     tense: ['bgm/tense.ogg', 'bgm/duel.ogg', 'bgm/bgm001.wav'],
     epic: ['bgm/epic.ogg', 'bgm/duel.ogg', 'bgm/bgm001.wav']
+  } : {
+    menu: ['bgm/bgm001.wav'],
+    duel: ['bgm/bgm001.wav'],
+    tense: ['bgm/bgm001.wav'],
+    epic: ['bgm/bgm001.wav']
   };
   const bgmBuf = {}, bgmLoading = {};
+  const bgmUrl = path => new URL(path, document.baseURI || location.href).href;
 
   function loadBgmUrl(url) {
-    if (bgmBuf[url] && bgmBuf[url].getChannelData) return Promise.resolve(bgmBuf[url]);
-    if (bgmBuf[url] === false) return Promise.resolve(null);
-    if (bgmLoading[url]) return bgmLoading[url];
-    return bgmLoading[url] = fetch(url).then(r => r.ok ? r.arrayBuffer() : null).then(b => {
-      delete bgmLoading[url];
-      if (!b) { bgmBuf[url] = false; return null; }
+    const href = /^https?:/i.test(url) ? url : bgmUrl(url);
+    if (bgmBuf[href] && bgmBuf[href].getChannelData) return Promise.resolve(bgmBuf[href]);
+    if (bgmBuf[href] === false) return Promise.resolve(null);
+    if (bgmLoading[href]) return bgmLoading[href];
+    return bgmLoading[href] = fetch(href).then(r => r.ok ? r.arrayBuffer() : null).then(b => {
+      delete bgmLoading[href];
+      if (!b) { bgmBuf[href] = false; return null; }
       return ensureCtx().then(c => {
         if (!c) return null;
-        return c.decodeAudioData(b.slice(0)).then(buf => { bgmBuf[url] = buf; return buf; }).catch(() => { bgmBuf[url] = false; return null; });
+        return c.decodeAudioData(b.slice(0)).then(buf => { bgmBuf[href] = buf; return buf; }).catch(() => { bgmBuf[href] = false; return null; });
       });
-    }).catch(() => { bgmBuf[url] = false; delete bgmLoading[url]; return null; });
+    }).catch(() => { bgmBuf[href] = false; delete bgmLoading[href]; return null; });
   }
 
   async function playBgm(id) {
@@ -398,7 +433,16 @@
     }
   };
   addEventListener('DOMContentLoaded', () => draw());
-  addEventListener('pointerdown', () => { ensureCtx(); }, true);
+  // Capture + several event types so iOS unlocks even when the first tap is on the canvas/board.
+  const unlock = () => { ensureCtx(); };
+  for (const ev of ['pointerdown', 'touchstart', 'mousedown', 'click', 'keydown']) {
+    addEventListener(ev, unlock, { capture: true, passive: true });
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible' && actx && actx.state !== 'running') {
+      try { actx.resume(); } catch (e) {}
+    }
+  });
   addEventListener('pointerdown', e => {
     const el = e.target.closest && e.target.closest('button, [role="button"], a, summary, .row, .tcard, .pchip');
     if (!el || el.disabled || el.id === 'soundBtn' || el.hasAttribute('data-sound-btn') || el.closest('#nav') || el.getAttribute('aria-disabled') === 'true') return;
