@@ -1527,7 +1527,15 @@ function render() {
     if ((v.type === 'mp_move' || v.type === 'route_move') && Array.isArray(v.route) && v.route.length >= 2 && v.route[0] === me.index) { const to = v.route[v.route.length - 1]; (routes.get(to) || routes.set(to, []).get(to)).push(m); }
     if (v.type === 'declare_battle' && v.from_pokemon === sel) targets.set(v.to_pokemon, m);
   }
-  if (mine && !pick) for (const m of legal) if (m.value.type === 'spot_move' && m.value.to != null) { const to = m.value.to; (routes.get(to) || routes.set(to, []).get(to)).push(m); }   // after a battle the figure's landing spot is chosen on the board
+  if (mine && !pick) {   // spot_move: post-battle landing (one from) or Misty Surge Water bench entry (many froms). Scope markers to the selected figure so shared tos don't pile into a dead routeChoice.
+    const spots = legal.filter(m => m.value.type === 'spot_move' && m.value.to != null);
+    const froms = new Set(spots.map(m => m.value.from).filter(f => f != null));
+    for (const m of spots) {
+      if (me) { if (m.value.from != null && m.value.from !== me.index) continue; }
+      else if (froms.size > 1) continue;
+      const to = m.value.to; (routes.get(to) || routes.set(to, []).get(to)).push(m);
+    }
+  }
   if (!mine) pick = null;
   const stage = pick ? pickStage() : null;
   if (stage) { routes.clear(); targets.clear();   // a choice is being made: the board offers its figures or points instead of the selected figure's moves
@@ -1726,7 +1734,7 @@ function drawPrompt(mine, stage) {   // the choice in progress, and whatever els
   let h = '';
   if (mine && stage) { drawPrompt.opts = stage.list || []; h = `<b>${esc(pick.title)}</b>` + (stage.map ? `<span>${stage.kind === 'fig' ? 'Choose a figure' : 'Choose a point'}</span>` : drawPrompt.opts.map((m, k) => `<button data-c="${k}">${describe(m.value)}</button>`).join('')); }
   else if (mine && routeChoice) h = '';
-  else if (mine && legal.some(m => m.value.type === 'spot_move' && m.value.to != null)) h = '<b>Choose a point</b>' + legal.filter(m => !['mp_move', 'route_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
+  else if (mine && [...(render.routes || [])].some(([, ms]) => ms.some(m => m.value.type === 'spot_move'))) h = '<b>Choose a point</b>' + legal.filter(m => !['mp_move', 'route_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
   else if (mine) h = legal.filter(m => !['mp_move', 'route_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
   $('tbl').innerHTML = h;
 }
@@ -1847,7 +1855,11 @@ window.boardPick = (fig, pt, act) => {   // a figure index and / or a field poin
   if (act && fig == null) return tableAct(act);
   if (pick) { const ms = (fig != null && render.targets.get(fig)) || (pt != null && render.routes.get(pt)); if (ms) choose(ms); return; }
   if (fig != null) { if (render.targets && render.targets.has(fig)) return play(render.targets.get(fig)); sel = fig; routeChoice = null; sfx('select'); return render(); }
-  if (pt != null && render.routes && render.routes.has(pt)) { const r = render.routes.get(pt); if (r.length === 1) return play(r[0]); routeChoice = r; render(); }
+  if (pt != null && render.routes && render.routes.has(pt)) {
+    const r = render.routes.get(pt); if (r.length === 1) return play(r[0]);
+    if (r.every(m => m.value.type === 'spot_move')) return play(r[0]);   // Misty Surge entries have no .route to walk for disambiguation
+    routeChoice = r; render();
+  }
 };
 function boardDetail(i, view) {   // MiniDetailFigure: a long press opens this figure as a sheet in the arena; evolutions are tabs in the same panel
   const c = st && st.pokemon_conditions.find(x => x.pokemon_index === i); if (!c) return;
