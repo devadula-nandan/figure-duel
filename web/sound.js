@@ -5,8 +5,14 @@
 (() => {
   const SOUND_KEY = 'pokemonduelweb.sound';
   const MODES = ['all', 'sfx', 'off'];
+  // iPhone/iPad mute Web Audio when the ringer is on silent; HTMLAudio uses the media channel instead.
+  const appleMobile = /iPhone|iPod|iPad/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  // Tiny silent WAV — looping it (or audioSession=playback) routes Web Audio onto the media channel.
+  const SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
   let actx = null, noiseBuf = null, master = null, musicGain = null, mode = 'all', bgmSrc = null, bgmId = null, resumeWait = null, unlocked = false;
+  let silenceEl = null, bgmAudio = null;
   const loopSrc = {}; // logical name -> BufferSource currently looping
+  const htmlLoops = {}; // logical name -> HTMLAudioElement looping
   try {
     let saved = localStorage.getItem(SOUND_KEY);
     if (saved == null) {
@@ -24,9 +30,33 @@
   const musicOn = () => mode === 'all';
   const persist = () => { try { localStorage.setItem(SOUND_KEY, mode); } catch (e) {} };
 
+  function setPlaybackSession() {
+    try {
+      if (navigator.audioSession) navigator.audioSession.type = 'playback';
+    } catch (e) {}
+  }
+  setPlaybackSession();
+
+  function primeMediaChannel() {
+    setPlaybackSession();
+    try {
+      if (!silenceEl) {
+        silenceEl = new Audio(SILENT_WAV);
+        silenceEl.loop = true;
+        silenceEl.volume = 0.01;
+        silenceEl.preload = 'auto';
+        silenceEl.setAttribute('playsinline', '');
+        silenceEl.playsInline = true;
+        silenceEl.setAttribute('x-webkit-airplay', 'deny');
+      }
+      return silenceEl.play().catch(() => {});
+    } catch (e) { return Promise.resolve(); }
+  }
+
   // iOS/WebKit stay silent until resume + a buffer start run inside a user gesture.
   function ensureCtx() {
     if (!sfxOn()) return Promise.resolve(null);
+    primeMediaChannel();
     try {
       actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     } catch (e) { return Promise.resolve(null); }
@@ -217,9 +247,15 @@
 
   function stopLoop(name) {
     const src = loopSrc[name];
-    if (!src) return;
-    delete loopSrc[name];
-    try { src.stop(); } catch (e) {}
+    if (src) {
+      delete loopSrc[name];
+      try { src.stop(); } catch (e) {}
+    }
+    const a = htmlLoops[name];
+    if (a) {
+      delete htmlLoops[name];
+      try { a.pause(); a.removeAttribute('src'); a.load(); } catch (e) {}
+    }
   }
 
   function playBuf(buf, gain, dest, loop, loopKey) {
@@ -235,7 +271,35 @@
     return src;
   }
 
+  // HTMLAudioElement: audible on iOS even with the hardware silent switch.
+  function playHtmlClip(id, ui, loopKey) {
+    primeMediaChannel();
+    if (loopKey) stopLoop(loopKey);
+    const a = new Audio(sfxUrl(id));
+    a.preload = 'auto';
+    a.volume = Math.max(0.01, Math.min(1, ui ? UI_GAIN * 2.2 : SFX_GAIN));
+    a.loop = !!loopKey;
+    a.setAttribute('playsinline', '');
+    a.playsInline = true;
+    if (loopKey) htmlLoops[loopKey] = a;
+    return a.play().then(() => true).catch(() => false);
+  }
+
   function playClip(id, ui, loopKey) {
+    if (appleMobile) {
+      return playHtmlClip(id, ui, loopKey).then(ok => {
+        if (ok) return true;
+        // Fall back to Web Audio if HTML play was blocked.
+        return decodeId(id).then(buf => {
+          if (!buf || !sfxOn()) return false;
+          return ensureCtx().then(c => {
+            if (!c || !sfxOn()) return false;
+            playBuf(buf, ui ? UI_GAIN : SFX_GAIN, null, !!loopKey, loopKey || null);
+            return true;
+          });
+        }).catch(() => false);
+      });
+    }
     return decodeId(id).then(buf => {
       if (!buf || !sfxOn()) return false;
       return ensureCtx().then(c => {
@@ -268,24 +332,32 @@
     const ui = name === 'click' || name === 'back';
     const ids = resolveIds(name);
     const loopKey = LOOP[name] ? name : null;
-    ensureCtx().then(c => {
-      if (!c || !sfxOn()) return;
+    primeMediaChannel();
+    const run = c => {
+      if (!sfxOn()) return;
       if (!ids.length) {
-        if (bank[name]) bank[name](c.currentTime);
+        if (c && bank[name]) bank[name](c.currentTime);
         return;
       }
-      if (loopKey && loopSrc[loopKey]) return; // already spinning
+      if (loopKey && (loopSrc[loopKey] || htmlLoops[loopKey])) return; // already spinning
       let i = 0;
       const next = () => {
         if (i >= ids.length || !sfxOn()) return;
         const id = ids[i++];
         playClip(id, ui, i === 1 ? loopKey : null).then(ok => {
-          if (!ok && i === 1 && bank[name]) bank[name](c.currentTime);
+          if (!ok && i === 1 && c && bank[name]) bank[name](c.currentTime);
           if (i < ids.length) setTimeout(next, 200);
         });
       };
       next();
-    });
+    };
+    // On Apple, play clips via HTML immediately; warm AudioContext in parallel for synth fallback.
+    if (appleMobile && ids.length) {
+      run(actx);
+      ensureCtx();
+      return;
+    }
+    ensureCtx().then(c => { if (c) run(c); });
   }
 
   function sfxStop(name) {
@@ -330,8 +402,34 @@
     }).catch(() => { bgmBuf[href] = false; delete bgmLoading[href]; return null; });
   }
 
+  async function playBgmHtml(id) {
+    if (!musicOn()) return;
+    if (bgmId === id && bgmAudio && !bgmAudio.paused) return;
+    stopBgm(false);
+    bgmId = id;
+    await primeMediaChannel();
+    if (bgmId !== id || !musicOn()) return;
+    const urls = BGM[id] || BGM.duel;
+    for (const u of urls) {
+      const href = /^https?:/i.test(u) ? u : bgmUrl(u);
+      const a = new Audio(href);
+      a.loop = true;
+      a.volume = .45;
+      a.preload = 'auto';
+      a.setAttribute('playsinline', '');
+      a.playsInline = true;
+      try {
+        await a.play();
+        bgmAudio = a;
+        a.onended = () => { if (bgmAudio === a) bgmAudio = null; };
+        return;
+      } catch (e) { /* try next url */ }
+    }
+  }
+
   async function playBgm(id) {
     if (!musicOn()) return;
+    if (appleMobile) return playBgmHtml(id);
     if (bgmId === id && bgmSrc) return;
     stopBgm(false);
     bgmId = id;
@@ -354,6 +452,11 @@
   }
 
   function stopBgm(fade) {
+    if (bgmAudio) {
+      const a = bgmAudio; bgmAudio = null; bgmId = null;
+      try { a.pause(); a.removeAttribute('src'); a.load(); } catch (e) {}
+      return;
+    }
     const src = bgmSrc; bgmSrc = null; bgmId = null;
     if (!src || !actx) return;
     try {
@@ -434,13 +537,15 @@
   };
   addEventListener('DOMContentLoaded', () => draw());
   // Capture + several event types so iOS unlocks even when the first tap is on the canvas/board.
-  const unlock = () => { ensureCtx(); };
-  for (const ev of ['pointerdown', 'touchstart', 'mousedown', 'click', 'keydown']) {
+  const unlock = () => { setPlaybackSession(); primeMediaChannel(); ensureCtx(); };
+  for (const ev of ['pointerdown', 'touchstart', 'touchend', 'mousedown', 'click', 'keydown']) {
     addEventListener(ev, unlock, { capture: true, passive: true });
   }
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && actx && actx.state !== 'running') {
-      try { actx.resume(); } catch (e) {}
+    if (document.visibilityState === 'visible') {
+      setPlaybackSession();
+      if (actx && actx.state !== 'running') { try { actx.resume(); } catch (e) {} }
+      if (silenceEl && silenceEl.paused && sfxOn()) primeMediaChannel();
     }
   });
   addEventListener('pointerdown', e => {
