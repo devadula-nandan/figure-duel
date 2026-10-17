@@ -211,18 +211,29 @@
 
   const raw = {}, clips = {}, decoding = {}, failed = {}, loading = {};
   // Resolve against <base href> so /2d/ and GitHub Pages subpaths both work.
-  const sfxUrl = id => new URL('sfx/' + id + '.wav', document.baseURI || location.href).href;
+  const sfxPath = id => 'sfx/' + id + '.wav';
+  const sfxUrl = id => new URL(sfxPath(id), document.baseURI || location.href).href;
+  const audioArmed = () => !window.Assets || Assets.isArmed();
 
   function fetchRaw(id) {
     if (!id || failed[id]) return Promise.resolve(null);
     if (raw[id]) return Promise.resolve(raw[id]);
     if (loading[id]) return loading[id];
-    return loading[id] = fetch(sfxUrl(id)).then(r => {
-      delete loading[id];
-      if (r.status === 404) { failed[id] = 1; return null; }
-      if (!r.ok) return null; // transient — allow retry later
-      return r.arrayBuffer().then(b => { raw[id] = b; return b; });
-    }).catch(() => { delete loading[id]; return null; });
+    return loading[id] = (async () => {
+      try {
+        if (window.Assets && Assets.getBuffer) {
+          const fromPack = await Assets.getBuffer(sfxPath(id));
+          if (fromPack && fromPack.byteLength) { raw[id] = fromPack; return fromPack; }
+        }
+        const r = await fetch(sfxUrl(id));
+        if (r.status === 404) { failed[id] = 1; return null; }
+        if (!r.ok) return null;
+        const b = await r.arrayBuffer();
+        raw[id] = b;
+        return b;
+      } catch (e) { return null; }
+      finally { delete loading[id]; }
+    })();
   }
 
   function decodeId(id) {
@@ -241,9 +252,6 @@
       });
     }).finally(() => { delete decoding[id]; });
   }
-
-  // Warm only the UI staples — prefetching the full ~70MB bank OOMs mobile Safari.
-  ['se001', 'se002', 'se011', 'se024', 'se028', 'se029'].forEach(id => fetchRaw(id));
 
   function stopLoop(name) {
     const src = loopSrc[name];
@@ -272,16 +280,21 @@
   }
 
   // HTMLAudioElement: audible on iOS even with the hardware silent switch.
-  function playHtmlClip(id, ui, loopKey) {
+  async function playHtmlClip(id, ui, loopKey) {
     primeMediaChannel();
     if (loopKey) stopLoop(loopKey);
-    const a = new Audio(sfxUrl(id));
+    let src = sfxUrl(id);
+    try {
+      if (window.Assets && Assets.mediaUrl) src = await Assets.mediaUrl(sfxPath(id));
+    } catch (e) {}
+    const a = new Audio(src);
     a.preload = 'auto';
     a.volume = Math.max(0.01, Math.min(1, ui ? UI_GAIN * 2.2 : SFX_GAIN));
     a.loop = !!loopKey;
     a.setAttribute('playsinline', '');
     a.playsInline = true;
     if (loopKey) htmlLoops[loopKey] = a;
+    else a.onended = () => { try { if (src.indexOf('blob:') === 0) URL.revokeObjectURL(src); } catch (e) {} };
     return a.play().then(() => true).catch(() => false);
   }
 
@@ -327,7 +340,7 @@
   }
 
   function sfx(name) {
-    if (!sfxOn()) return;
+    if (!sfxOn() || !audioArmed()) return;
     if (name === 'spin_stop') stopLoop('spin');
     const ui = name === 'click' || name === 'back';
     const ids = resolveIds(name);
@@ -403,7 +416,7 @@
   }
 
   async function playBgmHtml(id) {
-    if (!musicOn()) return;
+    if (!musicOn() || !audioArmed()) return;
     if (bgmId === id && bgmAudio && !bgmAudio.paused) return;
     stopBgm(false);
     bgmId = id;
@@ -411,7 +424,10 @@
     if (bgmId !== id || !musicOn()) return;
     const urls = BGM[id] || BGM.duel;
     for (const u of urls) {
-      const href = /^https?:/i.test(u) ? u : bgmUrl(u);
+      let href = /^https?:/i.test(u) ? u : bgmUrl(u);
+      try {
+        if (window.Assets && Assets.mediaUrl && !/^https?:/i.test(u)) href = await Assets.mediaUrl(u);
+      } catch (e) {}
       const a = new Audio(href);
       a.loop = true;
       a.volume = .45;
@@ -428,7 +444,7 @@
   }
 
   async function playBgm(id) {
-    if (!musicOn()) return;
+    if (!musicOn() || !audioArmed()) return;
     if (appleMobile) return playBgmHtml(id);
     if (bgmId === id && bgmSrc) return;
     stopBgm(false);
@@ -549,6 +565,8 @@
     }
   });
   addEventListener('pointerdown', e => {
+    if (!audioArmed()) return;
+    if (e.target.closest && e.target.closest('#assetGate')) return;
     const el = e.target.closest && e.target.closest('button, [role="button"], a, summary, .row, .tcard, .pchip');
     if (!el || el.disabled || el.id === 'soundBtn' || el.hasAttribute('data-sound-btn') || el.closest('#nav') || el.getAttribute('aria-disabled') === 'true') return;
     const label = (el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim();

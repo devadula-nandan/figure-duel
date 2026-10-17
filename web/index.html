@@ -7,6 +7,7 @@
 <title>pokemon duel web</title>
 <link rel="stylesheet" href="theme.css">
 <script src="theme.js"></script>
+<script src="assets.js"></script>
 <script src="sound.js"></script>
 <style>
   body { height:100dvh; display:flex; flex-direction:column; } input, button, select, textarea, a, label { touch-action:manipulation; }   /* no double-tap zoom on controls */
@@ -1173,6 +1174,12 @@ async function libFromApk(file) { // minimal zip reader: central directory -> th
   throw new Error('That APK does not contain the rule engine (' + ENGINE_FILE + ').');
 }
 async function fetchLib() {
+  try {
+    if (window.Assets && Assets.getBuffer) {
+      const fromPack = await Assets.getBuffer('libTFG.so');
+      if (fromPack && fromPack.byteLength > 100000) return fromPack;
+    }
+  } catch (e) {}
   const r = await fetch('libTFG.so');
   if (!r.ok || (r.headers.get('content-type') || '').includes('html')) return null;
   const bytes = await r.arrayBuffer();

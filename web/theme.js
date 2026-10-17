@@ -4,7 +4,7 @@
 (() => {
   const KEY = 'pokemonduelweb.theme', sysLight = matchMedia('(prefers-color-scheme: light)'); let mode = 'auto';
   // Bump when shipping a build you need to confirm on phones / Pages.
-  window.APP_VER = '0.3.3';
+  window.APP_VER = '0.3.5';
   // Small line icons drawn here (no icon font or image files). icon() is shared with the pages for their own buttons.
   window.icon = body => '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + body + '</svg>';
   const mountVer = () => {
