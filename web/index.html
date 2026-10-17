@@ -177,10 +177,10 @@
   /* chosen plates: same 3-across grid as #team figures (6 slots → two rows) */
   #myplates { position:relative; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; overflow:visible; padding:4px; margin:0 0 8px; }   /* inset so :focus-visible rings are not clipped */
   #myplates .mpl { min-width:0; height:var(--slot-h, 146px); box-sizing:border-box; }   /* same height as #team cards */
-  #myplates .mpl .mhd { display:flex; align-items:center; gap:6px; flex:none; min-height:26px; }   /* rarity · spacer · i · x */
+  #myplates .mpl .mhd { display:flex; align-items:center; gap:6px; flex:none; min-height:24px; }   /* rarity · spacer · i · x */
   #myplates .mpl .mhd .chip { position:static; margin-right:auto; }
   #myplates .mpl .ct { display:flex; gap:3px; flex:none; } #myplates .mpl .ct:empty { display:none; }   /* cost dots under the name */
-  #myplates .mpl .info, #myplates .mpl .x { position:static; flex:none; width:26px; height:26px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; background:color-mix(in srgb, var(--bg) 18%, transparent); color:var(--bg); border:1px solid color-mix(in srgb, var(--bg) 35%, transparent); cursor:pointer; }
+  #myplates .mpl .info, #myplates .mpl .x { position:static; flex:none; width:24px; height:24px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; background:color-mix(in srgb, var(--bg) 18%, transparent); color:var(--bg); border:1px solid color-mix(in srgb, var(--bg) 35%, transparent); cursor:pointer; }   /* same 24px box as #team .card .info / .x */
   #myplates .mpl .info svg, #myplates .mpl .x svg { width:14px; height:14px; }
   #myplates .mpl .info:hover { background:var(--bg); border-color:var(--bg); color:var(--ink); } #myplates .mpl .x:hover { background:var(--danger); border-color:var(--danger); color:#fff; }
   #myplates .mpl > b { flex:none; min-width:0; } #myplates .mpl > .note { flex:1 1 0; min-height:0; min-width:0; display:block; -webkit-line-clamp:unset; overflow:hidden; -webkit-mask-image:linear-gradient(to bottom, #000 55%, transparent); mask-image:linear-gradient(to bottom, #000 55%, transparent); }   /* soft fade instead of a hard clamp */
@@ -248,22 +248,35 @@
     #home .boosters { gap:4px; flex:1; } #home .booster { aspect-ratio:auto; height:100%; min-height:52px; max-height:72px; padding:4px; gap:2px; font-size:10px; } #home .booster .chip { font-size:9px; padding:0 4px; } #home .booster .primary { height:26px; padding:0 8px; font-size:11px; }
     #home .hgo { position:static; gap:6px; padding:0; background:none; box-shadow:none; } #home .hgo button { padding:0 8px; min-height:36px; font-size:12px; border-radius:6px; } #home .hgo .primary { font-size:14px; min-height:0; flex:2; }
     #home .hlobby > p.note { display:none; }   /* footer blurb — room goes to the deck */
-    #setup { display:flex; flex-direction:column; gap:6px; padding:6px; padding-bottom:max(6px, env(safe-area-inset-bottom)); min-height:0; } #setup > section { display:contents; } #setup .panel { margin-bottom:0; min-width:0; padding:8px; }
-    #setup > section:last-child > .panel:nth-child(1) { order:1; flex:1 1 0; min-height:0; display:flex; flex-direction:column; overflow:hidden; }   /* team + plates fill leftover height */
-    #savedPanel { order:2; flex:none; } #setup > section:last-child > .panel:nth-child(2) { order:3; flex:none; position:relative; z-index:2; box-shadow:0 2px 10px rgba(0,0,0,.18); }   /* Start stays in-flow (no sticky scroll) */
-    #setup .hhead { margin-bottom:4px; flex:none; } #setup .teamcards.cards { margin-bottom:4px; gap:6px; padding:4px; flex:1 1 0; min-height:0; height:auto; grid-template-rows:1fr 1fr; align-content:stretch; overflow:hidden; }   /* same focus inset as #myplates */
-    #setup #myplates { margin:0; gap:6px; padding:4px; flex:1 1 0; min-height:0; height:auto; grid-template-rows:1fr 1fr; align-content:stretch; overflow:hidden; }   /* 4px inset matches :focus-visible outline+offset so empty + slots are not clipped at the top */
-    #setup #tmsg { display:none; } #savedPanel #tlist { margin:0; } #savedPanel .tcard { flex-basis:160px; padding:4px 6px; gap:2px; }
-    #pickBtn { display:inline-flex !important; } #pickClose { display:inline-flex; } #pickExp { display:none !important; }   /* mobile drawer: no Expand/Collapse — close with X instead */
+    /* Setup mobile: team + plates share the same 3×2 grid and inset (no scroll fade on resting tiles) */
+    #setup { --edge:4px; --fade:14px; --gap:6px; --plt-h:72px; display:flex; flex-direction:column; gap:var(--gap); padding:var(--gap); padding-bottom:max(var(--gap), env(safe-area-inset-bottom)); min-height:0; overflow:hidden; }
+    #setup > section { display:contents; } #setup .panel { margin-bottom:0; min-width:0; padding:var(--gap); }
+    #setup > section:last-child > .panel:nth-child(1) { order:1; flex:1 1 0; min-height:0; display:flex; flex-direction:column; overflow:hidden; gap:0; }
+    #savedPanel { order:2; flex:none; } #setup > section:last-child > .panel:nth-child(2) { order:3; flex:none; position:relative; z-index:2; box-shadow:0 2px 10px rgba(0,0,0,.18); }
+    #setup .hhead { margin-bottom:var(--edge); flex:none; min-height:26px; }
+    #setup .hhead label.note { font-size:10px; } #setup #oplLabel { display:none; }
+    #setup .teamcards.cards { flex:1 1 0; min-height:0; margin:0 0 var(--gap); gap:var(--gap); padding:0; height:auto; overflow:hidden; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:1fr 1fr; }
+    #team .card { height:100%; min-height:0 !important; padding:18px 4px 4px; gap:2px; box-sizing:border-box; }
+    #team .card img { width:min(52px, 46%); height:auto; aspect-ratio:1; max-height:52px; object-fit:contain; }
+    #team .card .nm { font-size:11px; } #team .card .note { font-size:9px; }
+    #setup #myplates { flex:none; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:repeat(2,var(--plt-h)); gap:var(--gap); margin:0; padding:0; height:auto; min-width:0; box-sizing:border-box; overflow:hidden; -webkit-mask-image:none; mask-image:none; }
+    #setup #myplates .mpl { width:auto; height:100%; min-height:0 !important; padding:6px 8px; gap:2px; box-sizing:border-box; overflow:hidden; }
+    #setup #myplates .mpl > .note { display:none; }
+    #setup #myplates .mpl .mhd { min-height:22px; margin:0; }
+    #setup #myplates .mpl > b { flex:1 1 auto; min-height:0; font-size:11px; line-height:1.2; display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden; white-space:normal; }
+    #setup #myplates .mpl .ct { margin-top:auto; }
+    #setup #myplates .mpl.empty { background:none; color:var(--dim); border:1px dashed color-mix(in srgb, var(--dim) 70%, transparent); font-size:22px; font-weight:700; }
+    #setup #myplates .mpl.empty:hover { opacity:1; border-color:var(--dim); }
+    #setup #tmsg { display:none; } #savedPanel #tlist { margin:0; padding:var(--edge) var(--fade); -webkit-mask-image:linear-gradient(to right, transparent 0, #000 var(--fade), #000 calc(100% - var(--fade)), transparent 100%); mask-image:linear-gradient(to right, transparent 0, #000 var(--fade), #000 calc(100% - var(--fade)), transparent 100%); scroll-padding-inline:var(--fade); } #savedPanel .tcard { flex:0 0 160px; padding:4px 6px; gap:2px; scroll-snap-align:start; }
+    #pickBtn { display:inline-flex !important; } #pickClose { display:inline-flex; } #pickExp { display:none !important; }
     #pickScrim { display:block; position:fixed; inset:0; z-index:5; background:color-mix(in srgb, var(--bg) 55%, transparent); opacity:0; pointer-events:none; transition:opacity .2s; } #setup.pick-open #pickScrim:not([hidden]) { opacity:1; pointer-events:auto; } #pickScrim[hidden] { display:none !important; }
-    #pickSide { position:fixed; inset:0; z-index:6; width:auto; display:flex; flex-direction:column; gap:10px; padding:12px; padding-top:max(12px, env(safe-area-inset-top)); padding-bottom:max(12px, env(safe-area-inset-bottom)); background:var(--bar); border:0; box-shadow:none; transform:translateX(100%); visibility:hidden; transition:transform .22s ease, visibility 0s linear .22s; overflow:hidden; pointer-events:none; }   /* full-width sheet; no side strip left of a 400px drawer */
+    #pickSide { position:fixed; inset:0; z-index:6; width:auto; display:flex; flex-direction:column; gap:10px; padding:12px; padding-top:max(12px, env(safe-area-inset-top)); padding-bottom:max(12px, env(safe-area-inset-bottom)); background:var(--bar); border:0; box-shadow:none; transform:translateX(100%); visibility:hidden; transition:transform .22s ease, visibility 0s linear .22s; overflow:hidden; pointer-events:none; }
     #setup.pick-open #pickSide { transform:none; visibility:visible; transition:transform .22s ease, visibility 0s; pointer-events:auto; }
     #pickSide #figPanel, #pickSide #pltPanel { background:none; border:0; border-radius:0; box-shadow:none; padding:0; }
     #pickSide #figPanel > .pbody, #pickSide #pltPanel > .pbody { gap:6px; padding:0; }
     #pickSide .bar { gap:5px; } #pickSide .bar input:not([type=checkbox]) { flex:1 1 100%; } #pickSide .bar select { flex:1 1 calc(50% - 3px); max-width:calc(50% - 2px); }
     #pickSide #list.cards, #pickSide #plist.cards { height:auto; flex:1 1 0; min-height:120px; padding-top:12px; padding-bottom:12px; overflow:auto; -webkit-mask-image:linear-gradient(to bottom, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%); mask-image:linear-gradient(to bottom, transparent 0, #000 12px, #000 calc(100% - 12px), transparent 100%); }
     #list.cards { height:52dvh; } #plist.cards { height:40dvh; grid-template-columns:1fr; }
-    #setup { --slot-h:auto; } #team .card, #myplates .mpl { height:100%; min-height:0 !important; max-height:none; } #team .card { padding-top:18px; gap:1px; } #team .card img { width:min(52px, 42%); height:auto; aspect-ratio:1; max-height:52px; object-fit:contain; }   /* slots share the panel; no fixed min-height → no setup scrollbar */
     #setup .bar select, #setup .bar input:not([type=checkbox]) { min-width:0; max-width:100%; } #mode { width:100%; }
   }
   #acts { display:grid; gap:6px; max-height:34dvh; overflow:auto; align-content:start; } #acts button { width:100%; padding:10px 14px; background:var(--ink); border:2px solid var(--bg); color:var(--bg); }
