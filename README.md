@@ -6,15 +6,17 @@ A web client for [Pokémon Duel](https://en.wikipedia.org/wiki/Pokémon_Duel). T
 - `play.py` serves `web/` locally at http://localhost:8765 and hands the page the engine library straight from the APK next to it.
 - `tools/` holds the scripts that build `web/data.js` and the native test harness.
 
-## The rule engine is not included
+## The rule engine
 
-The engine library (`libTFG.so`) comes from the original Android app, version 7.0.16. It is not in this repository. When the page cannot find it, it asks for your own copy of the APK once, reads the library out of it in the browser, and remembers it on that device.
+The engine library (`web/libTFG.so`) is taken from the original Android app, version 7.0.16, so the static site is playable with no APK upload. The browser caches it in IndexedDB after the first load. If that file is missing, the page falls back to reading the library from a local 7.0.16 APK once.
 
 ## Run locally
 
 ```bash
 python play.py
 ```
+
+`play.py` still needs the APK next to it when you use the Python engine processes; the in-page engine loads `web/libTFG.so` (or `/libTFG.so` served from the APK).
 
 ## Notes
 

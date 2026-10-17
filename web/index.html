@@ -468,7 +468,7 @@
     <div class="panel gobar"><div id="oppPanel"><select id="mode" aria-label="Opponent" title="Opponent"><option value="1:60">Original AI · 60 trials (≈4 s per move)</option><option value="1:300">Original AI · 300 trials (≈20 s per move)</option><option value="1:1500">Original AI · 1500 trials (≈90 s per move)</option><option value="default">Original AI · original default settings (very slow)</option><option value="2:1">Random mover</option><option value="hot">2 players, same screen</option><option value="host">Online · host a room</option><option value="join">Online · join a room</option></select>
         <input id="room" placeholder="room code" size="8" hidden>
       </div><button id="go" class="primary">Start duel</button> <span id="setupErr" class="err"></span>
-      <p class="note">Every legal move, spin, attack effect, ability, plate and AI decision is computed by the original engine (libTFG.so from your APK), not by a re-implementation.</p></div>
+      <p class="note">Every legal move, spin, attack effect, ability, plate and AI decision is computed by the original engine (libTFG.so), not by a re-implementation.</p></div>
   </section>
 </main>
 
@@ -1112,9 +1112,8 @@ function playerEntry(color, slots, plates) { // the original Player(UserDeck, co
 }
 
 // ---------- the rule engine, in the page ----------
-// The original engine (libTFG.so from the 7.0.16 APK) runs in Web Workers under an ARM emulator (tfg.js + unicorn.js). Nothing is installed and
-// nothing runs on a server. The library is taken from "libTFG.so" next to this page when it is there; otherwise the player picks their own
-// copy of the original APK once and the library is read out of it in the browser and remembered on this device.
+// The original engine (libTFG.so from the 7.0.16 APK) runs in Web Workers under an ARM emulator (tfg.js + unicorn.js).
+// The site ships web/libTFG.so so play is ready with no APK step; IndexedDB caches it after the first fetch. APK pick is only a fallback.
 const ENGINE_FILE = 'lib/armeabi-v7a/libTFG.so', WORKERS = 3;
 let enginePool = null, engineSeq = 0;
 const idb = (mode, fn, name = 'pokemon-duel-web') => new Promise((ok, bad) => { const o = indexedDB.open(name, 1); o.onupgradeneeded = () => o.result.createObjectStore('kv'); o.onerror = () => bad(o.error);
@@ -1134,18 +1133,25 @@ async function libFromApk(file) { // minimal zip reader: central directory -> th
   }
   throw new Error('That APK does not contain the rule engine (' + ENGINE_FILE + ').');
 }
+async function fetchLib() {
+  const r = await fetch('libTFG.so');
+  if (!r.ok || (r.headers.get('content-type') || '').includes('html')) return null;
+  const bytes = await r.arrayBuffer();
+  return bytes.byteLength > 100000 ? bytes : null;   // a real libTFG.so is a few MB; reject empty / error pages
+}
 async function engineBytes() {
-  try { const cached = await idb('readonly', st => st.get('lib')); if (cached) return cached; } catch (e) {}
-  try { const names = (await indexedDB.databases()).map(d => d.name); if (names.includes('figure-duel')) { const old = await idb('readonly', st => st.get('lib'), 'figure-duel'); if (old) { await idb('readwrite', st => st.put(old, 'lib')); return old; } } } catch (e) {}
+  try { const cached = await idb('readonly', st => st.get('lib')); if (cached && cached.byteLength > 100000) return cached; } catch (e) {}
+  try { const names = (await indexedDB.databases()).map(d => d.name); if (names.includes('figure-duel')) { const old = await idb('readonly', st => st.get('lib'), 'figure-duel'); if (old && old.byteLength > 100000) { await idb('readwrite', st => st.put(old, 'lib')); return old; } } } catch (e) {}
+  $('box').innerHTML = `<h2 style="margin-top:0">Starting…</h2><p class="note">Loading the rule engine.</p>`;
+  $('modal').hidden = false;
   let bytes = null;
-  try { const r = await fetch('libTFG.so'); if (r.ok && !(r.headers.get('content-type') || '').includes('html')) bytes = await r.arrayBuffer(); } catch (e) {}
+  try { bytes = await fetchLib(); } catch (e) {}
   if (!bytes) bytes = await new Promise(ok => {
-    $('box').innerHTML = `<h2 style="margin-top:0">The rule engine</h2><p>This game does not re-implement the rules. It runs the original game's own rule engine, which is part of the original app.</p>
-      <p>Choose your copy of the original Android app (version 7.0.16, an <b>.apk</b> file). It is read on this device only, nothing is uploaded, and you will not be asked again here.</p>
+    $('box').innerHTML = `<h2 style="margin-top:0">The rule engine</h2><p>The bundled engine could not be loaded. Choose your copy of the original Android app (version 7.0.16, an <b>.apk</b> file). It is read on this device only.</p>
       <input type="file" id="apkFile"> <div id="apkErr" class="err"></div>`;
     $('box').onclick = null; $('box').onchange = async ev => { if (ev.target.id !== 'apkFile' || !ev.target.files[0]) return; try { const b = await libFromApk(ev.target.files[0]); $('modal').hidden = true; ok(b); } catch (x) { $('apkErr').textContent = x.message; } };
-    $('modal').hidden = false;
   });
+  $('modal').hidden = true;
   try { await idb('readwrite', st => st.put(bytes, 'lib')); } catch (e) {}
   return bytes;
 }

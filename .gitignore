@@ -1,8 +1,10 @@
-# the original game and the remakes are not part of this project and must not be published
+# the original APK and remakes are not part of this project and must not be published
 *.apk
 *.exe
 *.lnk
 *.so
+# the rule engine alone is shipped in web/ so the static site is playable without an APK upload
+!web/libTFG.so
 # local tooling
 .claude/
 __pycache__/
