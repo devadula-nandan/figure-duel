@@ -8,3 +8,6 @@
 # local tooling
 .claude/
 __pycache__/
+tools/sfx-src/
+tools/_*.py
+tools/_*.txt

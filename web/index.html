@@ -1256,13 +1256,13 @@ async function start(opts) {
   leagueGame = lgMode ? { done: false } : null; sealed.clear(); boardSt = null; battleView = null; deferredSfx = null; const btl = $('battle'); if (btl) { btl.hidden = true; btl.innerHTML = ''; } $('home').hidden = true; states = []; rewinds = 0;
   sel = null; busy = false; over = null; logLines = []; clock = { black: 300, white: 300 }; gameId++;
   $('setupErr').textContent = ''; $('setup').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
+  sfx('duel_start');
   if (net) net.conn.send({ t: 'first', side: rec.first_player });
   await firstSpin(rec.first_player);
   startClock();
   await sync(false);
 }
-// StadiumVersus.StartAnimation: the cursor spins over a disk split between the two players, then stops. Se024 plays as it
-// appears and Se025 as it decides; those banks are not in the APK, so the spin and the landing use the page's own sounds.
+// StadiumVersus.StartAnimation: Se024 while the needle spins, Se037 when it stops, Se226 for the decided order.
 function firstSpin(side) {
   P_COL.black = flip ? 'var(--p1)' : 'var(--p0)'; P_COL.white = flip ? 'var(--p0)' : 'var(--p1)';
   const el = $('first'), left = me, right = other(me), mine = side === left;
@@ -1276,7 +1276,7 @@ function firstSpin(side) {
     if (!reduce) sfx('spin');
     needle.style.transition = reduce ? 'none' : 'transform 2.4s cubic-bezier(.12,.75,.2,1)';
     needle.style.transform = `rotate(${land}deg)`;
-    setTimeout(() => { sfx('land'); cap.textContent = label(side) + ' goes first'; log(`<b style="color:${P_COL[side]}">${label(side)}</b> goes first.`);
+    setTimeout(() => { sfx('spin_stop'); sfx('first'); cap.textContent = label(side) + ' goes first'; log(`<b style="color:${P_COL[side]}">${label(side)}</b> goes first.`);
       setTimeout(() => { el.hidden = true; el.innerHTML = ''; ok(); }, reduce ? 700 : 900); }, reduce ? 40 : 2400);
   })));
 }
@@ -2037,7 +2037,7 @@ async function showSpin(e, result, notices, opt) {
   } else battleView.battle = true;
   if (battle && result) battleView.lastResult = result;
   const shownIds = (battleView && battleView.ids) || ids;
-  await sleep(40); if (spins.some(sp => !wheelSnap(opt.wheelSt, sp.pokemon, sp).frozen) && !shut) sfx('spin');
+  await sleep(40); if (spins.some(sp => !wheelSnap(opt.wheelSt, sp.pokemon, sp).frozen) && !shut) sfx('spin_short');
   const powerOf = (x, v) => { const col = x.sealed ? 0 : (D.skills[x.id] || [0, 0, 0])[2]; return col === 2 ? '★'.repeat(Math.min(v == null ? x.speed_or_damage || 0 : v, 5)) : col === 1 || col === 3 ? String(v == null ? x.speed_or_damage || 0 : v) : ''; };
   await Promise.all(spins.map(async sp => {
     const k = shownIds.indexOf(sp.pokemon); if (k < 0) return;
@@ -2056,10 +2056,10 @@ async function showSpin(e, result, notices, opt) {
     for (let n = 0; n < (sp.results || []).length; n++) {
       const r = sp.results[n];
       if (info.frozen) { await turn(r.num + .5, 0, 0); landed = at(r.num); if (r.displace && segs[landed]) { landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, 0, 0, r.displace < 0); } break; }   // GetBattleFrizes: a frozen or melted wheel does not spin
-      if (n) { if (!shut && disk) { disk.insertAdjacentHTML('beforeend', '<div class="more">More</div>'); sfx('select'); } await wait(500); const m = disk && disk.querySelector('.more'); if (m) m.remove(); sec = Math.min(1, Math.max(.1, sec * .6)); if (!shut) sfx('spin'); }
-      await turn(r.num + .5, sec * (n ? 1 : .8 + Math.random() * .4), n ? 2 : 3); if (!shut) sfx('land');
+      if (n) { if (!shut && disk) { disk.insertAdjacentHTML('beforeend', '<div class="more">More</div>'); sfx('select'); } await wait(500); const m = disk && disk.querySelector('.more'); if (m) m.remove(); sec = Math.min(1, Math.max(.1, sec * .6)); if (!shut) sfx('spin_short'); }
+      await turn(r.num + .5, sec * (n ? 1 : .8 + Math.random() * .4), n ? 2 : 3); if (!shut) sfx('spin_stop');
       landed = at(r.num);
-      if (r.displace && segs.length) { await wait(500); landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, .3, 0, r.displace < 0); if (!shut) sfx('land'); }
+      if (r.displace && segs.length) { await wait(500); landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, .3, 0, r.displace < 0); if (!shut) sfx('spin_stop'); }
       const landedId = (segs[landed] || {}).id, sid = info.marker.skill_id;
       if (r.type === 'battle' && info.marker.triangle === 'imprison' && (sid == null || sid < 0 || sid === landedId)) break;   // SpinNext: an imprisoned battle attack does not spin on
     }
