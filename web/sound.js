@@ -173,7 +173,6 @@
   const raw = {}, clips = {}, decoding = {}, failed = {}, loading = {};
   // Resolve against <base href> so /2d/ and GitHub Pages subpaths both work.
   const sfxPath = id => 'sfx/' + id + '.wav';
-  const sfxUrl = id => new URL(sfxPath(id), document.baseURI || location.href).href;
   const audioArmed = () => !window.Assets || Assets.isArmed();
 
   function fetchRaw(id) {
@@ -182,16 +181,11 @@
     if (loading[id]) return loading[id];
     return loading[id] = (async () => {
       try {
-        if (window.Assets && Assets.getBuffer) {
-          const fromPack = await Assets.getBuffer(sfxPath(id));
-          if (fromPack && fromPack.byteLength) { raw[id] = fromPack; return fromPack; }
-        }
-        const r = await fetch(sfxUrl(id));
-        if (r.status === 404) { failed[id] = 1; return null; }
-        if (!r.ok) return null;
-        const b = await r.arrayBuffer();
-        raw[id] = b;
-        return b;
+        // Only play clips the asset gate cached — no surprise network downloads.
+        if (!window.Assets || !Assets.getBuffer) return null;
+        const fromPack = await Assets.getBuffer(sfxPath(id));
+        if (fromPack && fromPack.byteLength) { raw[id] = fromPack; return fromPack; }
+        return null;
       } catch (e) { return null; }
       finally { delete loading[id]; }
     })();
@@ -310,12 +304,8 @@
     if (bgmLoading[href]) return bgmLoading[href];
     return bgmLoading[href] = (async () => {
       try {
-        let b = null;
-        if (path && window.Assets && Assets.getBuffer) b = await Assets.getBuffer(path);
-        if (!b) {
-          const r = await fetch(href);
-          b = r.ok ? await r.arrayBuffer() : null;
-        }
+        if (!path || !window.Assets || !Assets.getBuffer) { bgmBuf[href] = false; return null; }
+        const b = await Assets.getBuffer(path);
         if (!b) { bgmBuf[href] = false; return null; }
         const c = await ensureCtx();
         if (!c) return null;
@@ -331,6 +321,7 @@
 
   async function playBgm(id) {
     if (!musicOn() || !audioArmed()) return;
+    if (window.Assets && Assets.packReady && !(await Assets.packReady('bgm'))) return;
     if (bgmId === id && bgmSrc) return;
     stopBgm(false);
     bgmId = id;

@@ -78,27 +78,30 @@
     return { have, total: pack.files.length, done: have >= pack.files.length };
   }
 
+  // Cache only — never network-fetch a pack file after the user skipped the gate.
   async function getBuffer(path) {
     const cache = await openCache();
-    if (cache) {
-      const hit = await cache.match(href(path));
-      if (hit) return hit.arrayBuffer();
-    }
-    const r = await fetch(href(path));
-    if (!r.ok) return null;
-    return r.arrayBuffer();
+    if (!cache) return null;
+    const hit = await cache.match(href(path));
+    return hit ? hit.arrayBuffer() : null;
+  }
+
+  async function has(path) {
+    const cache = await openCache();
+    if (!cache) return false;
+    return !!(await cache.match(href(path)));
   }
 
   async function mediaUrl(path) {
     const cache = await openCache();
-    if (cache) {
-      const hit = await cache.match(href(path));
-      if (hit) {
-        const blob = await hit.blob();
-        return URL.createObjectURL(blob);
-      }
-    }
-    return href(path);
+    if (!cache) return null;
+    const hit = await cache.match(href(path));
+    if (!hit) return null;
+    return URL.createObjectURL(await hit.blob());
+  }
+
+  async function packReady(id) {
+    return (await packProgress(id)).done;
   }
 
   async function registerSw() {
@@ -174,9 +177,9 @@
     return t.content.firstChild;
   }
 
-  function finishOk() {
+  async function finishOk() {
     if (window.sfx) try { window.sfx('click'); } catch (e) {}
-    if (window.bgm && window.bgm.play) {
+    if (window.bgm && window.bgm.play && await packReady('bgm')) {
       const onGame = document.getElementById('game') && !document.getElementById('game').hidden;
       try { window.bgm.play(onGame ? 'duel' : 'menu'); } catch (e) {}
     }
@@ -316,7 +319,7 @@
   }
 
   window.Assets = {
-    CACHE, PACKS, href, mediaUrl, getBuffer, packProgress, whenReady,
+    CACHE, PACKS, href, has, mediaUrl, getBuffer, packProgress, packReady, whenReady,
     isArmed: () => armed,
     showGate, registerSw
   };
