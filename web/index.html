@@ -587,6 +587,37 @@ const plateKinds = p => { // original-style groups inferred from name / effect (
   return tags;
 };
 const plateKindMap = new Map(D.plates.map(p => [p.id, plateKinds(p)]));
+// Mega figure id → the Mega Evolution plate that evolves its base form (Charizardite X, Meteoric Teachings, …)
+const megaPlateOf = (() => {
+  const uniq = new Map();
+  for (const p of D.plates) {
+    if (!(plateKindMap.get(p.id) || []).includes('mega')) continue;
+    const n = p.n.trim(); if (!uniq.has(n) || p.id < uniq.get(n).id) uniq.set(n, p);
+  }
+  const plates = [...uniq.values()], map = new Map();
+  for (const f of D.figures) {
+    if (!isMega(f)) continue;
+    const core = f.n.replace(/^(Shiny )?Mega /, ''), base = core.replace(/ [XY]$/, ''), xy = / [XY]$/.test(core) ? core.slice(-1) : null;
+    let best = null, score = 0;
+    for (const p of plates) {
+      const n = p.n.trim(), d = p.d; let s = 0;
+      if (xy) { if (n.endsWith(' ' + xy) && n.toLowerCase().includes(base.toLowerCase())) s = 100; }
+      else if (base === 'Rayquaza' && n === 'Meteoric Teachings') s = 100;
+      else if (new RegExp(`Choose one of your ${base}\\b`, 'i').test(d) && /Mega Evolve/i.test(d)) s = 100;   // the stone, not Eon Flute's "any of your Latias or Latios"
+      else if (n.replace(/\s/g, '').toLowerCase() === (base + 'ite').toLowerCase()) s = 80;
+      if (s > score || (s === score && best && p.id < best.id)) { score = s; best = p; }
+    }
+    if (best) map.set(f.id, best.id);
+  }
+  return map;
+})();
+function syncMegaPlates() {   // when the team carries a Mega, add its stone if there is room (cost / slots / owned copies)
+  for (const sl of team) for (const id of slotIds(sl)) {
+    const pid = megaPlateOf.get(id); if (pid == null || myPlates.includes(pid)) continue;
+    if (myPlates.length >= PLATE_MAX || cost(myPlates) + plateById.get(pid).c > COST_MAX || !plateLeft(pid)) continue;
+    myPlates.push(pid);
+  }
+}
 let listBuilt = '', plateBuilt = '', listTimer = 0;
 $('typ').innerHTML = '<option value="">any type</option>' + D.types.map((n, i) => `<option value="${i}">${esc(n)}</option>`).join('');
 function drawList() {
@@ -684,19 +715,19 @@ if (matchMedia('(hover: hover)').matches) {
 }
 const slotText = slot => slot.st.map((id, k) => id == null ? null : figText(id, slot.mod[k])).filter(Boolean).join(' → ') + slot.forms.map((id, k) => id == null ? '' : ' ⇄ ' + figText(id, slot.fmod[k])).join('');
 // ---------- saved teams ----------
-// Six figures (with their attachments, levels and boosts) and the plates, kept on this device under a name. The list starts with a few themed teams.
+// Six figures (with their attachments, levels and boosts) and the plates, kept on this device under a name. The list starts with meta synergy decks.
 const TEAMS_KEY = 'pokemonduelweb.teams.v1';
-// Starter teams, built from a community figure tier list (r/pokemonduel, May 2019). Only the first is a deck a player there said they ran;
-// the others are put together from the list's top tiers and its groupings. A figure is "Name", optionally "RARITY:Name" where two figures share
-// a name, and "+Name" for each thing attached to it beyond its automatic evolutions: a Mega, a form, or an evolution the automatic pick skips.
+// Meta decks from late Pokémon Duel ladder play (Dawn Wings era). A figure is "Name", optionally "RARITY:Name" when two figures share
+// a name, and "+Name" for each attachment beyond automatic evolutions (Mega, form, or a skipped stage).
 const STARTER_TEAMS = [
-  ['Tier list: generalist', ['Arceus', 'Celebi', 'Onix', 'Rhydon', 'Dawn Wings Necrozma+Ultra Necrozma', 'Amaura'], ['Ultra Burst', 'Metal Coat', 'Restorer', 'Hurdle Jump', 'Goal Block', 'Double Chance']],
-  ['Tier list: S tier', ['Dawn Wings Necrozma+Ultra Necrozma', 'Arceus', 'Tapu Fini', 'Stakataka', 'Celebi', 'Aegislash Shield Forme+Aegislash Blade Forme'], ['Ultra Burst', 'Hurdle Jump', 'Goal Block', 'Max Revive', 'Double Chance']],
-  ['Tier list: S tier Megas', ['Rayquaza+Mega Rayquaza', 'Ralts+Mega Gardevoir', 'Abra+Mega Alakazam', 'Swablu+Mega Altaria', 'Onix+Mega Steelix', 'Celebi'], ['Meteoric Teachings', 'Gardevoirite', 'Alakazite', 'Altarianite', 'Steelixite', 'Goal Block']],
-  ['Tier list: water', ['Kyogre+Primal Kyogre', 'Manaphy', 'Tapu Fini', 'Keldeo Ordinary Form+Keldeo Resolute Form', 'Swampert', 'Greninja'], ['Blue Orb', 'Mystic Water', 'Splash Power', 'Goal Block', 'Hurdle Jump']],
-  ['Tier list: fossils', ['Amaura', 'Tyrunt', 'EX:Aerodactyl', 'R:Aerodactyl', 'Stakataka', 'Celebi'], ['Restorer', 'Hurdle Jump', 'Goal Block', 'Max Revive', 'Double Chance']],
-  ['Tier list: Regi group', ['Regigigas', 'Regirock', 'Registeel', 'Regice', 'Arceus', 'Celebi'], ['Goal Block', 'Max Revive', 'Hurdle Jump', 'Full Heal', 'Double Chance']],
-  ['Tier list: ice', ['Alolan Vulpix', 'R:Aerodactyl', 'Kyurem', 'Amaura', 'Froslass', 'Celebi'], ['Never-Melt Ice', 'Restorer', 'Hurdle Jump', 'Goal Block', 'Max Revive']],
+  ['Meta: Dawn Wings', ['Dawn Wings Necrozma+Ultra Necrozma', 'Arceus', 'Celebi', 'Aegislash Shield Forme+Aegislash Blade Forme', 'Stakataka', 'Tapu Fini'], ['Ultra Burst', 'Hurdle Jump', 'Goal Block', 'Max Revive', 'Double Chance']],
+  ['Meta: Misty Water', ['Tapu Fini', 'Kyogre+Primal Kyogre', 'Manaphy', 'Keldeo Ordinary Form+Keldeo Resolute Form', 'Arceus', 'Celebi'], ['Blue Orb', 'Mystic Water', 'Aqua Sphere', 'Goal Block', 'Hurdle Jump', 'Double Chance']],
+  ['Meta: Steel Wall', ['EX:Steelix+Mega Steelix', 'Stakataka', 'EX:Mawile+Mega Mawile', 'Aegislash Shield Forme+Aegislash Blade Forme', 'Celebi', 'Arceus'], ['Steelixite', 'Mawilite', 'Metal Coat', 'Goal Block', 'Hurdle Jump', 'Max Revive']],
+  ['Meta: Mega Fairies', ['Ralts+Mega Gardevoir', 'Abra+Mega Alakazam', 'Swablu+Mega Altaria', 'Celebi', 'Marshadow', 'Mew'], ['Gardevoirite', 'Alakazite', 'Altarianite', 'Goal Block', 'Hurdle Jump', 'Max Revive']],
+  ['Meta: Rush', ['Celebi', 'Marshadow', 'Kartana', 'Pheromosa', 'Tapu Koko', 'Lucario+Mega Lucario'], ['Lucarionite', 'Hurdle Jump', 'Long Throw', 'Goal Block', 'Double Chance', 'X Attack']],
+  ['Meta: Ultra Beasts', ['Poipole', 'Celesteela', 'Kartana', 'Blacephalon', 'Pheromosa', 'Nihilego'], ['Hurdle Jump', 'Goal Block', 'Max Revive', 'Double Chance', 'X Attack']],
+  ['Meta: Fossils', ['Amaura', 'Tyrunt', 'EX:Aerodactyl', 'Stakataka', 'Celebi', 'Arceus'], ['Restorer', 'Hurdle Jump', 'Goal Block', 'Max Revive', 'Double Chance']],
+  ['Meta: Ice', ['Froslass', 'Snorunt+Mega Glalie', 'Kyurem+White Kyurem+Black Kyurem', 'Amaura', 'Alolan Vulpix', 'Celebi'], ['Never-Melt Ice', 'Frost Sphere', 'Restorer', 'Hurdle Jump', 'Goal Block', 'Double Chance']],
 ];
 function starterSlot(spec) {   // one figure of a starter team, or null when this game's data cannot build it
   const [head, ...extra] = spec.split('+'), [, rar, name] = /^(?:(UX|EX|R|UC|C):)?(.+)$/.exec(head), base = BASES.find(f => f.n === name && (!rar || RAR[f.r] === rar));
@@ -720,14 +751,13 @@ function starterTeams() {   // a team with anything missing is left out rather t
   team = keep; return out;
 }
 let savedTeams = null;
-const SEED_KEY = 'pokemonduelweb.teams.seed', SEED = '2';   // raised when the starter teams change, so an existing list gains the new ones once
+const SEED_KEY = 'pokemonduelweb.teams.seed', SEED = '4';   // raised when the starter decks change; a new seed replaces the saved list with the current meta set
 function kept(key) {   // a value saved under the previous name is copied across once, then the old entry is removed
   try { const now = localStorage.getItem(key); if (now != null) return now; const oldKey = key.replace('pokemonduelweb.', 'figureduel.'), old = localStorage.getItem(oldKey); if (old == null) return null; localStorage.setItem(key, old); localStorage.removeItem(oldKey); return old; } catch (e) { return null; }
 }
 function loadSaved() {
   let seeded = null; try { savedTeams = JSON.parse(kept(TEAMS_KEY)); seeded = kept(SEED_KEY); } catch (e) {}
-  if (!Array.isArray(savedTeams)) savedTeams = starterTeams();
-  else if (seeded !== SEED) savedTeams = starterTeams().filter(t => !savedTeams.some(o => o.name === t.name)).concat(savedTeams);   // the player's own teams, and anything they kept, stay
+  if (!Array.isArray(savedTeams) || seeded !== SEED) savedTeams = starterTeams();   // drop prior presets (and any local saves) when the meta set changes
   else return;
   storeSaved(); try { localStorage.setItem(SEED_KEY, SEED); } catch (e) {}
 }
@@ -844,6 +874,7 @@ function openSheet(si, at, edit) {
     pl.ids[pl.k] = g ? g.id : null; pl.mods[pl.k] = g ? blankMod(g) : null;
     if (pl.key[0] === 's') for (let j = pl.k + 1; j <= EVO_SLOTS; j++) { slot.st[j] = null; slot.mod[j] = null; }   // later stages follow this one
     else for (let j = 1; j <= EVO_SLOTS; j++) if (slot.st[j] != null && !candidates(slot, j).some(o => o.id === slot.st[j])) { slot.st[j] = null; slot.mod[j] = null; }
+    syncMegaPlates();
     redraw(Math.max(0, progressive().findIndex(x => x.key === pl.key)));
   };
   p.onclick = e => {
@@ -904,8 +935,9 @@ $('list').onclick = e => {
   }
   $('setupErr').textContent = '';
   const slot = newSlot(f.id, $('evo').checked && !ownedMode);
-  if (swap) { team[replaceFig] = slot; replaceFig = null; drawTeam(); }
-  else { team.push(slot); drawTeam(); if (team.length >= 6) setPickTab('plt'); }   // only flip once the figure side is full
+  if (swap) { team[replaceFig] = slot; replaceFig = null; }
+  else { team.push(slot); if (team.length >= 6) setPickTab('plt'); }   // only flip once the figure side is full
+  syncMegaPlates(); drawTeam();
 };
 $('plist').onclick = e => { if (e.target.closest('.info')) return; const r = e.target.closest('.row'); if (r && plateLeft(+r.dataset.id) && myPlates.length < PLATE_MAX && cost(myPlates) + plateById.get(+r.dataset.id).c <= COST_MAX) { myPlates.push(+r.dataset.id); drawTeam(); if (myPlates.length >= PLATE_MAX || cost(myPlates) >= COST_MAX) setPickTab('fig'); } };
 $('team').onclick = e => {
@@ -929,10 +961,12 @@ $('myplates').onclick = e => {
 $('team').onkeydown = $('myplates').onkeydown = e => { if (e.key !== 'Enter' && e.key !== ' ') return; const add = e.target.closest('[data-pick]'); if (!add) return; e.preventDefault(); openPick(add.dataset.pick); };
 $('rnd').onclick = () => {
   replaceFig = null;
-  if (!ownedMode) { team = randomTeam(); myPlates = randomPlates(); return drawTeam(); }
+  const fillPlates = ids => { for (const id of ids) if (!myPlates.includes(id) && myPlates.length < PLATE_MAX && cost(myPlates) + plateById.get(id).c <= COST_MAX) myPlates.push(id); };
+  if (!ownedMode) { team = randomTeam(); myPlates = []; syncMegaPlates(); fillPlates(randomPlates()); return drawTeam(); }
   const shuffled = a => a.map(v => [Math.random(), v]).sort((x, y) => x[0] - y[0]).map(x => x[1]), copies = owned => Object.keys(owned || {}).flatMap(id => Array(Math.max(0, owned[id] | 0)).fill(+id));
   team = []; for (const id of shuffled(copies(profile.items).filter(id => BASES.includes(byId.get(id))))) if (team.length < 6 && !overLimit(byId.get(id), null)) team.push(newSlot(id, false));
-  myPlates = []; for (const id of shuffled(copies(profile.plates).filter(id => plateById.has(id)))) if (myPlates.length < PLATE_MAX && cost(myPlates) + plateById.get(id).c <= COST_MAX) myPlates.push(id);
+  myPlates = []; syncMegaPlates();
+  fillPlates(shuffled(copies(profile.plates).filter(id => plateById.has(id))));
   drawTeam();
 };
 $('clr').onclick = () => { team = []; myPlates = []; replaceFig = null; drawTeam(); };
@@ -1428,7 +1462,11 @@ function rewind() {
 // ---------- reading the engine's status ----------
 const pk = i => { for (const p of st.players) for (const x of p.pokemons) if (x.pokemon_index === i) return x; };
 const figOf = i => { const p = pk(i); return (p && byRule.get(p.id)) || { n: 'Figure ' + i, t: [5], r: 0 }; };
-const nameOf = i => `<b style="color:${P_COL[colorOf(i)]}">${esc(figOf(i).n)}</b>`;
+// Evolving replaces the figure on the board with a new pokemon_index; the engine still tags battles / Z-Moves with the pre-evolution root.
+const evoRoot = i => { let cur = i; for (let n = 0; n < 8 && st; n++) { const parent = st.players.flatMap(p => p.pokemons).find(x => x.evolution === cur); if (!parent) return cur; cur = parent.pokemon_index; } return cur; };
+const fieldForm = i => { let cur = i; for (let n = 0; n < 8 && st; n++) { const kid = pk(cur); if (!kid || kid.evolution < 0 || !st.pokemon_conditions.some(c => c.pokemon_index === kid.evolution)) break; cur = kid.evolution; } return cur; };
+const sameLine = (a, b) => a === b || evoRoot(a) === evoRoot(b);
+const nameOf = i => `<b style="color:${P_COL[colorOf(i)]}">${esc(figOf(fieldForm(i)).n)}</b>`;
 const condName = c => D.conds[c] || String(c).replace(/_/g, ' ');
 const place = p => p < 28 ? 'point ' + p : p < 40 ? 'bench' : p < 44 ? 'P.C.' : 'out of play';
 function badges(c) {
@@ -1525,7 +1563,7 @@ function render() {
   if (mine && me) for (const m of legal) {
     const v = m.value;
     if ((v.type === 'mp_move' || v.type === 'route_move') && Array.isArray(v.route) && v.route.length >= 2 && v.route[0] === me.index) { const to = v.route[v.route.length - 1]; (routes.get(to) || routes.set(to, []).get(to)).push(m); }
-    if (v.type === 'declare_battle' && v.from_pokemon === sel) targets.set(v.to_pokemon, m);
+    if (v.type === 'declare_battle' && sameLine(v.from_pokemon, sel)) targets.set(v.to_pokemon, m);
   }
   if (mine && !pick) {   // spot_move: post-battle landing (one from) or Misty Surge Water bench entry (many froms). Scope markers to the selected figure so shared tos don't pile into a dead routeChoice.
     const spots = legal.filter(m => m.value.type === 'spot_move' && m.value.to != null);
@@ -1574,7 +1612,7 @@ function render() {
   for (const c of st.pokemon_conditions) {
     const i = c.pokemon_index, f = figOf(i), col = colorOf(i), p = pk(i) || {}, b = badges(c);
     const hop = moveAnim && moveAnim.fig === i ? moveAnim : null, [x, y] = hop ? xy(hop.route[hop.route.length - 1]) : xy(c.index, c.index >= 44 ? (away[col] += col === low ? -48 : 48) : 0), mp = (p.mp || 0) + ((c.effect && c.effect.mp) || 0);
-    const evoOk = mine && evolveMoves().some(m => m.value.value.pokemon === i);
+    const evoOk = mine && evolveMoves().some(m => evoFig(m) === i);
     toks.push({ i, moveId: hop ? hop.id : null, path: hop ? hop.route.map(q => U(xy(q))) : null, x: U([x, y])[0], z: U([x, y])[1], team: col === low ? 0 : 1, img: sprite(f), name: f.n, mp: c.index < 40 ? String(mp) : '', badge: b.join(' · '), status: c.marker && c.marker.circle && c.marker.circle !== 'normal' ? c.marker.circle : '', wait: c.wait > 0, mpd: (c.effect && c.effect.mp) || 0, sel: i === sel, atk: targets.has(i), dim: c.index >= 40, evo: evoOk });
     const mpd = (c.effect && c.effect.mp) || 0, circle = (c.marker || {}).circle, aura = circle && circle !== 'normal' ? (STATUS_COL[circle] || '#ffffff') : b.length ? '#cbd5e1' : '';
     h += `<g class="tok ${i === sel ? 'sel' : ''} ${targets.has(i) ? 'atk' : ''} ${c.index >= 40 ? 'dim' : ''}" data-fig="${i}" transform="translate(${x},${y}) scale(${c.index >= 44 ? .85 : 1.3})"><circle class="halo" r="27.5"/>${aura ? `<circle class="aura" r="23" stroke="${aura}"/>` : ''}
@@ -1607,11 +1645,10 @@ function render() {
   }
   $('status').innerHTML = over ? `<b>${over.winner && P_COL[over.winner] ? wins(over.winner) : 'Draw'}</b> — ${esc(String(over.reason).replace(/_/g, ' '))}`
     : `<b style="color:${P_COL[side] || 'inherit'}">${P_COL[side] ? label(side) : '…'}</b>${busy ? ' · working…' : mine ? ' to act' : ''}`; $('turns').textContent = st.remaining_turns;
-  const onBoard = m => ['mp_move', 'declare_battle', 'resign', 'route_move'].includes(m.value.type) || (m.value.type === 'spot_move' && m.value.to != null) || isEvolve(m);
-  const extra = !mine ? [] : legal.filter(m => !onBoard(m));
-  $('acts').innerHTML = extra.map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('') +
+  // every engine legal move, including ones also playable on the board — easier to spot UI / index bugs than hiding the "on-board" set
+  $('acts').innerHTML = (!mine ? [] : legal).map((m, i) => `<button data-m="${i}"${m.value.type === 'resign' ? ' class="note"' : ''}>${describe(m.value)}</button>`).join('') +
     (rewindTarget() >= 0 ? `<button data-rw="1">Rewind to the start of your turn (${REWIND_MAX - rewinds} left)</button>` : '') +
-    (mine && canHint() ? '<button data-ai="1">Let the AI choose this move</button>' : '') + (mine && legal.some(m => m.value.type === 'resign') ? `<button data-m="${legal.findIndex(m => m.value.type === 'resign')}" class="note">Resign</button>` : '');
+    (mine && canHint() ? '<button data-ai="1">Let the AI choose this move</button>' : '');
   drawClock(); drawCard(me); drawPrompt(mine, stage); drawBar(mine); drawPlates(mine);
 }
 // ---------- the original's duel controls ----------
@@ -1658,14 +1695,16 @@ function tableModel(mine) {
   const stacks = [low, other(low)].filter(n).map(c => { const s = c === low ? 1 : -1, ps = platesOf(c).slice(0, 12);
     return { act: 'pl:' + c, s, x: s * PX, z: s * PZ, name: (plateById.get(ps[0].id) || { n: '' }).n, cards: ps.map((p, i) => { const d = plateById.get(p.id) || {}; return { x: s * (PX - PLATE_X[i]), y: .1 + PLATE_Y[i], n: d.n || '', r: d.r || 0, c: d.c || 0, used: p.condition !== 'unused' }; }),
       mark: busy || over ? null : MARK_X[ps.length - 1].map((x, k) => [s * (PX - x + (k ? -.477 : .477)), s * (PZ + (k ? -.802 : .802))]) }; });   // the marker mesh sits .675 out from its anchor, turned 45 degrees: the two opposite corners of the stack
-  const zs = mine ? legal.filter(m => m.value.type === 'z_skill' && m.value.pokemon === sel) : [], end = mine && legal.find(m => m.value.type === 'null_move' || m.value.type === 'declare_turn_end');
+  const zs = mine ? legal.filter(m => m.value.type === 'z_skill' && sameLine(m.value.pokemon, sel)) : [], end = mine && legal.find(m => m.value.type === 'null_move' || m.value.type === 'declare_turn_end');
   const hint = canHint() && !zs.length && !end;   // the label stays AI for the whole duel against a computer; it can only be pressed on your turn
   tableModel.run = !mine ? null : zs.length ? () => startPick('Activate Z-Move', zs) : end ? () => play(end) : hint ? askAi : null;   // Z-Move, else End Turn once the engine allows a pass; AI only when a computer can choose
   return { stacks, btn: { x: BX, z: BZ, on: !!tableModel.run, label: zs.length ? 'Activate Z-Move' : end ? 'End Turn' : hint ? 'AI' : '', size: zs.length ? 8 : end ? 11 : 13 } };
 }
 function tableAct(a) { if (String(a).startsWith('evo:')) return openEvolve(+a.slice(4)); if (a === 'main') { if (tableModel.run) tableModel.run(); return; } plateView = a.slice(3); pick = null; render(); }
-// Evolution is a declare_pokepower whose value is { type:'evolve', pokemon }. The original asks on EvolveSelect, then flashes the figure into its next form.
-const isEvolve = m => m.value.type === 'declare_pokepower' && m.value.value && m.value.value.type === 'evolve';
+// Evolution is either a top-level { type:'evolve', pokemon } or a declare_pokepower wrapping that. The original asks on EvolveSelect, then flashes the figure into its next form.
+const evoVal = m => m.value.type === 'evolve' ? m.value : (m.value.value && m.value.value.type === 'evolve' ? m.value.value : null);
+const isEvolve = m => !!evoVal(m);
+const evoFig = m => { const v = evoVal(m); return v ? v.pokemon : null; };
 function evolveMoves() { return legal.filter(isEvolve); }
 function evoNext(i) {   // the next form attached to this figure, plus any form change that leaves it. A finished figure has neither.
   if (!st) return [];
@@ -1677,14 +1716,14 @@ function evoNext(i) {   // the next form attached to this figure, plus any form 
   return out;
 }
 function evolveInto(m) {   // the figure it becomes: a named target on the move, otherwise the next form attached to this one
-  const v = (m.value && m.value.value) || {}, named = ['evolution', 'evolved', 'next', 'to'].map(k => v[k]).find(x => typeof x === 'number' && pk(x));
+  const v = evoVal(m) || {}, named = ['evolution', 'evolved', 'next', 'to'].map(k => v[k]).find(x => typeof x === 'number' && pk(x));
   if (named != null) return figOf(named);
   const e = pk(v.pokemon); return e && e.evolution >= 0 && pk(e.evolution) ? figOf(e.evolution) : figOf(v.pokemon);
 }
 let evoUi = null;
 function closeEvolve() { evoUi = null; const el = $('evolve'); if (el) { el.hidden = true; el.innerHTML = ''; } }
 function openEvolve(i) {
-  const ms = evolveMoves().filter(m => m.value.value.pokemon === i); if (!ms.length || busy) return;
+  const ms = evolveMoves().filter(m => evoFig(m) === i); if (!ms.length || busy) return;
   evoUi = { i, ms, at: 0 }; drawEvolve();
 }
 function drawEvolve() {
@@ -1734,8 +1773,8 @@ function drawPrompt(mine, stage) {   // the choice in progress, and whatever els
   let h = '';
   if (mine && stage) { drawPrompt.opts = stage.list || []; h = `<b>${esc(pick.title)}</b>` + (stage.map ? `<span>${stage.kind === 'fig' ? 'Choose a figure' : 'Choose a point'}</span>` : drawPrompt.opts.map((m, k) => `<button data-c="${k}">${describe(m.value)}</button>`).join('')); }
   else if (mine && routeChoice) h = '';
-  else if (mine && [...(render.routes || [])].some(([, ms]) => ms.some(m => m.value.type === 'spot_move'))) h = '<b>Choose a point</b>' + legal.filter(m => !['mp_move', 'route_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
-  else if (mine) h = legal.filter(m => !['mp_move', 'route_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move'].includes(m.value.type)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
+  else if (mine && [...(render.routes || [])].some(([, ms]) => ms.some(m => m.value.type === 'spot_move'))) h = '<b>Choose a point</b>' + legal.filter(m => !['mp_move', 'route_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move', 'evolve'].includes(m.value.type) && !isEvolve(m)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
+  else if (mine) h = legal.filter(m => !['mp_move', 'route_move', 'declare_battle', 'resign', 'null_move', 'declare_turn_end', 'declare_plate', 'declare_pokepower', 'z_skill', 'spot_move', 'evolve'].includes(m.value.type) && !isEvolve(m)).map(m => `<button data-m="${legal.indexOf(m)}">${describe(m.value)}</button>`).join('');
   $('tbl').innerHTML = h;
 }
 function drawBar(mine) {
@@ -1871,7 +1910,7 @@ function boardDetail(i, view) {   // MiniDetailFigure: a long press opens this f
     return Object.assign({}, x, off ? { sealed: true } : {}, dmg !== x.speed_or_damage ? { speed_or_damage: dmg } : {});
   });
   const abBox = ab ? `<div class="fp-ab"><span class="h">Ability</span><b>${esc(ab[0])}</b><div class="desc">${esc(ab[1])}</div></div>` : '', long = ab && ab[1].length > 150;
-  const tips = badgeTips(c), nxt = evoNext(i), ready = evolveMoves().some(m => m.value.value.pokemon === i);
+  const tips = badgeTips(c), nxt = evoNext(i), ready = evolveMoves().some(m => evoFig(m) === i);
   const chain = [i, ...nxt.map(m => m.pokemon_index)], pic = g => sprite(g) ? `<img src="${sprite(g)}" alt="">` : '';
   const evoBox = chain.length > 1 ? `<div class="fp-evo"><i class="mark" title="Can evolve"></i><div><span class="h">${live ? 'Can evolve' : 'Evolution'}</span><div class="who">${chain.map(idx => { const g = figOf(idx); return `<button type="button" data-root="${i}" data-evo="${idx}" class="${idx === viewI ? 'on' : ''}">${pic(g)}<b>${esc(g.n)}</b></button>`; }).join('')}</div>${ready && live ? '<div class="note">Ready now.</div>' : ''}</div></div>` : '';
   const p = $('figpop'); placeFigpop(true); boardDetail.root = i;
