@@ -18,7 +18,7 @@
   const ICONS = { auto: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
     light: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
     dark: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>' };
-  // The button shows what a click would switch to: that theme's icon, drawn in that theme's own colours (Auto takes the device's).
+  // The button shows the current selection (Auto / Light / Dark); click cycles to the next.
   const NEXT = { auto: 'light', light: 'dark', dark: 'auto' }, LOOK = { light: ['#fff', '#111', '#cfcfcf'], dark: ['#111', '#f2f2f2', '#333'] };
   const themeBtns = () => {
     const seen = new Set(), out = [];
@@ -26,10 +26,11 @@
     return out;
   };
   const label = () => {
-    const next = NEXT[mode], [bg, ink, line] = LOOK[next === 'auto' ? (sysLight.matches ? 'light' : 'dark') : next];
-    const title = 'Switch to ' + next + ' theme (now: ' + mode + ')';
+    const look = mode === 'auto' ? (sysLight.matches ? 'light' : 'dark') : mode;
+    const [bg, ink, line] = LOOK[look];
+    const title = 'Theme: ' + mode + (mode === 'auto' ? ' (follows device)' : '') + ' — click for ' + NEXT[mode];
     for (const b of themeBtns()) {
-      b.innerHTML = icon(ICONS[next]); b.title = title; b.setAttribute('aria-label', title); b.classList.add('iconbtn');
+      b.innerHTML = icon(ICONS[mode]); b.title = title; b.setAttribute('aria-label', title); b.classList.add('iconbtn');
       Object.assign(b.style, { background: bg, color: ink, borderColor: line });
       if (!b._themeBound) { b._themeBound = 1; b.onclick = () => setTheme(NEXT[mode]); }
     }
