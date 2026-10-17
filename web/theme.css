@@ -7,6 +7,8 @@
 * { box-sizing:border-box; scrollbar-width:thin; scrollbar-color:var(--line) transparent; }
 [hidden] { display:none !important; }
 body { margin:0; color:var(--ink); background:var(--bg); font:14px/1.45 "Segoe UI",system-ui,Roboto,sans-serif; }
+/* Always-on build id — top center, out of the way of taps */
+.appver { position:fixed; top:max(3px, env(safe-area-inset-top, 0px)); left:50%; transform:translateX(-50%); z-index:50; pointer-events:none; margin:0; padding:0 6px; font:600 10px/1.2 "Segoe UI",system-ui,sans-serif; letter-spacing:.06em; color:var(--dim); opacity:.4; user-select:none; }
 a { color:var(--ink); }
 ::selection { background:var(--ink); color:var(--bg); }
 :focus-visible { outline:2px solid var(--dim); outline-offset:2px; }
