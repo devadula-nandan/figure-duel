@@ -5,8 +5,13 @@
 (() => {
   const SOUND_KEY = 'pokemonduelweb.sound';
   const MODES = ['all', 'sfx', 'off'];
-  let actx = null, noiseBuf = null, master = null, musicGain = null, mode = 'all', bgmSrc = null, bgmId = null, resumeWait = null;
-  const loopSrc = {}; // logical name -> BufferSource currently looping
+  // Cached clips play through HTMLAudio (media channel). Web Audio is for synth fallback + decode.
+  // Must unlock inside a real tap — not after await (asset-gate download breaks the gesture).
+  const SILENT = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+  let actx = null, noiseBuf = null, master = null, musicGain = null, mode = 'all', bgmSrc = null, bgmId = null, resumeWait = null, bgmAudio = null;
+  const loopSrc = {}; // Web Audio loops
+  const htmlLoops = {}; // HTMLAudio loops
+  const blobUrls = {}; // path -> object URL from cache
   try {
     let saved = localStorage.getItem(SOUND_KEY);
     if (saved == null) {
@@ -41,6 +46,27 @@
     }
     return resumeWait;
   }
+
+  // Call from a tap handler before any await (gate Continue / Skip / first click).
+  function unlockAudio() {
+    try { if (navigator.audioSession) navigator.audioSession.type = 'playback'; } catch (e) {}
+    ensureCtx();
+    try {
+      if (actx) {
+        const tick = actx.createBuffer(1, 1, actx.sampleRate || 44100);
+        const src = actx.createBufferSource();
+        src.buffer = tick; src.connect(actx.destination); src.start(0);
+      }
+    } catch (e) {}
+    try {
+      const a = new Audio(SILENT);
+      a.volume = 0.01;
+      a.setAttribute('playsinline', '');
+      a.playsInline = true;
+      a.play().catch(() => {});
+    } catch (e) {}
+  }
+  window.unlockAudio = unlockAudio;
 
   function ready() {
     if (!sfxOn() || !actx) return null;
@@ -210,9 +236,15 @@
 
   function stopLoop(name) {
     const src = loopSrc[name];
-    if (!src) return;
-    delete loopSrc[name];
-    try { src.stop(); } catch (e) {}
+    if (src) {
+      delete loopSrc[name];
+      try { src.stop(); } catch (e) {}
+    }
+    const a = htmlLoops[name];
+    if (a) {
+      delete htmlLoops[name];
+      try { a.pause(); a.currentTime = 0; } catch (e) {}
+    }
   }
 
   function playBuf(buf, gain, dest, loop, loopKey) {
@@ -228,13 +260,39 @@
     return src;
   }
 
+  async function cachedUrl(path) {
+    if (blobUrls[path]) return blobUrls[path];
+    if (!window.Assets || !Assets.mediaUrl) return null;
+    const u = await Assets.mediaUrl(path);
+    if (u) blobUrls[path] = u;
+    return u || null;
+  }
+
+  // Prefer HTMLAudio from the asset cache (audible on iOS silent switch).
+  async function playHtml(path, vol, loopKey) {
+    const url = await cachedUrl(path);
+    if (!url) return false;
+    if (loopKey) stopLoop(loopKey);
+    const a = new Audio(url);
+    a.volume = Math.max(0.01, Math.min(1, vol));
+    a.loop = !!loopKey;
+    a.setAttribute('playsinline', '');
+    a.playsInline = true;
+    if (loopKey) htmlLoops[loopKey] = a;
+    try { await a.play(); return true; } catch (e) { return false; }
+  }
+
   function playClip(id, ui, loopKey) {
-    return decodeId(id).then(buf => {
-      if (!buf || !sfxOn()) return false;
-      return ensureCtx().then(c => {
-        if (!c || !sfxOn()) return false;
-        playBuf(buf, ui ? UI_GAIN : SFX_GAIN, null, !!loopKey, loopKey || null);
-        return true;
+    const vol = ui ? Math.min(1, UI_GAIN * 2.2) : SFX_GAIN;
+    return playHtml(sfxPath(id), vol, loopKey || null).then(ok => {
+      if (ok) return true;
+      return decodeId(id).then(buf => {
+        if (!buf || !sfxOn()) return false;
+        return ensureCtx().then(c => {
+          if (!c || !sfxOn()) return false;
+          playBuf(buf, ui ? UI_GAIN : SFX_GAIN, null, !!loopKey, loopKey || null);
+          return true;
+        });
       });
     }).catch(() => false);
   }
@@ -255,29 +313,29 @@
     const ui = name === 'click' || name === 'back';
     const ids = resolveIds(name);
     const loopKey = LOOP[name] ? name : null;
-    ensureCtx().then(c => {
-      if (!c || !sfxOn()) return;
-      if (!ids.length) {
-        if (bank[name]) bank[name](c.currentTime);
-        return;
-      }
-      if (loopKey && loopSrc[loopKey]) return; // already spinning
-      let i = 0;
-      const next = () => {
-        if (i >= ids.length || !sfxOn()) return;
-        const id = ids[i++];
-        playClip(id, ui, i === 1 ? loopKey : null).then(ok => {
-          if (!ok && i === 1 && bank[name]) bank[name](c.currentTime);
-          if (i < ids.length) setTimeout(next, 200);
-        });
-      };
-      next();
-    });
+    if (loopKey && (loopSrc[loopKey] || htmlLoops[loopKey])) return;
+    if (!ids.length) {
+      ensureCtx().then(c => { if (c && bank[name]) bank[name](c.currentTime); });
+      return;
+    }
+    let i = 0;
+    const next = () => {
+      if (i >= ids.length || !sfxOn()) return;
+      const id = ids[i++];
+      playClip(id, ui, i === 1 ? loopKey : null).then(ok => {
+        if (!ok && i === 1) ensureCtx().then(c => { if (c && bank[name]) bank[name](c.currentTime); });
+        if (i < ids.length) setTimeout(next, 200);
+      });
+    };
+    next();
   }
 
   function sfxStop(name) {
     if (name) stopLoop(name);
-    else Object.keys(loopSrc).forEach(stopLoop);
+    else {
+      Object.keys(loopSrc).forEach(stopLoop);
+      Object.keys(htmlLoops).forEach(stopLoop);
+    }
   }
 
   // --- BGM -----------------------------------------------------------------
@@ -322,12 +380,29 @@
   async function playBgm(id) {
     if (!musicOn() || !audioArmed()) return;
     if (window.Assets && Assets.packReady && !(await Assets.packReady('bgm'))) return;
-    if (bgmId === id && bgmSrc) return;
+    if (bgmId === id && (bgmSrc || (bgmAudio && !bgmAudio.paused))) return;
     stopBgm(false);
     bgmId = id;
+    const urls = BGM[id] || BGM.duel;
+    // HTMLAudio from cache (media channel — works with iOS silent switch).
+    for (const u of urls) {
+      if (/^https?:/i.test(u)) continue;
+      const url = await cachedUrl(u);
+      if (!url || bgmId !== id || !musicOn()) continue;
+      try {
+        const a = new Audio(url);
+        a.loop = true;
+        a.volume = .45;
+        a.setAttribute('playsinline', '');
+        a.playsInline = true;
+        await a.play();
+        bgmAudio = a;
+        a.onended = () => { if (bgmAudio === a) bgmAudio = null; };
+        return;
+      } catch (e) {}
+    }
     const c = await ensureCtx();
     if (!c || bgmId !== id || !musicOn()) return;
-    const urls = BGM[id] || BGM.duel;
     let buf = null;
     for (const u of urls) { buf = await loadBgmUrl(u); if (buf) break; }
     if (!buf || bgmId !== id || !musicOn()) return;
@@ -344,6 +419,11 @@
   }
 
   function stopBgm(fade) {
+    if (bgmAudio) {
+      const a = bgmAudio; bgmAudio = null; bgmId = null;
+      try { a.pause(); a.currentTime = 0; } catch (e) {}
+      return;
+    }
     const src = bgmSrc; bgmSrc = null; bgmId = null;
     if (!src || !actx) return;
     try {
@@ -423,8 +503,7 @@
     }
   };
   addEventListener('DOMContentLoaded', () => draw());
-  // Resume the context on the first tap (asset gate Continue is also a gesture).
-  addEventListener('pointerdown', () => { ensureCtx(); }, true);
+  addEventListener('pointerdown', () => { unlockAudio(); }, true);
   addEventListener('pointerdown', e => {
     if (!audioArmed()) return;
     if (e.target.closest && e.target.closest('#assetGate')) return;

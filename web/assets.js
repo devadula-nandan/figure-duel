@@ -234,9 +234,13 @@
 
     const close = () => { root.remove(); markArmed(); };
 
-    skip.onclick = () => { close(); };
+    // Unlock must run in this tap stack — before any await — or iOS stays silent.
+    const armTap = () => { try { if (window.unlockAudio) window.unlockAudio(); } catch (e) {} };
+
+    skip.onclick = () => { armTap(); close(); };
 
     go.onclick = async () => {
+      armTap();
       const selected = [...root.querySelectorAll('input[data-pack]:checked')].map(i => i.dataset.pack);
       go.disabled = true; skip.disabled = true;
       root.querySelectorAll('input[data-pack]').forEach(i => { i.disabled = true; });
