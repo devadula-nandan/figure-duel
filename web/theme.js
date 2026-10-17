@@ -1,5 +1,6 @@
 // Theme for every page: Auto follows the device's light / dark setting; the choice is remembered on this device.
-// Loaded in <head> so the page is drawn in the right theme from the first frame. A button with id "themeBtn" cycles Auto -> Light -> Dark.
+// Loaded in <head> so the page is drawn in the right theme from the first frame.
+// Buttons with data-theme-btn (or id themeBtn) cycle Auto -> Light -> Dark.
 (() => {
   const KEY = 'pokemonduelweb.theme', sysLight = matchMedia('(prefers-color-scheme: light)'); let mode = 'auto';
   // Small line icons drawn here (no icon font or image files). icon() is shared with the pages for their own buttons.
@@ -9,11 +10,23 @@
     dark: '<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>' };
   // The button shows what a click would switch to: that theme's icon, drawn in that theme's own colours (Auto takes the device's).
   const NEXT = { auto: 'light', light: 'dark', dark: 'auto' }, LOOK = { light: ['#fff', '#111', '#cfcfcf'], dark: ['#111', '#f2f2f2', '#333'] };
-  const label = () => { const b = document.getElementById('themeBtn'); if (!b) return; const next = NEXT[mode], [bg, ink, line] = LOOK[next === 'auto' ? (sysLight.matches ? 'light' : 'dark') : next];
-    b.innerHTML = icon(ICONS[next]); b.title = 'Switch to ' + next + ' theme (now: ' + mode + ')'; b.setAttribute('aria-label', b.title); b.classList.add('iconbtn'); Object.assign(b.style, { background: bg, color: ink, borderColor: line }); };
+  const themeBtns = () => {
+    const seen = new Set(), out = [];
+    for (const b of document.querySelectorAll('[data-theme-btn], #themeBtn')) { if (seen.has(b)) continue; seen.add(b); out.push(b); }
+    return out;
+  };
+  const label = () => {
+    const next = NEXT[mode], [bg, ink, line] = LOOK[next === 'auto' ? (sysLight.matches ? 'light' : 'dark') : next];
+    const title = 'Switch to ' + next + ' theme (now: ' + mode + ')';
+    for (const b of themeBtns()) {
+      b.innerHTML = icon(ICONS[next]); b.title = title; b.setAttribute('aria-label', title); b.classList.add('iconbtn');
+      Object.assign(b.style, { background: bg, color: ink, borderColor: line });
+      if (!b._themeBound) { b._themeBound = 1; b.onclick = () => setTheme(NEXT[mode]); }
+    }
+  };
   window.setTheme = m => { mode = ['auto', 'light', 'dark'].includes(m) ? m : 'auto'; document.documentElement.dataset.theme = mode === 'auto' ? (sysLight.matches ? 'light' : 'dark') : mode; label(); try { localStorage.setItem(KEY, mode); } catch (e) {} };
   window.themeMode = () => mode;
   let saved = 'auto'; try { saved = localStorage.getItem(KEY); if (saved == null) { const old = localStorage.getItem('figureduel.theme'); if (old != null) { saved = old; localStorage.setItem(KEY, old); localStorage.removeItem('figureduel.theme'); } } saved = saved || 'auto'; } catch (e) {} setTheme(saved);
   sysLight.addEventListener('change', () => { if (mode === 'auto') setTheme('auto'); else label(); });
-  addEventListener('DOMContentLoaded', () => { label(); const b = document.getElementById('themeBtn'); if (b) b.onclick = () => setTheme(NEXT[mode]); });
+  addEventListener('DOMContentLoaded', () => label());
 })();

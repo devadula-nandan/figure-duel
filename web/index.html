@@ -18,12 +18,13 @@
   main { display:grid; gap:18px; padding:18px; max-width:1260px; width:100%; margin:0 auto; flex:1; min-height:0; overflow:auto; align-content:start; }
   #game { --g:12px; height:100%; container-type:size; grid-template-columns:auto minmax(200px,420px); grid-template-rows:minmax(0,1fr); justify-content:center; align-content:stretch; gap:var(--g); padding:var(--g); overflow:hidden; }   /* one gap: around the frame, between the board and the side, and down the side */
   #game .arena { --ar:var(--board-ar, .72); --fit:min(100cqh, calc((100cqw - 200px - var(--g)) / var(--ar))); height:var(--fit); width:calc(var(--fit) * var(--ar)); justify-self:center; align-self:center; }   /* full height of the row; the width is that height times the table's shape, and it shrinks only when the side column would drop under 200px */
-  #sideBtn, #sideHome { display:none; } #camBar { margin-bottom:14px; } #camBar:empty { display:none; }
+  #sideBtn, #sideHome { display:none; } #camBar { margin-bottom:14px; flex-wrap:nowrap; } #camBar:empty { display:none; }
+  #camBar .camGrow { flex:1 1 auto; min-width:4px; } #camBar a.iconbtn { margin:0; border:1px solid var(--line); border-radius:4px; background:var(--ctl); display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; padding:0; text-decoration:none; color:inherit; } #camBar a.iconbtn:hover { background:var(--ctl2); border-color:var(--dim); }
   @media (max-width:860px) {
     html, body { height:100dvh; max-height:100dvh; overflow:hidden; }   /* home / setup / game fill the screen; no document scroll */
     #setup, #home { grid-template-columns:1fr !important; flex:1 1 0; min-height:0; max-width:none; width:100%; overflow-x:hidden; overscroll-behavior:contain; -webkit-overflow-scrolling:touch; align-content:start; }
     #home, #setup { overflow:hidden; }   /* both lobbies fit the screen — no page scrollbar */
-    #fsBtn, #fsGame { display:none !important; } #camBar:not(:has(#camReset)) { display:none; }
+    #fsBtn, #fsGame { display:none !important; }
   }   /* a phone is already the full-screen view, so the switch that leaves it is not offered there */
   /* mobile view: the board fills the screen and the log sits in the menu. On a phone this is on by itself; the fullscreen button turns it on anywhere. */
   html.mview #game { grid-template-columns:1fr !important; max-width:none; padding:0; flex:1 1 0; min-height:0; height:auto; overflow:hidden; }
@@ -31,7 +32,7 @@
   html.mview #sideBtn, html.mview #fsGame { display:inline-flex; align-items:center; justify-content:center; flex:none; width:31px; height:31px; padding:0; line-height:0; } html.mview #sideBtn .m { display:flex; }
   html.mview #sideBtn .c, html.mview:has(.side.open) #sideBtn .m { display:none; } html.mview:has(.side.open) #sideBtn .c { display:flex; }
   html.mview .side { position:fixed; top:var(--side-top,0); right:0; bottom:var(--side-bottom,0); z-index:3; width:min(88vw,380px); padding:12px; background:var(--bar); border-left:1px solid var(--line); transform:translateX(100%); transition:transform .2s; }
-  html.mview:has(#game:not([hidden])) .top { display:none; } html.mview #sideHome { display:block; width:100%; text-align:center; }
+  html.mview:has(#game:not([hidden])) body > .top { display:none; }   /* only the chrome bar — not #first .half.top */
   html.mview #game .arena { --fit:100cqh; height:100%; width:100%; aspect-ratio:auto; margin:0; align-self:stretch; justify-self:stretch; }   /* the whole screen, not the table's shape */
   html.mview .arena, html.mview .side, html.mview #board3d button, html.mview .hud .z, html.mview .clock { border:0 !important; border-radius:0 !important; outline:0 !important; }
   html.mview .side.open { transform:none; box-shadow:-20px 0 60px rgba(0,0,0,.7); }
@@ -418,26 +419,24 @@
   #cutin { position:absolute; left:0; right:0; top:50%; z-index:7; transform:translateY(-50%); padding:16px 12px; text-align:center; font:900 26px/1.2 "Segoe UI",system-ui,sans-serif; font-style:italic; letter-spacing:.04em; color:#fff; text-shadow:0 2px 4px rgba(0,0,0,.5);
     background:linear-gradient(90deg, transparent, var(--p0d) 18%, var(--p0) 50%, var(--p0d) 82%, transparent); animation:cutin 1.8s ease-out forwards; } #cutin.lose { background:linear-gradient(90deg, transparent, var(--p1d) 18%, var(--p1) 50%, var(--p1d) 82%, transparent); }
   @keyframes cutin { 0% { opacity:0; transform:translateY(-50%) scaleY(.2); } 12% { opacity:1; transform:translateY(-50%); } 85% { opacity:1; } 100% { opacity:0; } }
-  /* First-move screen: full-bleed top red / bottom blue, arrow at center; the half not pointed at is desaturated. */
-  #first { position:absolute; inset:0; z-index:9; overflow:hidden; background:#000; opacity:0; transition:opacity .35s ease; }
+  /* First-move: always red top / blue bottom. Gradients run from each outer edge toward the center.
+     The half the arrow points at stays saturated; the other half desaturates. */
+  #first { position:absolute; inset:0; z-index:9; overflow:hidden; background:#111; opacity:0; transition:opacity .3s ease; }
   #first[hidden] { display:none; }
   #first.on { opacity:1; }
   #first.out { opacity:0; }
-  #first .split { position:absolute; inset:0; }
-  #first .half { position:absolute; left:0; right:0; height:50%; display:flex; align-items:center; justify-content:center; color:#fff;
-    transition:filter .45s ease, transform .55s cubic-bezier(.2,.8,.2,1), opacity .45s ease; will-change:filter, transform; }
-  #first .half.top { top:0; background:linear-gradient(180deg, var(--p1d) 0%, var(--p1) 55%, color-mix(in srgb, var(--p1) 85%, #000) 100%);
-    transform:translateY(-12%); opacity:.0; }
-  #first .half.bottom { bottom:0; background:linear-gradient(0deg, var(--p0d) 0%, var(--p0) 55%, color-mix(in srgb, var(--p0) 85%, #000) 100%);
-    transform:translateY(12%); opacity:.0; }
-  #first.on .half.top, #first.on .half.bottom { transform:none; opacity:1; }
+  #first .split { position:absolute; inset:0; display:flex; flex-direction:column; }
+  #first .half { flex:1 1 50%; min-height:0; display:flex; align-items:center; justify-content:center; color:#fff;
+    filter:saturate(1) brightness(1); transition:filter .35s ease; }
+  #first .half.fp-red { background:linear-gradient(180deg, #ff7a88 0%, #ff4658 50%, #d42238 100%); }
+  #first .half.fp-blue { background:linear-gradient(0deg, #7ec0ff 0%, #2f8cff 50%, #1a6ad4 100%); }
+  /* lit = vivid; dim = washed but still clearly red/blue */
   #first .half.dim { filter:saturate(.5); }
-  #first .half .nm { font:800 clamp(22px, 6vw, 40px)/1.1 "Segoe UI",system-ui,sans-serif; letter-spacing:.04em; text-shadow:0 2px 12px rgba(0,0,0,.45);
-    transition:transform .45s ease, opacity .45s ease; }
-  #first .half.dim .nm { opacity:.72; transform:scale(.96); }
-  #first .seam { position:absolute; left:0; right:0; top:50%; height:2px; margin-top:-1px; background:rgba(255,255,255,.22); z-index:1; pointer-events:none;
-    opacity:0; transition:opacity .4s ease .15s; }
-  #first.on .seam { opacity:1; }
+  #first .half.lit { filter:saturate(1.4); }
+  #first .half .nm { font:800 clamp(22px, 6vw, 40px)/1.1 "Segoe UI",system-ui,sans-serif; letter-spacing:.04em; text-shadow:0 2px 12px rgba(0,0,0,.5);
+    transition:opacity .35s ease, transform .35s ease; }
+  #first .half.dim .nm { opacity:.65; transform:scale(.97); }
+  #first .seam { position:absolute; left:0; right:0; top:50%; height:2px; margin-top:-1px; background:rgba(255,255,255,.28); z-index:1; pointer-events:none; }
   #first .arrow { position:absolute; left:50%; top:50%; z-index:2; width:0; height:0; }
   #first .needle { position:absolute; left:0; top:0; width:0; height:0; transform:rotate(0deg);
     transition:transform 2.6s cubic-bezier(.12,.75,.18,1); will-change:transform; }
@@ -448,16 +447,13 @@
     border-left:14px solid transparent; border-right:14px solid transparent; border-bottom:24px solid #fff;
     filter:drop-shadow(0 2px 4px rgba(0,0,0,.4)); }
   #first .hub { position:absolute; left:50%; top:50%; z-index:3; width:28px; height:28px; margin:-14px 0 0 -14px; border-radius:50%;
-    background:radial-gradient(circle at 35% 30%, #fff, #d8d8d8 55%, #999); box-shadow:0 2px 10px rgba(0,0,0,.5), inset 0 1px 0 #fff;
-    opacity:0; transform:scale(.6); transition:opacity .35s ease .1s, transform .45s cubic-bezier(.2,1.2,.3,1) .1s; }
-  #first.on .hub { opacity:1; transform:none; }
+    background:radial-gradient(circle at 35% 30%, #fff, #d8d8d8 55%, #999); box-shadow:0 2px 10px rgba(0,0,0,.5), inset 0 1px 0 #fff; }
   #first .cap { position:absolute; left:0; right:0; bottom:max(18px, 4vh); z-index:4; margin:0; text-align:center;
     font:800 clamp(18px, 4.5vw, 28px)/1.2 "Segoe UI",system-ui,sans-serif; color:#fff; text-shadow:0 2px 14px rgba(0,0,0,.55);
-    opacity:0; transform:translateY(10px); transition:opacity .35s ease, transform .4s ease; pointer-events:none; }
-  #first .cap.show { opacity:1; transform:none; }
+    opacity:0; transition:opacity .3s ease; pointer-events:none; }
+  #first .cap.show { opacity:1; }
   @media (prefers-reduced-motion: reduce) {
-    #first, #first .half, #first .half .nm, #first .seam, #first .hub, #first .cap, #first .needle { transition:none !important; }
-    #first .half.top, #first .half.bottom { transform:none; opacity:1; }
+    #first, #first .half, #first .half .nm, #first .cap, #first .needle { transition:none !important; }
   }
   #result { position:absolute; inset:0; z-index:7; display:flex; flex-direction:column; align-items:center; gap:14px; padding:28px 16px 20px; text-align:center; background:color-mix(in srgb, var(--bg) 88%, transparent); backdrop-filter:blur(4px); animation:resin .35s ease-out; }
   @keyframes resin { from { opacity:0; } }
@@ -473,7 +469,7 @@
 <script>if (matchMedia('(max-width:860px)').matches) document.documentElement.classList.add('mview')</script>
 </head>
 <body>
-<div class="top"><div class="ticker" id="ticker"><span></span></div><nav class="paths" id="paths" aria-label="Pages"></nav><button id="soundBtn" class="iconbtn"></button><button id="themeBtn" class="iconbtn"></button><a id="viewLink" class="iconbtn"></a><button id="newBtn" class="iconbtn" title="Home" aria-label="Home"></button></div>
+<div class="top"><div class="ticker" id="ticker"><span></span></div><nav class="paths" id="paths" aria-label="Pages"></nav><button id="soundBtn" class="iconbtn" data-sound-btn></button><button id="themeBtn" class="iconbtn" data-theme-btn></button><a id="viewLink" class="iconbtn"></a><button id="newBtn" class="iconbtn" title="Home" aria-label="Home"></button></div>
 
 <main id="home"></main>
 
@@ -520,7 +516,14 @@
   </section>
   <section class="side">
     <button id="sideHome" onclick="this.parentNode.classList.remove('open');document.getElementById('newBtn').click()">Home</button>
-    <div class="bar" id="camBar"><button id="fsBtn" class="iconbtn" title="Fullscreen" aria-label="Fullscreen" aria-pressed="false"></button></div>
+    <div class="bar" id="camBar" aria-label="Game controls">
+      <button type="button" id="camSound" class="iconbtn" data-sound-btn title="Sound" aria-label="Sound"></button>
+      <button type="button" id="camTheme" class="iconbtn" data-theme-btn title="Theme" aria-label="Theme"></button>
+      <a id="camView" class="iconbtn"></a>
+      <button type="button" id="camHome" class="iconbtn" title="Home" aria-label="Home"></button>
+      <span class="camGrow" aria-hidden="true"></span>
+      <button id="fsBtn" class="iconbtn" title="Fullscreen" aria-label="Fullscreen" aria-pressed="false"></button>
+    </div>
     <div class="panel"><h2>Log</h2><div id="log"></div></div>
     <div class="panel"><h2>Actions</h2><div id="acts"></div></div>
     <div class="panel" id="card"></div>
@@ -1084,7 +1087,12 @@ function drawHome() {
 }
 $('home').onclick = e => {
   const t = e.target.closest('[data-act],[data-open]'); if (!t) return;
-  if (t.dataset.open != null) { const b = profile.boxes.shift(); drawHome.msg = 'Opened: ' + openBox(b.b).map(itemLabel).join(', '); saveProfile(); return drawHome(); }
+  if (t.dataset.open != null) {
+    sfx('booster_prompt'); sfx('booster_open');
+    const b = profile.boxes.shift(), got = openBox(b.b).map(itemLabel);
+    sfx('booster_results'); sfx('item_get');
+    drawHome.msg = 'Opened: ' + got.join(', '); saveProfile(); return drawHome();
+  }
   const act = t.dataset.act;
   clearInterval(homeTick); $('home').hidden = true;
   if (act === 'league') { $('game').hidden = true; team = profile.deck.map(slotFrom); myPlates = deckPlates(); return start({ league: true }).catch(x => { showHome(); drawHome.msg = x.message; drawHome(); }); }
@@ -1100,13 +1108,14 @@ function finishLeague() { // MatchResultRank: rating, keys (stars), boosters, le
   let keys = 0;
   if (won) { keys = lg.win; profile.wins++; } else if (decided) { keys = Math.min(lg.lose, Math.max(0, CONST.keyLoseStock - profile.lossStars)); profile.lossStars += keys; profile.losses++; }
   profile.stars += keys;
+  if (dr > 0) sfx('elo_up'); else if (dr < 0) sfx('elo_down');
   const notes = [`Rating ${dr >= 0 ? '+' : ''}${dr} → ${Math.floor(profile.rating)}`, `Keys +${keys} (${Math.min(profile.stars, CONST.keyCost)}/${CONST.keyCost})`];
-  if (won && profile.boxes.length < TIME_SLOTS) { const b = weighted(D.roulettes[lg.time])[0]; profile.boxes.push({ b, t: null }); notes.push(`Time booster won (${D.boxes[b][0]} min)`); }
-  if (profile.stars >= CONST.keyCost) { profile.stars -= CONST.keyCost; profile.lossStars = 0; notes.push('Key booster opened: ' + openBox(weighted(D.roulettes[lg.key])[0]).map(itemLabel).join(', ')); }
+  if (won && profile.boxes.length < TIME_SLOTS) { const b = weighted(D.roulettes[lg.time])[0]; profile.boxes.push({ b, t: null }); notes.push(`Time booster won (${D.boxes[b][0]} min)`); sfx('booster_single'); }
+  if (profile.stars >= CONST.keyCost) { profile.stars -= CONST.keyCost; profile.lossStars = 0; sfx('booster_ten'); sfx('item_get'); notes.push('Key booster opened: ' + openBox(weighted(D.roulettes[lg.key])[0]).map(itemLabel).join(', ')); }
   let i = LG.indexOf(lg);
   while (LG[i + 1] && profile.rating >= LG[i + 1].promo) i++;
   while (i > 0 && profile.rating < LG[i].demo) i--;
-  if (LG[i] !== lg) notes.push(i > LG.indexOf(lg) ? `Promoted to league ${i + 1}` : `Demoted to league ${i + 1}`);
+  if (LG[i] !== lg) { const up = i > LG.indexOf(lg); notes.push(up ? `Promoted to league ${i + 1}` : `Demoted to league ${i + 1}`); sfx(up ? 'promo_a' : 'releg_a'); sfx(up ? 'promo_b' : 'releg_b'); }
   profile.league = LG[i].id; saveProfile();
   for (const n of notes) log('<b>' + esc(n) + '</b>');
   // the result screen's table, with the original's own captions (UiMaster.ArenaResult.*)
@@ -1293,28 +1302,28 @@ async function start(opts) {
   startClock();
   await sync(false);
 }
-// First-move screen: top red / bottom blue (same as the board). Arrow spins; the half it is not pointing at is desaturated.
+// First-move screen: red always on top, blue always on bottom. Arrow spins; pointed half = lit, other = dim.
 function firstSpin(side) {
   P_COL.black = flip ? 'var(--p1)' : 'var(--p0)'; P_COL.white = flip ? 'var(--p0)' : 'var(--p1)';
   const topSide = flip ? 'black' : 'white', botSide = flip ? 'white' : 'black';
   const el = $('first');
   el.className = '';
   el.innerHTML = `<div class="split">
-      <div class="half top" data-side="${topSide}"><span class="nm">${esc(label(topSide))}</span></div>
-      <div class="half bottom" data-side="${botSide}"><span class="nm">${esc(label(botSide))}</span></div>
+      <div class="half fp-red lit" data-side="${topSide}"><span class="nm">${esc(label(topSide))}</span></div>
+      <div class="half fp-blue dim" data-side="${botSide}"><span class="nm">${esc(label(botSide))}</span></div>
       <div class="seam"></div>
       <div class="arrow"><div class="needle"><b class="shaft"></b><b class="tip"></b></div></div>
       <b class="hub"></b>
     </div><p class="cap">First move</p>`;
   el.hidden = false;
-  const needle = el.querySelector('.needle'), topH = el.querySelector('.half.top'), botH = el.querySelector('.half.bottom'), cap = el.querySelector('.cap');
+  const needle = el.querySelector('.needle'), topH = el.querySelector('.half.fp-red'), botH = el.querySelector('.half.fp-blue'), cap = el.querySelector('.cap');
   const land = (side === topSide ? 0 : 180) + 360 * 5;
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const pointTop = deg => { const a = ((deg % 360) + 360) % 360; return a < 90 || a > 270; };
   const paintDim = deg => {
     const top = pointTop(deg);
-    topH.classList.toggle('dim', !top);
-    botH.classList.toggle('dim', top);
+    topH.classList.toggle('lit', top); topH.classList.toggle('dim', !top);
+    botH.classList.toggle('lit', !top); botH.classList.toggle('dim', top);
   };
   let raf = 0;
   const SPIN_MS = reduce ? 0 : 2600;
@@ -1344,7 +1353,8 @@ function firstSpin(side) {
         setTimeout(() => {
           cancelAnimationFrame(raf);
           paintDim(land);
-          sfx('spin_stop'); sfx('first');
+          if (window.sfxStop) sfxStop('spin');
+          sfx('spin_stop'); sfx('first'); sfx('turn_bridge');
           cap.textContent = label(side) + ' goes first';
           log(`<b style="color:${P_COL[side]}">${label(side)}</b> goes first.`);
           setTimeout(() => {
@@ -1374,8 +1384,9 @@ try { const oldGame = 'figureduel.game.'; for (const k of Object.keys(localStora
 // Every page of the site, as links in the top bar on wide screens (narrow screens keep the single 2D / 3D switch). The two game views carry
 // the running duel's address along, so switching between them keeps the duel.
 const viewHref = () => {
+  const href = (VIEW3D ? '2d/' : './') + location.hash;
   const PAGES = [[VIEW3D ? '2D' : '3D', VIEW3D ? '2d/' : './', false, VIEW3D ? 'Switch to the flat board' : 'Switch to the 3D table'], ['Storybook', 'storybook/', false, '']];   // one switch that names the other view; built here because VIEW3D is declared further down the script
-  $('viewLink').href = (VIEW3D ? '2d/' : './') + location.hash;
+  for (const id of ['viewLink', 'camView']) { const a = $(id); if (a) a.href = href; }
   $('paths').innerHTML = PAGES.map(([name, path, here, tip]) => `<a href="${path}${path === 'storybook/' ? '' : location.hash}"${here ? ' class="on" aria-current="page"' : ''}${tip ? ` title="${tip}"` : ''}>${name}</a>`).join('');
 };
 function saveGame() {
@@ -1451,7 +1462,7 @@ $('result').onclick = e => { const b = e.target.closest('[data-r]'); if (!b) ret
   if (b.dataset.r === 'again') return start().catch(x => { showHome(); drawHome.msg = x.message; drawHome(); });
   showHome(); };
 function settle() {   // after the effects: the end-of-duel or your-turn sound; true when the duel is over
-  if (over) { if (!over.sung) { over.sung = 1; if (window.bgm) bgm.stop(); if (/goal/i.test(String(over.reason || ''))) sfx('goal'); sfx(ctrl[me] === 'human' && over.winner && over.winner !== me ? 'lose' : 'win'); showResult(); } return true; }
+  if (over) { if (!over.sung) { over.sung = 1; if (window.bgm) bgm.stop(); if (/goal/i.test(String(over.reason || ''))) sfx('goal'); const lost = ctrl[me] === 'human' && over.winner && over.winner !== me; if (lost && !/knock|faint|goal|surround/i.test(String(over.reason || ''))) sfx('lose_alt'); sfx(lost ? 'lose' : 'win'); if (!lost) sfx('cheer'); showResult(); } return true; }
   const side = st.selective_side; if (ctrl[side] === 'human' && settle.last !== side) sfx('turn'); settle.last = side;
 }
 // One step of the original client's loop (Engine.CurrentState): effects of the last move, new status, next legal moves.
@@ -1496,7 +1507,7 @@ async function sync(played) {
     const again = respinMove(); if (again) return play(again);
     if (chainHold) return;
     busy = false; render();
-    if (ctrl[side] === 'ai') { busy = true; render(); const g = await api('go', ai); if (id === gameId) return play(g.move); }
+    if (ctrl[side] === 'ai') { busy = true; render(); sfx('ai_on'); const g = await api('go', ai); sfx('ai_off'); if (id === gameId) return play(g.move); }
     remoteMove();
   } catch (e) { boardSt = null; battleView = null; deferredSfx = null; busy = false; const ov = $('battle'); if (ov) { ov.hidden = true; ov.innerHTML = ''; } $('status').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
 }
@@ -1607,7 +1618,9 @@ addEventListener('click', e => { const s = document.querySelector('.side'); if (
 $('rnd').innerHTML = icon('<rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.35" fill="currentColor"/><circle cx="15" cy="9" r="1.35" fill="currentColor"/><circle cx="12" cy="12" r="1.35" fill="currentColor"/><circle cx="9" cy="15" r="1.35" fill="currentColor"/><circle cx="15" cy="15" r="1.35" fill="currentColor"/>'); $('clr').innerHTML = icon('<path d="M4 7h16M10 11v6M14 11v6M6 7l1 12h10l1-12M9 7V4h6v3"/>');
 $('pickClose').innerHTML = icon('<path d="M6 6l12 12M18 6L6 18"/>');
 $('pickBtn').innerHTML = icon('<path d="M3.5 20.5h5L20 9a2.5 2.5 0 0 0 0-3.5L18.5 4a2.5 2.5 0 0 0-3.5 0L3.5 15.5v5z"/><path d="M13.5 5.5l5 5"/><path d="M3.5 20.5l5-1.2"/>');
-$('newBtn').innerHTML = icon('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>');
+const HOME_ICON = icon('<path d="M3 11l9-8 9 8"/><path d="M5 10v10h5v-6h4v6h5V10"/>');
+$('newBtn').innerHTML = HOME_ICON; $('camHome').innerHTML = HOME_ICON;
+$('camHome').onclick = () => { document.querySelector('.side')?.classList.remove('open'); $('newBtn').click(); };
 
 // A move along a route is shown as hops from point to point (STEP_MS each), with a landing sound per point. It starts the moment the move is
 // made; the figure is drawn at the end of its route from then on, so it does not snap back while the engine works out the new state.
@@ -1626,7 +1639,11 @@ function animateMove(move) {
 const STATUS_COL = { poison: '#a855f7', bad_poison: '#6b21a8', burn: '#ff7a1a', paralyze: '#fde047', sleep: '#94a3b8', freeze: '#67e8f9', melt: '#67e8f9', panic: '#f472b6', curse: '#7c3aed' };
 const VIEW3D = !/\/2d\/(index\.html)?$/.test(location.pathname), U = ([x, y]) => [(x - 210) / 54.2, (y - 350) / 54.2];   // the duel is shown on a WebGL table (board3d.js); /2d/ shows the same duel on the flat board
 document.documentElement.style.setProperty('--board-ar', VIEW3D ? .72 : .55);   // the 3D table, seen at a tilt, is squarer than the flat board
-$('viewLink').innerHTML = icon(VIEW3D ? '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/>' : '<path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/>'); $('viewLink').title = VIEW3D ? 'Switch to the flat board' : 'Switch to the 3D table'; $('viewLink').setAttribute('aria-label', $('viewLink').title); $('viewLink').href = VIEW3D ? '2d/' : './';
+const viewIcon = icon(VIEW3D ? '<rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 12h16M12 4v16"/>' : '<path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M3 7l9 5 9-5M12 12v10"/>');
+const viewTitle = VIEW3D ? 'Switch to the flat board' : 'Switch to the 3D table';
+for (const id of ['viewLink', 'camView']) {
+  const a = $(id); a.innerHTML = viewIcon; a.title = viewTitle; a.setAttribute('aria-label', viewTitle);
+}
 if (VIEW3D) { $('board').style.display = 'none'; $('board3d').hidden = false; import(new URL('board3d.js', document.baseURI)).catch(x => { $('board3d').innerHTML = `<p class="err" style="padding:16px">3D view failed to load: ${esc(x.message)}</p>`; }); }
 const NEAR = .45;
 function xy(p, away) { // engine point ids: 0-27 field, 28-33 / 34-39 benches, 40-41 / 42-43 P.C., above that = out of play
@@ -1826,6 +1843,7 @@ function figScreen(i) {
 }
 function showEvolveAnim(i, swap) {
   sfx('evolve');
+  { const f = byId.get((st.players.flatMap(p => p.pokemons).find(x => x.pokemon_index === i) || {}).figure_id); if (f && f.t && f.t[0] != null) { const tn = (D.types[f.t[0]] || '').toLowerCase(); if (tn) sfx('type_' + tn); } }
   if (VIEW3D && window.Board3D && Board3D.blast) return (async () => {
     const b = Board3D.blast(i);
     try { await b.ready; const pending = swap && swap(); if (pending && pending.then) await pending; }
@@ -2090,7 +2108,7 @@ function wheelSnap(src, battler, spin) {   // the disk is drawn from the figure 
   const marker = ((s && (s.pokemon_conditions || []).find(c => c.pokemon_index === battler) || {}).marker) || {};
   return { skills, frozen: marker.circle === 'freeze' || marker.circle === 'melt', marker };
 }
-function closeSpin() { const ov = $('battle'); if (ov) { ov.hidden = true; ov.innerHTML = ''; } battleView = null; }
+function closeSpin() { if (window.sfxStop) sfxStop('spin'); const ov = $('battle'); if (ov) { ov.hidden = true; ov.innerHTML = ''; } battleView = null; }
 async function showSpin(e, result, notices, opt) {
   opt = opt || {};
   const spins = e.value.spins || [], human = ctrl.black === 'human' || ctrl.white === 'human';
@@ -2100,7 +2118,7 @@ async function showSpin(e, result, notices, opt) {
   const keep = !!(battleView && battleView.ids && ids.length && ids.every(id => battleView.ids.includes(id)) && $('bd0'));   // a one-wheel respin leaves the other disk where it is
   let ov = $('battle'), shut = false;
   if (!ov) { ov = document.createElement('div'); ov.id = 'battle'; document.querySelector('.arena').appendChild(ov); }
-  const done = new Promise(res => { ov.onclick = ev => { if (ev.target.closest('[data-v]')) { shut = true; res(); } }; }), wait = ms => shut ? Promise.resolve() : Promise.race([sleep(human ? ms : ms / 4), done]);
+  const done = new Promise(res => { ov.onclick = ev => { if (ev.target.closest('[data-v]')) { shut = true; if (window.sfxStop) sfxStop('spin'); res(); } }; }), wait = ms => shut ? Promise.resolve() : Promise.race([sleep(human ? ms : ms / 4), done]);
   const mineCol = ctrl[me] === 'human' ? me : 'black';
   const slotOf = (id, list) => list.length > 2 ? 'row' : list.length === 1 ? 'dn' : (id === (colorOf(list[0]) === mineCol ? list[1] : list[0]) ? 'up' : 'dn');
   if (!keep) {
@@ -2114,7 +2132,10 @@ async function showSpin(e, result, notices, opt) {
   } else battleView.battle = true;
   if (battle && result) battleView.lastResult = result;
   const shownIds = (battleView && battleView.ids) || ids;
-  await sleep(40); if (spins.some(sp => !wheelSnap(opt.wheelSt, sp.pokemon, sp).frozen) && !shut) sfx('spin_short');
+  const willSpin = spins.some(sp => !wheelSnap(opt.wheelSt, sp.pokemon, sp).frozen);
+  let wheelsTurning = 0, spinEnded = false;
+  const endSpinSfx = () => { if (spinEnded || !willSpin) return; spinEnded = true; if (window.sfxStop) sfxStop('spin'); if (!shut) sfx('spin_stop'); };
+  await sleep(40); if (willSpin && !shut) sfx('spin');   // one looping se024 until every wheel has stopped turning
   const powerOf = (x, v) => { const col = x.sealed ? 0 : (D.skills[x.id] || [0, 0, 0])[2]; return col === 2 ? '★'.repeat(Math.min(v == null ? x.speed_or_damage || 0 : v, 5)) : col === 1 || col === 3 ? String(v == null ? x.speed_or_damage || 0 : v) : ''; };
   await Promise.all(spins.map(async sp => {
     const k = shownIds.indexOf(sp.pokemon); if (k < 0) return;
@@ -2130,16 +2151,18 @@ async function showSpin(e, result, notices, opt) {
       let to = base - pos / 96 * 360; if (back) { while (to > rot) to -= 360; } else { while (to < rot + turns * 360) to += 360; }
       rot = to; if (!el) return; el.style.transition = shut || !sec ? 'none' : `transform ${sec}s cubic-bezier(.12,.75,.2,1)`; el.style.transform = `rotate(${to}deg)`; await wait(sec * 1000); };
     let sec = 1, landed = 0;
+    if (!info.frozen) wheelsTurning++;
     for (let n = 0; n < (sp.results || []).length; n++) {
       const r = sp.results[n];
       if (info.frozen) { await turn(r.num + .5, 0, 0); landed = at(r.num); if (r.displace && segs[landed]) { landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, 0, 0, r.displace < 0); } break; }   // GetBattleFrizes: a frozen or melted wheel does not spin
-      if (n) { if (!shut && disk) { disk.insertAdjacentHTML('beforeend', '<div class="more">More</div>'); sfx('select'); } await wait(500); const m = disk && disk.querySelector('.more'); if (m) m.remove(); sec = Math.min(1, Math.max(.1, sec * .6)); if (!shut) sfx('spin_short'); }
-      await turn(r.num + .5, sec * (n ? 1 : .8 + Math.random() * .4), n ? 2 : 3); if (!shut) sfx('spin_stop');
+      if (n) { if (!shut && disk) { disk.insertAdjacentHTML('beforeend', '<div class="more">More</div>'); sfx('select'); } await wait(500); const m = disk && disk.querySelector('.more'); if (m) m.remove(); sec = Math.min(1, Math.max(.1, sec * .6)); if (!shut) sfx('spin_tick'); }
+      await turn(r.num + .5, sec * (n ? 1 : .8 + Math.random() * .4), n ? 2 : 3);
       landed = at(r.num);
-      if (r.displace && segs.length) { await wait(500); landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, .3, 0, r.displace < 0); if (!shut) sfx('spin_stop'); }
+      if (r.displace && segs.length) { await wait(500); landed = ((landed + r.displace) % segs.length + segs.length * 10) % segs.length; await turn(starts[landed] + segs[landed].range / 2, .3, 0, r.displace < 0); }
       const landedId = (segs[landed] || {}).id, sid = info.marker.skill_id;
       if (r.type === 'battle' && info.marker.triangle === 'imprison' && (sid == null || sid < 0 || sid === landedId)) break;   // SpinNext: an imprisoned battle attack does not spin on
     }
+    if (!info.frozen) { wheelsTurning--; if (wheelsTurning <= 0) endSpinSfx(); }
     const x = segs[landed] || {}, col = x.sealed ? 0 : (D.skills[x.id] || [0, 0, 0])[2];
     if (battle && battleView) battleView.landed[sp.pokemon] = { miss: !x.id && !segs.length ? true : x.sealed || col === 0, col };
     if (el) { const pt = (t, rad) => [100 + rad * Math.sin(t / 96 * 2 * Math.PI), 100 - rad * Math.cos(t / 96 * 2 * Math.PI)];
@@ -2160,6 +2183,7 @@ async function showSpin(e, result, notices, opt) {
     }
     if (side && side.speed_or_damage != null && powerOf(x, side.speed_or_damage) !== '' && side.speed_or_damage !== shown) { shown = side.speed_or_damage; paint(); }
   }));
+  endSpinSfx();
   if (battle && battleView && !opt.hold) {
     const res = (battleView.lastResult || result || {}).value;
     await wait(700);
@@ -2169,7 +2193,9 @@ async function showSpin(e, result, notices, opt) {
       if (winner != null && winner >= 0 && $('bd' + winner)) { $('bd' + winner).classList.add('won'); battleView.ids.forEach((_, k) => { if (k !== winner && $('bd' + k)) $('bd' + k).classList.add('lost'); }); }
       const bothMiss = winner == null && !drawn && sides.length >= 2 && sides.every(side => { const hit = battleView.landed[side.pokemon]; return hit && hit.miss; });
       const who = winner != null ? sides.find(s => battleMark(s.result) === 1) : null;
-      const strike = !who ? 'hit' : /knock|faint/.test(String(who.result)) ? 'ko' : ((battleView.landed[who.pokemon] || {}).miss ? 'miss' : { 2: 'purple', 3: 'gold', 4: 'blue' }[(battleView.landed[who.pokemon] || {}).col] || 'hit');
+      const land = who && (battleView.landed[who.pokemon] || {});
+      const atkName = who ? (D.skills[who.skill] || [''])[0] : '';
+      const strike = !who ? 'hit' : /knock|faint/.test(String(who.result)) ? 'ko' : (window.strikeSfx ? strikeSfx(atkName, land.col, land.miss) : (land.miss ? 'miss' : { 2: 'purple', 3: 'gold', 4: 'blue' }[land.col] || 'hit'));
       if (!shut) { const fl = $('flare'), spk = $('sparks'); if (fl) fl.classList.add('on'); if (spk) spk.classList.add('on'); sfx(bothMiss ? 'miss' : drawn ? 'draw' : strike); }
       const vd = $('verdict'); if (vd) vd.innerHTML = who ? `${nameOf(who.pokemon)} wins` : drawn ? 'Draw' : bothMiss ? 'Both miss' : '';
     }
@@ -2193,16 +2219,20 @@ async function playEffects(list, opt) {
       const side = x => `${nameOf(x.pokemon)} ${fmt('skill', x.skill)} ${x.speed_or_damage || ''} (${esc(String(x.result).replace(/_/g, ' '))})`;
       log(`Battle · ${side(v.attack)} vs ${side(v.defence)}`);
     } else if (t === 'disable_skill') { sealed.set(v.pokemon, [].concat(v.skill_id || [])); if (sealed.get(v.pokemon).length) log(`${nameOf(v.pokemon)}: ${sealed.get(v.pokemon).map(id => fmt('skill', id)).join(', ')} sealed`); }
-    else if (t === 'remove_debuff') { for (const i of v.pokemons || []) sealed.delete(i); log(describe(v)); }
-    else if (t === 'mp_move') log(`${nameOf(figAt(v.route))} moves ${v.route.map(place).join(' → ')}`);
-    else if (t === 'declare_battle') { sfx('attack'); log(`${nameOf(v.from_pokemon)} attacks ${nameOf(v.to_pokemon)}`); }
+    else if (t === 'remove_debuff') { for (const i of v.pokemons || []) sealed.delete(i); sfx('cured'); log(describe(v)); }
+    else if (t === 'mp_move') { if (ctrl[st && st.selective_side] === 'ai') sfx('ai_step'); log(`${nameOf(figAt(v.route))} moves ${v.route.map(place).join(' → ')}`); }
+    else if (t === 'declare_battle') { sfx('attack'); sfx('attack_phase'); log(`${nameOf(v.from_pokemon)} attacks ${nameOf(v.to_pokemon)}`); }
     else if (t === 'turn_end') { sfx('end_turn'); log('<span class="note">— turn ends —</span>'); if (P_COL[logSide]) logSide = other(logSide); }   // what follows in the same list already belongs to the next player
     else if (t === 'game_set') { over = { winner: v.win, reason: v.reason }; log(`<b>${P_COL[v.win] ? wins(v.win) : 'Draw'}</b> (${esc(String(v.reason).replace(/_/g, ' '))})`); }
+    else if (t === 'add_wait') { sfx('wait'); }
+    else if (t === 'swap') { sfx('swap'); }
+    else if (/shield|protect|counter/i.test(t)) { sfx('shield'); }
+    else if (/damage_notice$/.test(t) && v.value && v.value.multiplier != null && v.value.multiplier !== 1) { sfx('multiplier'); }
     else if (t === 'spot_move' && v.from >= 40 && v.from < 44 && v.to >= 40 && v.to < 44) continue;   // the P.C. slides a figure between its two spots; the knockout line already said it went there
     else if (t === 'sandwich' && !(v.pokemons || []).length) continue;
     else if (t === 'sandwich') { sfx('surround'); log(describe(v)); }
     else if (t === 'pokepower_notice' && Object.keys(v).every(k => k === 'type' || k === 'pokemon' || k === 'pokepower')) continue;   // a bare notice is the ability being in effect, not it triggering
-    else if (t === 'pokepower_notice') { sfx('ability'); log(describe(v)); }
+    else if (t === 'pokepower_notice') { sfx(/bad|neg|curse|disable|seal/i.test(describe(v)) ? 'ability_bad' : 'ability'); log(describe(v)); }
     else if (t === 'disable_plate') { const names = ['black', 'white'].flatMap(c => (v[c] || []).map(id => plateById.has(id) ? plateById.get(id).n : 'plate ' + id)); if (names.length) { sfx('plate'); log('Plate spent · ' + names.map(n => '<b>' + esc(n) + '</b>').join(', ')); } }
     else if (!QUIET.has(t)) log(describe(v));
   }

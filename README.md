@@ -12,7 +12,7 @@ The engine library (`web/libTFG.so`) is taken from the original Android app, ver
 
 ## Sound
 
-Match UI clicks and duel SFX are original recordings under `web/sfx/`. Menu and duel BGM live under `web/bgm/` (original Pokémon Duel tracks). `web/sound.js` maps each game event to those clips and only synthesizes a stand-in when a clip is absent.
+All Pokémon Duel SFX from [The Sounds Resource](https://sounds.spriters-resource.com/mobile/pokemonduel) (Duels + Common + Cutscenes packs) ship under `web/sfx/` (165 clips). Menu and duel BGM live under `web/bgm/`. `web/sound.js` maps every game event to those clips (spin loops `se024` until stop); a synth stand-in is only used if a clip is missing. Refresh the bank with `python tools/install_duel_sfx.py` after unpacking zips into `tools/sfx-src/{duels,common,cutscenes}/`.
 
 ## Run locally
 

@@ -1,10 +1,12 @@
-// Original Pokémon Duel audio. SFX from web/sfx/, BGM from web/bgm/. Synth is only a last-resort fallback.
-// sfx(name) plays a logical event. bgm.play(id) / bgm.stop() handle music.
-// Sound button cycles: all (music+sfx) → sfx → off. Preference is stored in localStorage.
+// Original Pokémon Duel audio from The Sounds Resource (Duels + Common + Cutscenes).
+// sfx(name) plays a logical event or a raw clip id (se024, jingle001, …).
+// Spin uses a looping se024 until sfxStop('spin') / spin_stop. BGM: bgm.play / bgm.stop.
+// Sound button cycles: all (music+sfx) → sfx → off (localStorage).
 (() => {
   const SOUND_KEY = 'pokemonduelweb.sound';
   const MODES = ['all', 'sfx', 'off'];
   let actx = null, noiseBuf = null, master = null, musicGain = null, mode = 'all', bgmSrc = null, bgmId = null, resumeWait = null;
+  const loopSrc = {}; // logical name -> BufferSource currently looping
   try {
     let saved = localStorage.getItem(SOUND_KEY);
     if (saved == null) {
@@ -40,7 +42,6 @@
     return resumeWait;
   }
 
-  // Sync path for synth bank / quick checks after ensureCtx has run.
   function ready() {
     if (!sfxOn() || !actx) return null;
     if (actx.state === 'suspended') { try { actx.resume(); } catch (e) {} }
@@ -109,34 +110,67 @@
   };
   bank.st_melt = t => bank.st_freeze(t);
 
-  // Logical event -> original clip id(s). Sequences play in order.
+  // Logical event -> original clip id(s). Sequences play in order. LOOP names keep the clip looping until sfxStop.
   const ORIG = {
-    click: 'se001', back: 'se002',
-    select: 'se028', cancel: 'se029',
-    step: 'se011', land: 'se011', ai_step: 'se034',
-    spin: 'se024', spin_short: 'se036_1shot', spin_stop: 'se037',
-    miss: 'se060', hit: 'se172', gold: 'se188', purple: 'se073', blue: 'se067',
-    ko: 'se038', draw: 'se063', attack: 'se061', attack_phase: 'se233',
+    // UI (Common)
+    click: 'se001', back: 'se002', swipe: 'se009', sell: 'se010',
+    levelup: 'se012', exp: 'se013', fusion_start: 'se014', fusion_set: 'se136',
+    fusion_aura: ['se137', 'se138'], view_toggle: 'se116', reset: 'se125',
+    hotel: 'se057', stamina: 'se058', item_get: 'se141', deck_check: 'se198',
+    booster_prompt: 'se206', booster_open: 'se207', booster_results: 'se208',
+    booster_suspense: 'se209', booster_single: 'se222', booster_tap: 'se223',
+    booster_tap_b: 'se223_2', booster_ten: 'se224', rare_booster: 'se139',
+    exchange: 'se216', start_game: 'se221', exit: 'se227', quest: 'se154',
+    // Duel UI / flow
+    select: 'se028', cancel: 'se029', deselect: 'se029',
+    step: 'se011', land: 'se011', ai_step: 'se034', ai_select: 'se213',
+    ai_on: 'se210', ai_off: 'se211', ai_unused: 'se039',
+    spin: 'se024', spin_short: 'se036_1shot', spin_tick: 'se036_1shot', spin_stop: 'se037',
+    prize_chance: 'se214', prize_extend: 'se215',
+    miss: 'se060', hit: 'se172', punch: 'se171', swing: 'se173', throw_a: 'se174', throw_b: 'se175',
+    shock_a: 'se176', shock_b: 'se177', shock_c: 'se178', blast: 'se179',
+    scythe_a: 'se180', scythe_b: 'se181', psychic_force: 'se182', beam: 'se183',
+    blizzard: 'se184', sludge: 'se185', bind: 'se186', vine: 'se187',
+    gold: 'se188', mist_a: 'se189', mist_b: 'se190', fairy_hit: 'se191',
+    flood_a: 'se192', flood_b: 'se193', flood_c: 'se194',
+    heavy_fire: 'se217', heavy_water: 'se218',
+    purple: 'se073', blue: 'se067', shield: 'se064', shield_b: 'se065', shield_c: 'se066',
+    ko: 'se038', draw: 'se063', multiplier: 'se059',
+    attack: 'se061', attack_phase: 'se233',
     plate: 'se114', plate_pick: 'se030', plate_ok: 'se047', plate_cancel: 'se142',
     plate_energy: 'se129', plate_action: 'se130',
     ability: 'se121', ability_bad: 'se122',
-    win: 'jingle001', lose: 'jingle002',
-    turn: 'se026', end_turn: 'se219',
-    evolve: ['se165', 'se017_2'],
-    wait: 'se087',
+    win: 'jingle001', lose: 'jingle002', lose_alt: 'se235',
+    turn: 'se026', end_turn: 'se219', turn_bridge: 'se023',
+    evolve: ['se165', 'se017_2'], form_b: 'se017',
+    wait: 'se087', exclusion: 'se087',
     mp_up: 'se123', mp_down: 'se124',
     st_poison: 'se091', st_bad_poison: 'se092', st_burn: 'se093', st_paralyze: 'se090',
     st_sleep: 'se089', st_freeze: 'se094', st_melt: 'se094', st_panic: 'se088', st_curse: 'se122',
     st_other: 'se087', cured: 'se046',
     duel_start: 'se022', first: 'se226', goal: 'se212', swap: 'se048', surround: 'se035',
+    elo_up: 'se042', elo_down: 'se043', promo_a: 'se044', promo_b: 'se132',
+    releg_a: 'se045', releg_b: 'se133', new_figure: 'se140',
     type_dark: 'se070', type_electric: 'se071', type_grass: 'se072', type_psychic: 'se073',
     type_fighting: 'se074', type_steel: 'se075', type_fire: 'se076', type_water: 'se077',
     type_ice: 'se078', type_poison: 'se079', type_ground: 'se080', type_flying: 'se081',
-    type_bug: 'se082', type_rock: 'se083', type_ghost: 'se084', type_dragon: 'se085', type_fairy: 'se086'
+    type_bug: 'se082', type_rock: 'se083', type_ghost: 'se084', type_dragon: 'se085', type_fairy: 'se086',
+    // Cutscenes (story / device — playable by name or raw id)
+    device_boot: 'se003', device_off: 'se004', news: 'se005', carlo: 'se006',
+    plane_land: 'se051', plane_alert: 'se052', gates: 'se053', ringtone: 'se054',
+    airport_news: 'se055', airport: 'se134', airplane: 'se135',
+    device_first: 'se147', device_setup: 'se148', device_play: 'se149',
+    cheer: 'se152', alarm: 'se153', footsteps_in: 'se156', footsteps_out: 'se157',
+    phone: 'se158', car: 'se160', interference: 'se166', outage: 'se169', firewall: 'se170',
+    smash_a: 'se203', emblem: 'se205', dialog: 'se229', mechanisms: 'se230',
+    smash_b: 'se231', carlo_intro: 'se238'
   };
+  const LOOP = { spin: 1 }; // se024 loops for the whole wheel / first-move spin
+
+  // Every shipped clip (Duels 107 + Common 30 + Cutscenes 29, overlaps resolved).
+  const ALL_IDS = ['jingle001','jingle002','se001','se002','se003','se004','se005','se006','se009','se010','se011','se012','se013','se014','se017','se017_2','se022','se023','se024','se026','se027','se028','se029','se030','se034','se035','se036_1','se036_1shot','se037','se038','se039','se042','se043','se044','se045','se046','se047','se048','se051','se052','se053','se054','se055','se057','se058','se059','se060','se061','se063','se064','se065','se066','se067','se070','se071','se072','se073','se074','se075','se076','se077','se078','se079','se080','se081','se082','se083','se084','se085','se086','se087','se088','se089','se090','se091','se092','se093','se094','se114','se116','se121','se122','se123','se124','se125','se129','se130','se132','se133','se134','se135','se136','se137','se138','se139','se140','se141','se142','se147','se148','se149','se152','se153','se154','se156','se157','se158','se160','se165','se166','se169','se170','se171','se172','se173','se174','se175','se176','se177','se178','se179','se180','se181','se182','se183','se184','se185','se186','se187','se188','se189','se190','se191','se192','se193','se194','se198','se203','se205','se206','se207','se208','se209','se210','se211','se212','se213','se214','se215','se216','se217','se218','se219','se221','se222','se223','se223_2','se224','se226','se227','se229','se230','se231','se233','se235','se238'];
 
   const raw = {}, clips = {}, decoding = {}, failed = {}, loading = {};
-  const ALL_IDS = [...new Set(Object.values(ORIG).flat())];
 
   function fetchRaw(id) {
     if (!id || failed[id]) return Promise.resolve(null);
@@ -165,49 +199,77 @@
     }).finally(() => { delete decoding[id]; });
   }
 
-  // Prefetch wav bytes early; decode after first user gesture unlocks AudioContext.
   ALL_IDS.forEach(id => fetchRaw(id));
 
-  function playBuf(buf, gain, dest) {
-    const src = actx.createBufferSource(); src.buffer = buf;
+  function stopLoop(name) {
+    const src = loopSrc[name];
+    if (!src) return;
+    delete loopSrc[name];
+    try { src.stop(); } catch (e) {}
+  }
+
+  function playBuf(buf, gain, dest, loop, loopKey) {
+    if (loopKey) stopLoop(loopKey);
+    const src = actx.createBufferSource(); src.buffer = buf; src.loop = !!loop;
     const g = actx.createGain(); g.gain.value = gain;
     src.connect(g).connect(dest || master); src.start();
+    if (loop && loopKey) {
+      loopSrc[loopKey] = src;
+      src.onended = () => { if (loopSrc[loopKey] === src) delete loopSrc[loopKey]; };
+    }
     return src;
   }
 
-  function playClip(id, ui) {
+  function playClip(id, ui, loopKey) {
     return decodeId(id).then(buf => {
       if (!buf || !sfxOn()) return false;
       return ensureCtx().then(c => {
         if (!c || !sfxOn()) return false;
-        playBuf(buf, ui ? UI_GAIN : SFX_GAIN);
+        playBuf(buf, ui ? UI_GAIN : SFX_GAIN, null, !!loopKey, loopKey || null);
         return true;
       });
     }).catch(() => false);
   }
 
+  function resolveIds(name) {
+    if (ORIG[name] != null) {
+      const map = ORIG[name];
+      return Array.isArray(map) ? map.slice() : [map];
+    }
+    const low = String(name).toLowerCase();
+    if (ALL_IDS.indexOf(low) >= 0) return [low];
+    return [];
+  }
+
   function sfx(name) {
     if (!sfxOn()) return;
+    if (name === 'spin_stop') stopLoop('spin');
     const ui = name === 'click' || name === 'back';
-    const map = ORIG[name];
-    const ids = map == null ? [] : (Array.isArray(map) ? map : [map]);
+    const ids = resolveIds(name);
+    const loopKey = LOOP[name] ? name : null;
     ensureCtx().then(c => {
       if (!c || !sfxOn()) return;
       if (!ids.length) {
         if (bank[name]) bank[name](c.currentTime);
         return;
       }
+      if (loopKey && loopSrc[loopKey]) return; // already spinning
       let i = 0;
       const next = () => {
         if (i >= ids.length || !sfxOn()) return;
         const id = ids[i++];
-        playClip(id, ui).then(ok => {
+        playClip(id, ui, i === 1 ? loopKey : null).then(ok => {
           if (!ok && i === 1 && bank[name]) bank[name](c.currentTime);
           if (i < ids.length) setTimeout(next, 200);
         });
       };
       next();
     });
+  }
+
+  function sfxStop(name) {
+    if (name) stopLoop(name);
+    else Object.keys(loopSrc).forEach(stopLoop);
   }
 
   // --- BGM -----------------------------------------------------------------
@@ -269,46 +331,77 @@
     } catch (e) {}
   }
 
+  // Pick a battle impact clip from the winning attack name (Duels attack bank).
+  function strikeSfx(name, col, miss) {
+    if (miss) return 'miss';
+    const t = String(name || '').toLowerCase();
+    if (/punch|fist|arm|mega punch|focus/.test(t)) return 'punch';
+    if (/slash|cut|scythe|night slash|x-scissor|leaf blade/.test(t)) return /scythe|guillotine/.test(t) ? 'scythe_a' : 'swing';
+    if (/throw|seismic|vital|circle/.test(t)) return 'throw_a';
+    if (/beam|hyper beam|solar|psybeam|aurora|charge beam/.test(t)) return 'beam';
+    if (/blizzard|ice beam|icy|frost/.test(t)) return 'blizzard';
+    if (/sludge|toxic|acid|poison/.test(t)) return 'sludge';
+    if (/bind|wrap|constrict|infestation/.test(t)) return 'bind';
+    if (/vine|power whip|wood/.test(t)) return 'vine';
+    if (/psychic|psyshock|confusion|future/.test(t)) return 'psychic_force';
+    if (/surf|hydro|water|aqua|whirlpool|flood/.test(t)) return /heavy|hydro pump|water spout/.test(t) ? 'heavy_water' : 'flood_a';
+    if (/fire|flamethrower|blast burn|eruption|overheat|heat/.test(t)) return /blast|eruption|overheat/.test(t) ? 'heavy_fire' : 'blast';
+    if (/mist|moonblast|dazzling|fairy|play rough/.test(t)) return /mist/.test(t) ? 'mist_a' : 'fairy_hit';
+    if (/shock|thunder|volt|zap|discharge/.test(t)) return 'shock_a';
+    if (col === 3) return 'gold';
+    if (col === 2) return 'purple';
+    if (col === 4) return 'blue';
+    return 'hit';
+  }
+
   window.sfx = sfx;
+  window.sfxStop = sfxStop;
+  window.strikeSfx = strikeSfx;
   window.bgm = { play: playBgm, stop: stopBgm, id: () => bgmId };
   const STATUS = { poison: 1, bad_poison: 1, burn: 1, paralyze: 1, sleep: 1, freeze: 1, melt: 1, panic: 1, curse: 1 };
   window.mpSfx = change => { if (change) sfx(change > 0 ? 'mp_up' : 'mp_down'); };
   window.statusSfx = kind => sfx(STATUS[kind] ? 'st_' + kind : 'st_other');
 
   const LABELS = { all: 'music + sfx', sfx: 'sfx', off: 'off' };
+  const soundBtns = () => {
+    const seen = new Set(), out = [];
+    for (const b of document.querySelectorAll('[data-sound-btn], #soundBtn')) { if (seen.has(b)) continue; seen.add(b); out.push(b); }
+    return out;
+  };
+  const cycleSound = () => {
+    mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
+    persist();
+    if (!musicOn()) stopBgm(false);
+    if (mode === 'off') sfxStop();
+    draw();
+    if (sfxOn()) {
+      ensureCtx().then(() => {
+        sfx('click');
+        if (musicOn()) {
+          const onGame = document.getElementById('game') && !document.getElementById('game').hidden;
+          bgm.play(onGame ? 'duel' : 'menu');
+        }
+      });
+    }
+  };
   const draw = () => {
-    const b = document.getElementById('soundBtn'); if (!b) return; b.classList.add('iconbtn');
     const speaker = '<path d="M4 9v6h4l5 4V5L8 9H4z"/>';
     const glyph = mode === 'all' ? speaker + '<path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>'
       : mode === 'sfx' ? speaker + '<path d="M16 10.5a2.5 2.5 0 0 1 0 3"/>'
       : speaker + '<path d="M16 9l5 6M21 9l-5 6"/>';
-    b.innerHTML = icon(glyph);
-    b.title = 'Sound: ' + LABELS[mode]; b.setAttribute('aria-label', b.title);
+    const title = 'Sound: ' + LABELS[mode];
+    for (const b of soundBtns()) {
+      b.classList.add('iconbtn');
+      b.innerHTML = icon(glyph);
+      b.title = title; b.setAttribute('aria-label', title);
+      if (!b._soundBound) { b._soundBound = 1; b.onclick = cycleSound; }
+    }
   };
-  addEventListener('DOMContentLoaded', () => {
-    draw();
-    const b = document.getElementById('soundBtn');
-    if (b) b.onclick = () => {
-      mode = MODES[(MODES.indexOf(mode) + 1) % MODES.length];
-      persist();
-      if (!musicOn()) stopBgm(false);
-      draw();
-      if (sfxOn()) {
-        ensureCtx().then(() => {
-          sfx('click');
-          if (musicOn()) {
-            const onGame = document.getElementById('game') && !document.getElementById('game').hidden;
-            bgm.play(onGame ? 'duel' : 'menu');
-          }
-        });
-      }
-    };
-  });
-  // Unlock AudioContext on first gesture, then allow pending decode/play.
+  addEventListener('DOMContentLoaded', () => draw());
   addEventListener('pointerdown', () => { ensureCtx(); }, true);
   addEventListener('pointerdown', e => {
     const el = e.target.closest && e.target.closest('button, [role="button"], a, summary, .row, .tcard, .pchip');
-    if (!el || el.disabled || el.id === 'soundBtn' || el.closest('#nav') || el.getAttribute('aria-disabled') === 'true') return;
+    if (!el || el.disabled || el.id === 'soundBtn' || el.hasAttribute('data-sound-btn') || el.closest('#nav') || el.getAttribute('aria-disabled') === 'true') return;
     const label = (el.getAttribute('aria-label') || el.textContent || '').replace(/\s+/g, ' ').trim();
     sfx(/^(close|back)\b/i.test(label) || el.classList.contains('x') ? 'back' : 'click');
   }, true);
