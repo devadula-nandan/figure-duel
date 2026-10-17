@@ -26,19 +26,48 @@
   #evoanim { position:absolute; z-index:8; width:120px; height:120px; margin:-60px 0 0 -60px; pointer-events:none; }
   #evoanim[hidden] { display:none; }
   #evoanim .ball { position:absolute; left:50%; top:46%; width:34px; height:34px; margin:-17px; border-radius:50%; animation:evoBall .72s ease-in forwards;
-    background:radial-gradient(circle, #fff 0 18%, #fff4b0 36%, #9ad7ff 64%, rgba(120,190,255,0) 72%);
-    box-shadow:0 0 16px 6px rgba(255,255,255,.9), 0 0 32px 10px rgba(120,190,255,.65); }
-  #evoanim .ring { position:absolute; left:50%; top:46%; width:24px; height:24px; margin:-12px; border-radius:50%; border:2px solid rgba(255,255,255,.9); box-shadow:0 0 10px #9ad7ff; animation:evoRing .72s ease-out forwards; }
-  #evoanim .ring.b { animation-delay:.08s; border-color:#fff4b0; }
+    background:radial-gradient(circle, var(--bd-line) 0 22%, color-mix(in srgb, var(--bd-line) 55%, transparent) 55%, transparent 74%);
+    box-shadow:0 0 18px 8px color-mix(in srgb, var(--bd-line) 45%, transparent), 0 0 36px 12px color-mix(in srgb, var(--bd-line) 25%, transparent); }
+  #evoanim .ring { position:absolute; left:50%; top:46%; width:24px; height:24px; margin:-12px; border-radius:50%; border:2px solid var(--bd-line); box-shadow:0 0 10px color-mix(in srgb, var(--bd-line) 40%, transparent); animation:evoRing .72s ease-out forwards; }
+  #evoanim .ring.b { animation-delay:.08s; border-color:color-mix(in srgb, var(--bd-line) 70%, var(--bd-pt)); }
   @keyframes evoBall { 0% { opacity:0; transform:scale(.15); } 18% { opacity:1; transform:scale(1); } 50% { opacity:1; transform:scale(1.35); } 100% { opacity:0; transform:scale(3.6); } }
   @keyframes evoRing { 0% { opacity:0; transform:scale(.3); } 24% { opacity:1; } 100% { opacity:0; transform:scale(4.6); } }
+  /* battle stage: letterboxed to the original 750×1334 match UI; disk centres match the duel (24° through the gem) */
+  #battle { position:absolute; inset:0; z-index:6; container-type:size; display:grid; place-items:center; background:#0c0d10; }
+  #battle[hidden] { display:none; }
+  .stage {
+    --w:min(100cqw, calc(100cqh * 750 / 1334)); --h:min(100cqh, calc(100cqw * 1334 / 750));
+    --d:min(calc(var(--w) * 1.42), calc(var(--h) * .98));
+    width:var(--w); height:var(--h); position:relative; overflow:hidden;
+    background:radial-gradient(ellipse at 50% 50%, #3a3f47, #15171b 70%);
+    box-shadow:0 0 0 1px #000, 0 12px 40px rgba(0,0,0,.55);
+  }
+  .bdisk { position:absolute; width:var(--d); height:var(--d); filter:drop-shadow(0 8px 14px rgba(0,0,0,.55)); transition:transform .25s, filter .25s; } .bdisk svg { width:100%; height:100%; }
+  .bdisk.up { left:calc(var(--w) / 2 + var(--d) * .2035 - var(--d) / 2); top:calc(var(--h) / 2 - var(--d) * .457 - var(--d) / 2); }
+  .bdisk.dn { left:calc(var(--w) / 2 - var(--d) * .2035 - var(--d) / 2); top:calc(var(--h) / 2 + var(--d) * .457 - var(--d) / 2); }
+  .stage.solo .bdisk.dn { left:calc(var(--w) / 2 - var(--d) / 2); top:calc(var(--h) / 2 + 6px); } .stage.solo .gem, .stage.solo .flare { top:calc(50% + 6px); }
+  .spin { position:relative; width:100%; height:100%; }
+  .bdisk.won { transform:scale(1.03); filter:drop-shadow(0 0 22px var(--gold)); } .bdisk.lost { filter:brightness(.4) saturate(.5); animation:bshake .4s; }
+  @keyframes bshake { 20% { translate:-10px 4px; } 40% { translate:9px -5px; } 60% { translate:-6px 3px; } 80% { translate:4px -2px; } }
+  .gem { position:absolute; left:50%; top:50%; width:32px; height:44px; transform:translate(-50%,-50%) rotate(24deg); z-index:3; clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);
+    background:linear-gradient(90deg, rgba(255,255,255,.28) 0 50%, rgba(0,0,0,.18) 50%), linear-gradient(180deg, #ff7b6b 0 50%, #c2140f 50%); background-color:#f0241c; filter:drop-shadow(0 2px 4px rgba(0,0,0,.7)) drop-shadow(0 0 8px rgba(255,170,60,.55)); }
+  .flare { position:absolute; left:50%; top:50%; width:170%; height:30px; transform:translate(-50%,-50%) rotate(24deg) scaleX(0); z-index:2; opacity:0; pointer-events:none;
+    background:radial-gradient(ellipse at center, rgba(255,250,200,1), rgba(255,190,60,.6) 28%, rgba(255,120,20,0) 68%); }
+  .flare.on { animation:flare 1s ease-out forwards; } @keyframes flare { 0% { opacity:0; transform:translate(-50%,-50%) rotate(24deg) scaleX(0); } 22% { opacity:1; transform:translate(-50%,-50%) rotate(24deg) scaleX(1); } 100% { opacity:.6; transform:translate(-50%,-50%) rotate(24deg) scale(.75,.4); } }
+  .sparks { position:absolute; left:50%; top:50%; z-index:2; pointer-events:none; } .sparks i { position:absolute; left:0; top:0; width:var(--l); height:2px; border-radius:2px; opacity:0; transform-origin:0 50%; background:linear-gradient(90deg, rgba(255,160,40,0), #ffb347 55%, #fff3c4); }
+  .sparks.on i { animation:spark .75s var(--t) ease-out forwards; } @keyframes spark { 0% { opacity:0; transform:rotate(var(--a)) translateX(10px) scaleX(.2); } 18% { opacity:1; } 100% { opacity:0; transform:rotate(var(--a)) translateX(var(--far)) scaleX(1); } }
+  .cap { position:absolute; z-index:4; display:flex; flex-direction:column; gap:1px; max-width:46%; color:var(--c, #4fb9e9); text-shadow:0 2px 3px #000, 0 0 10px #000; font-weight:800; line-height:1.15; }
+  .cap.up { left:12px; top:10px; text-align:left; } .cap.dn { right:12px; bottom:10px; text-align:right; }
+  .cap b { font-size:17px; } .cap .val { font-size:40px; font-weight:900; line-height:1; font-variant-numeric:tabular-nums; } .cap .val.up { color:#39d98a; } .cap .why { font-size:11px; color:#fff; opacity:.85; font-weight:600; }
+  .verdict { position:absolute; left:50%; top:50%; z-index:6; translate:-50% -50%; max-width:92%; padding:10px 22px; border-radius:8px; background:#000d; color:#fff; text-align:center; font:900 26px/1.2 "Segoe UI",system-ui,sans-serif; font-style:italic; box-shadow:0 8px 30px #000; }
+  .verdict:empty { display:none; }
   pre { margin:0; padding:10px 16px; border-top:1px solid var(--line); background:var(--bar); color:var(--dim); font:12px/1.45 Consolas,monospace; max-height:34dvh; overflow:auto; white-space:pre-wrap; }
   @media (max-width:700px) { body { grid-template-columns:1fr; grid-template-rows:38dvh 1fr; } #nav { border-right:0; border-bottom:1px solid var(--line); } }
 </style>
 </head>
 <body>
 <nav id="nav"><h1>3D STORYBOOK</h1><p>Every state the 3D table can draw. <a href="./">Play in 3D</a></p></nav>
-<main><header><div><b id="title"></b><div id="note"></div></div><nav class="paths" aria-label="Pages"><a href="./" title="Back to the game">Game</a><a href="storybook/" class="on" aria-current="page">Storybook</a></nav><button id="soundBtn"></button><button id="themeBtn"></button></header><div id="board3d"><div id="evoanim" hidden></div></div><pre id="props"></pre></main>
+<main><header><div><b id="title"></b><div id="note"></div></div><nav class="paths" aria-label="Pages"><a href="./" title="Back to the game">Game</a><a href="storybook/" class="on" aria-current="page">Storybook</a></nav><button id="soundBtn"></button><button id="themeBtn"></button></header><div id="board3d"><div id="evoanim" hidden></div><div id="battle" hidden></div></div><pre id="props"></pre></main>
 <script src="data.js"></script>
 <script src="board.js"></script>
 <script>
@@ -46,7 +75,10 @@
 const D = DUEL_DATA, $ = id => document.getElementById(id), cond = k => (D.conds[k] || k).replace(' {0}', '');
 const fig = D.figures.find(f => f.n === 'Pikachu') || D.figures[0];
 const art = f => f.dex <= 1025 ? `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${f.dex}.png` : '';
-const tok = (over, f = fig) => ({ team: 0, img: art(f), name: f.n, mp: String(f.mp), badge: '', status: '', wait: false, mpd: 0, sel: false, atk: false, dim: false, ...over });
+const tok = (over = {}, f) => {   // prefer over.f so row([{ f: Regigigas, … }]) is not painted as the default Pikachu
+  const who = f || over.f || fig, { f: _drop, ...rest } = over;
+  return { team: 0, img: art(who), name: who.n, mp: String(who.mp), badge: '', status: '', wait: false, mpd: 0, sel: false, atk: false, dim: false, ...rest };
+};
 // figures side by side (rows of `per`), each one a variation
 function row(list, per = 6) {
   const rows = Math.ceil(list.length / per), toks = list.map((t, i) => { const n = Math.min(per, list.length - Math.floor(i / per) * per); return { ...tok(t), i, x: ((i % per) - (n - 1) / 2) * 1.7, z: (Math.floor(i / per) - (rows - 1) / 2) * 2 }; });
@@ -62,7 +94,147 @@ function table(mv = [], toks = []) {
 const STATUS = ['poison', 'bad_poison', 'burn', 'paralyze', 'sleep', 'freeze', 'panic', 'curse'], MARKERS = Object.keys(D.conds).filter(k => !D.conds[k].includes('{0}') && !STATUS.includes(k) && !/^mp_|^plus_|faint|melt/.test(k));
 const mpd = d => ({ mp: String(fig.mp + d), mpd: d, badge: d ? 'MP ' + (d > 0 ? '+' : '') + d : 'normal' });
 const some = n => D.figures.filter(f => f.dex <= 1025 && !/ /.test(f.n)).slice(0, n);
-const named = n => D.figures.find(f => f.n === n);
+const named = n => D.figures.find(f => f.n === n) || D.figures.find(f => f.n.startsWith(n));
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const DISK_COL = ['#e2494e', '#efefef', '#9a5fd0', '#e8cb4d', '#4fb9e9'];
+const skillsOf = f => (f.w || []).filter(x => x[1] > 0).map(([id, range, val]) => ({ id, range, speed_or_damage: val }));
+const outXZ = (team, n) => [(team ? -120 + n * 48 : 120 - n * 48) / 54.2, team ? -7.01 : 7.01];
+let wheelSeq = 0, demoJob = 0, moveSeq = 0;
+function wheelSvg(skills, size) {
+  const id = 'wh' + (++wheelSeq), names = size >= 130, R = 88, ang = t => t / 96 * 2 * Math.PI, pt = (t, r) => [100 + r * Math.sin(ang(t)), 100 - r * Math.cos(ang(t))];
+  let a = 0, wedges = '', text = '', defs = '', rays = '';
+  for (let k = 0; k < 96; k += 2) { const [x1, y1] = pt(k, R), [x2, y2] = pt(k + 1, R); rays += `M100 100L${x1} ${y1}A${R} ${R} 0 0 1 ${x2} ${y2}Z`; }
+  skills.filter(x => x.range > 0).forEach((x, n) => {
+    const sk = D.skills[x.id] || ['', '', 0], col = sk[2], a2 = a + x.range, mid = (a + a2) / 2, ink = col === 2 ? '#fff' : '#111', big = x.range > 48 ? 1 : 0;
+    const [x1, y1] = pt(a, R), [x2, y2] = pt(a2, R);
+    wedges += x.range >= 96 ? `<circle cx="100" cy="100" r="${R}" fill="${DISK_COL[col]}"/>` : `<path d="M100 100L${x1} ${y1}A${R} ${R} 0 ${big} 1 ${x2} ${y2}Z" fill="${DISK_COL[col]}" stroke="#111" stroke-width="1.4" stroke-linejoin="round"/>`;
+    const val = col === 2 ? '★'.repeat(Math.min(x.speed_or_damage || 0, 5)) : col === 1 || col === 3 ? String(x.speed_or_damage || 0) : '';
+    if (names && x.range >= 4) {
+      const fs = x.range >= 12 ? 9.5 : 7.5, [p1x, p1y] = pt(a2 - .5, 79), [p2x, p2y] = pt(a + .5, 79);
+      defs += `<path id="${id}p${n}" d="M${p1x} ${p1y}A79 79 0 ${big} 0 ${p2x} ${p2y}"/>`;
+      text += `<text font-size="${fs}" font-weight="500" fill="${ink}"><textPath href="#${id}p${n}" startOffset="50%" text-anchor="middle">${esc(sk[0])}</textPath></text>`;
+    }
+    if (val && x.range >= 8) { const [vx, vy] = pt(mid, 52), deg = mid / 96 * 360 + 180; text += `<text x="${vx}" y="${vy}" font-size="22" font-weight="800" fill="${ink}" text-anchor="middle" dominant-baseline="central" transform="rotate(${deg} ${vx} ${vy})">${val}</text>`; }
+    a = a2;
+  });
+  return `<svg viewBox="0 0 200 200" width="${size}" height="${size}" style="display:block"><defs>${defs}</defs><circle cx="100" cy="100" r="99" fill="#0b0b0c"/>${wedges}<path d="${rays}" fill="#000" opacity=".085"/>${text}
+    <circle cx="100" cy="100" r="93.5" fill="none" stroke="#0b0b0c" stroke-width="11"/><circle cx="100" cy="100" r="88.6" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width=".9"/>
+    <circle cx="100" cy="100" r="11.5" fill="#1a1a1c" stroke="#0b0b0c" stroke-width="5.5"/></svg>`;
+}
+function hopPlan(route, occ) {   // same plan as the duel: skip occupied mid-points as landings, mark those stretches as long jumps
+  const segs = [], landings = [route[0]];
+  let i = 0;
+  while (i < route.length - 1) {
+    let j = i + 1, leap = false;
+    if (j < route.length - 1 && occ.has(route[j])) { leap = true; while (j < route.length - 1 && occ.has(route[j])) j++; }
+    const span = j - i;
+    segs.push({ leap, dur: (leap ? .2 : .17) * span });
+    landings.push(route[j]); i = j;
+  }
+  return { segs, landings, durMs: segs.reduce((s, x) => s + x.dur * 1000, 0) };
+}
+function hopStory(route, over = {}, f = fig, blockers = []) {
+  const ids = route.map(p => typeof p === 'number' ? p : null);
+  const occ = new Set(blockers.map(b => b.at));
+  const plan = hopPlan(ids.every(x => x != null) ? ids : route.map((_, k) => k), occ);
+  const world = (plan.landings.every(p => typeof p === 'number') ? plan.landings : route).map(p => typeof p === 'number' ? P(p) : p);
+  const segs = plan.segs;
+  const end = world[world.length - 1];
+  const toks = [{ f, at: typeof route[0] === 'number' ? route[0] : 14, ...over, mp: String(f.mp) }, ...blockers];
+  const m = table([], toks);
+  const mover = m.toks[0];
+  Object.assign(mover, { x: end[0], z: end[1], _route: world, _segs: segs, _durMs: plan.durMs, path: world, segs, moveId: ++moveSeq });
+  m.demo = 'move';
+  const mid = world.reduce((a, p) => [a[0] + p[0] / world.length, a[1] + p[1] / world.length], [0, 0]);
+  m.cam = { pos: [mid[0], 5.4, mid[1] + 4.8], at: [mid[0], .3, mid[1]], width: Math.max(6, world.length * 1.4) };
+  return m;
+}
+function sleep(ms, job) { return new Promise(r => { const t = setTimeout(() => r(job === demoJob), ms); (sleep.timers || (sleep.timers = [])).push(t); }); }
+function stopDemo() {
+  demoJob++; (sleep.timers || []).forEach(clearTimeout); sleep.timers = [];
+  if (window.Board3D && Board3D.clearAbilities) Board3D.clearAbilities();
+  const ov = $('battle'); if (ov) { ov.hidden = true; ov.innerHTML = ''; if (window.sfxStop) sfxStop('spin'); }
+}
+async function loopAbility(m, job) {
+  while (job === demoJob && window.Board3D && Board3D.ability) {
+    for (const t of m.toks) Board3D.ability(t.i);
+    sfx('ability');
+    if (!(await sleep(1600, job))) return;
+  }
+}
+async function loopTurnBoost(m, job) {   // only figures that currently hold a passive boost (MP / damage / …), like the original at turn start
+  while (job === demoJob && window.Board3D && Board3D.ability) {
+    const boosted = m.toks.filter(t => t.mpd || t._boost);
+    for (const t of (boosted.length ? boosted : m.toks)) Board3D.ability(t.i);
+    sfx('ability');
+    if (!(await sleep(1600, job))) return;
+  }
+}
+async function loopMove(m, job) {
+  while (job === demoJob && window.Board3D) {
+    for (const t of m.toks) if (t._route) { t.x = t._route[0][0]; t.z = t._route[0][1]; t.moveId = null; t.path = null; t.segs = null; }
+    Board3D.draw({ ...m, snap: true }); if (!(await sleep(500, job))) return;
+    for (const t of m.toks) if (t._route) { t.path = t._route; t.segs = t._segs || null; t.moveId = ++moveSeq; t.x = t._route.at(-1)[0]; t.z = t._route.at(-1)[1]; }
+    Board3D.draw(m);
+    const mover = m.toks.find(t => t._route);
+    if (mover && mover._segs) {
+      for (const s of mover._segs) { if (s.leap) sfx('swap'); if (!(await sleep(s.dur * 1000, job))) return; sfx('step'); }
+    } else {
+      const n = Math.max(1, ...m.toks.map(t => (t._route || []).length - 1));
+      for (let k = 1; k <= n && job === demoJob; k++) { if (!(await sleep(170, job))) return; sfx('step'); }
+    }
+    if (!(await sleep(900, job))) return;
+  }
+}
+async function playWheel(opts, job) {
+  const ov = $('battle'); if (!ov) return;
+  const fighters = opts.fighters || [{ f: fig, slot: 'dn' }];
+  const duel = fighters.length > 1;
+  ov.hidden = false;
+  const teamCol = t => t === 1 ? 'var(--p1, #e2494e)' : 'var(--p0, #4fb9e9)';
+  ov.innerHTML = `<div class="stage${duel ? '' : ' solo'}">${fighters.map((x, k) => {
+    const slot = x.slot || (k ? 'up' : 'dn');
+    return `<div class="bdisk ${slot}" id="bd${k}"><div class="spin" id="w${k}">${wheelSvg(skillsOf(x.f), 440)}</div></div><div class="cap ${slot}" id="r${k}" style="--c:${teamCol(x.team != null ? x.team : (slot === 'up' ? 1 : 0))}" hidden></div>`;
+  }).join('')}<div class="flare" id="flare"></div><div class="sparks" id="sparks">${Array.from({ length: 12 }, (_, k) => `<i style="--a:${24 + k * 30}deg;--l:${30 + (k % 5) * 12}px;--far:${80 + k * 8}px;--t:${(k % 4) * .05}s"></i>`).join('')}</div><div class="gem"></div><div class="verdict" id="verdict"></div></div>`;
+  while (job === demoJob) {
+    for (const el of ov.querySelectorAll('.bdisk')) el.classList.remove('won', 'lost');
+    const vd = $('verdict'); if (vd) vd.textContent = '';
+    const fl = $('flare'), sp = $('sparks'); if (fl) fl.classList.remove('on'); if (sp) sp.classList.remove('on');
+    if (!(await sleep(400, job))) return;
+    sfx('spin');
+    await Promise.all(fighters.map(async (x, k) => {
+      const el = $('w' + k), segs = skillsOf(x.f); if (!el || !segs.length) return;
+      let a = 0; const starts = segs.map(s => { const p = a; a += s.range; return p; });
+      const land = Math.floor(Math.random() * segs.length), mid = starts[land] + segs[land].range / 2;
+      const base = (x.slot || (k ? 'up' : 'dn')) === 'up' ? 204 : 24;
+      let rot = 0; const spun = /rotate\(([-\d.]+)deg\)/.exec(el.style.transform || ''); if (spun) rot = +spun[1];
+      let to = base - mid / 96 * 360; while (to < rot + 3 * 360) to += 360;
+      el.style.transition = 'transform 1.1s cubic-bezier(.12,.75,.2,1)'; el.style.transform = `rotate(${to}deg)`;
+      if (!(await sleep(1100, job))) return;
+      const sk = D.skills[segs[land].id] || ['Miss', '', 0], col = sk[2];
+      const pow = col === 2 ? '★'.repeat(Math.min(segs[land].speed_or_damage || 0, 5)) : col === 1 || col === 3 ? String(segs[land].speed_or_damage || 0) : '';
+      const cap = $('r' + k); if (cap) { cap.hidden = false; cap.innerHTML = `<b>${esc(sk[0])}</b>${pow ? `<span class="val">${pow}</span>` : ''}`; }
+      x._land = { sk, col, pow, land };
+    }));
+    if (job !== demoJob) return;
+    if (window.sfxStop) sfxStop('spin'); sfx('spin_stop');
+    if (!(await sleep(500, job))) return;
+    if (opts.boost && fighters[0] && fighters[0]._land) {
+      const cap = $('r0'), land = fighters[0]._land; if (cap && land.pow) {
+        sfx('mp_up'); cap.innerHTML = `<b>${esc(land.sk[0])} <span style="color:#ffff40">＋10</span></b><span class="val up">${(+land.pow || 0) + 10}</span><span class="why">X Attack</span>`;
+        if (!(await sleep(900, job))) return;
+      }
+    }
+    if (duel) {
+      if (fl) fl.classList.add('on'); if (sp) sp.classList.add('on');
+      const win = Math.random() < .5 ? 0 : 1; $('bd' + win)?.classList.add('won'); $('bd' + (1 - win))?.classList.add('lost');
+      sfx(window.strikeSfx ? strikeSfx(fighters[win]._land?.sk?.[0] || '', fighters[win]._land?.col, false) : 'hit');
+      if (vd) vd.textContent = fighters[win].f.n + ' wins';
+    } else { sfx('hit'); if (vd) vd.textContent = (fighters[0]._land?.sk?.[0] || 'Spin') + '!'; }
+    if (!(await sleep(1800, job))) return;
+    for (const k of fighters.keys()) { const cap = $('r' + k); if (cap) cap.hidden = true; }
+  }
+}
 // one figure per line, on the points given. `branch` means the first form can become any of the later ones, rather than each stage in order.
 function evoTable(lines, ats) {
   const toks = [];
@@ -94,7 +266,7 @@ const STORIES = {
   },
   'Status conditions': Object.fromEntries([...STATUS.map(k => [cond(k), ['Coloured aura under the base, with the condition named below.', () => row([{ status: k, badge: cond(k) }])]]),
     ['All status conditions', ['', () => row(STATUS.map(k => ({ status: k, badge: cond(k) })), 4)]]]),
-  'Movement points': Object.fromEntries([...[-3, -2, -1, 0, 1, 2].map(d => [d ? 'MP ' + (d > 0 ? '+' : '') + d : 'MP unchanged', ['The MP badge turns red when lowered and green when raised.', () => row([mpd(d)])]]),
+  'Movement points': Object.fromEntries([...[-3, -2, -1, 0, 1, 2].map(d => [d ? 'MP ' + (d > 0 ? '+' : '') + d : 'MP unchanged', ['The puck counts from the old MP to the new one, and turns red when lowered or green when raised.', () => row([mpd(d)])]]),
     ['All MP changes', ['', () => row([-3, -2, -1, 0, 1, 2].map(mpd))]]]),
   'Wait and damage': {
     'Wait 1': ['A waiting figure is greyed and shows the turns left.', () => row([{ wait: true, badge: 'wait 1' }])],
@@ -115,6 +287,45 @@ const STORIES = {
     'Charmander line': ['Each stage plays in turn, then the line starts again.', () => evoTable([['Charmander', 'Charmeleon', 'Charizard']], [14])],
     'Eevee': ['Eevee can become any of these. Each one plays from Eevee, then the next.', () => evoTable([{ branch: true, names: ['Eevee', 'Vaporeon', 'Jolteon', 'Flareon', 'Espeon', 'Umbreon'] }], [14])],
     'Starter lines': ['Bulbasaur, Charmander and Squirtle, one line after another.', () => evoTable([['Bulbasaur', 'Ivysaur', 'Venusaur'], ['Charmander', 'Charmeleon', 'Charizard'], ['Squirtle', 'Wartortle', 'Blastoise']], [8, 14, 20])],
+  },
+  Movement: {
+    'Hop along a route': ['The figure hops point to point (same pace as a duel). Loops.', () => hopStory([21, 22, 23, 18, 14])],
+    'Long jump over a figure': ['When the chosen path passes through an occupied point, the mover makes one long jump over that figure (Celebi, Soar, …).', () => {
+      const mover = named('Celebi') || fig, block = named('Rattata') || named('Charmander') || some(2)[1] || fig;
+      return hopStory([14, 18, 9], { sel: true, badge: 'over' }, mover, [{ f: block, at: 18, team: 1 }]);
+    }],
+    'To the P.C.': ['Knocked out: hops into the P.C. ring and fades.', () => hopStory([14, 19, 27, 40], { dim: true, mp: '', badge: 'P.C.' })],
+    'To exclusion': ['Removed from the duel: hops off the field into the exclusion row.', () => hopStory([14, 18, 25, outXZ(0, 0)], { dim: true, mp: '', badge: 'excluded', status: 'disappeared' })],
+    'To Ultra Space': ['Necrozma leaves the board the same way Ultra Space removals do.', () => hopStory([9, 14, 18, outXZ(0, 0)], { f: named('Necrozma') || named('Dawn Wings Necrozma') || fig, dim: true, mp: '', badge: 'Ultra Space', status: 'disappeared' })],
+  },
+  Battle: {
+    'Wheel spin': ['Solo spin on the original 750×1334 stage — one wheel, gem at centre.', () => ({ ...table([], [{ at: 14, sel: true }]), demo: 'wheel', fighters: [{ f: fig, slot: 'dn', team: 0 }] })],
+    'Attack battle': ['Same portrait stage as the match UI: disks meet at the gem on a 24° line, then the strike flare.', () => {
+      const a = named('Pikachu') || fig, b = named('Charmander') || some(2)[1] || fig;
+      return { ...table([], [{ f: a, at: 18, sel: true, team: 0 }, { f: b, at: 9, atk: true, team: 1 }]), demo: 'battle', fighters: [{ f: a, slot: 'dn', team: 0 }, { f: b, slot: 'up', team: 1 }] };
+    }],
+    'Damage boost on wheel': ['After the wheel stops, a plate boost (+10) rolls the power up.', () => ({ ...table([], [{ at: 14, sel: true, badge: '+10 dmg' }]), demo: 'wheel', boost: true, fighters: [{ f: fig, slot: 'dn', team: 0 }] })],
+  },
+  Boosts: {
+    '+10 damage': ['A small damage marker arrives on the figure.', () => row([{ status: 'plus_10', badge: '+10 dmg' }])],
+    '+20 damage': ['A medium damage marker.', () => row([{ status: 'plus_20', badge: '+20 dmg' }])],
+    'Damage lowered': ['A marker is taken away.', () => row([{ badge: '-20 dmg' }])],
+    'All boosts': ['', () => row([{ status: 'plus_10', badge: '+10 dmg' }, { status: 'plus_20', badge: '+20 dmg' }, { badge: '-10 dmg' }, { badge: '-20 dmg' }])],
+  },
+  Abilities: {
+    'Ability cue': ['A ring draws around the stand, rises and fades — the same cue for every poké-power. Loops.', () => ({ ...row([{}]), demo: 'ability' })],
+    'Start-of-turn boost': ['Any figure with an active ability boost (MP, damage, charge, …) gets the rising ring once at turn start — same cue as a poké-power.', () => {
+      const a = named('Regigigas') || fig, rock = named('Regirock') || named('Regice') || named('Registeel'), b = named('Fraxure') || named('Haxorus') || fig;
+      const plus = named('Pikachu') || fig;
+      const m = table([], [
+        { f: a, at: 14, mpd: 1, mp: String((a.mp || 0) + 1), badge: 'MP +1' },
+        ...(rock ? [{ f: rock, at: 18, team: 0, mp: String(rock.mp) }] : []),
+        { f: b, at: 28, mpd: 1, mp: String((b.mp || 0) + 1), badge: 'MP +1' },
+        { f: plus, at: 32, team: 1, _boost: true, status: 'plus_20', badge: '+20 dmg' },
+      ]);
+      return { ...m, demo: 'turnboost', cam: { pos: [0, 6.2, 5.5], at: [0, .3, .8], width: 8 } };
+    }],
+    'Several at once': ['Same cue on a few figures (any Pokémon).', () => ({ ...row([{}, { team: 1 }, {}]), demo: 'ability' })],
   },
   Sounds: {
     'Figure sounds': ['Every clip the original game names for something that happens to a figure. The list under the table is the whole set.', () => ({ ...row([{ badge: 'figure sounds' }]), catalog: true })],
@@ -213,11 +424,12 @@ function soundText(m) {
 }
 let current = null;
 function show(group, name) {
-  stopEvo();
+  stopEvo();   // also stops wheel / move demos
   const [note, make] = STORIES[group][name], m = make(); current = m;
   const heard = soundText(m);
   $('title').textContent = group + ' / ' + name; $('note').textContent = note; location.hash = encodeURIComponent(group + '/' + name);
   const body = m.toks.some(t => t.chain) ? m.toks.filter(t => t.chain).map(t => t.branch ? t.chain[0].n + ' → ' + t.chain.slice(1).map(f => f.n).join(' / ') : t.chain.map(f => f.n).join(' → ')).join('\n')
+    : m.demo ? ('demo: ' + m.demo + '\n' + (m.fighters || []).map(x => x.f.n).join(' vs '))
     : m.toks.map(t => JSON.stringify({ team: t.team, mp: t.mp, mpd: t.mpd, status: t.status, wait: t.wait, badge: t.badge, sel: t.sel, atk: t.atk, dim: t.dim })).join('\n') || '(no figures)';
   $('props').textContent = heard ? heard + '\n\n' + body : body;
   for (const b of $('nav').querySelectorAll('button')) b.classList.toggle('on', b.dataset.g === group && b.dataset.n === name);
@@ -225,6 +437,11 @@ function show(group, name) {
   // lettering, badge) and its sound plays, the way it arrives during a duel.
   (show.timers || []).forEach(clearTimeout); show.timers = [];
   const draw = x => { window.board3dModel = x; if (window.Board3D) Board3D.draw(x); };
+  const job = ++demoJob;
+  if (m.demo === 'move') { draw({ ...m, toks: m.toks.map(t => ({ ...t, moveId: null, path: null, x: (t._route || [[t.x, t.z]])[0][0], z: (t._route || [[t.x, t.z]])[0][1] })), snap: true }); loopMove(m, job); return; }
+  if (m.demo === 'wheel' || m.demo === 'battle') { draw(m); if (m.demo === 'battle') { sfx('attack'); sfx('select'); } playWheel(m, job); return; }
+  if (m.demo === 'ability') { draw(m); loopAbility(m, job); return; }
+  if (m.demo === 'turnboost') { draw(m); loopTurnBoost(m, job); return; }
   // what arrives after the story opens, in order: each status condition, then each figure's MP change
   const playStatus = kind => { const row = COND_SOUND[kind]; if (row) sfx(row[2]); else statusSfx(kind); };
   const arrivals = [...new Set(m.toks.map(t => t.status).filter(Boolean))].map(kind => ({ hits: t => t.status === kind, sound: () => playStatus(kind) }))
@@ -243,7 +460,7 @@ function show(group, name) {
 
 for (const g in STORIES) { $('nav').insertAdjacentHTML('beforeend', `<h2>${g}</h2>`); for (const n in STORIES[g]) { const b = document.createElement('button'); b.textContent = n; b.dataset.g = g; b.dataset.n = n; b.onclick = () => show(g, n); $('nav').appendChild(b); } }
 let evoJob = 0;
-function stopEvo() { evoJob++; const el = $('evoanim'); if (el) { el.hidden = true; el.innerHTML = ''; } if (window.Board3D && Board3D.clearBlasts) Board3D.clearBlasts(); }
+function stopEvo() { evoJob++; const el = $('evoanim'); if (el) { el.hidden = true; el.innerHTML = ''; } if (window.Board3D && Board3D.clearBlasts) Board3D.clearBlasts(); stopDemo(); }
 function evoSleep(ms, job) {   // ends early when Evolve is clicked (current.rush) or the story changes
   return new Promise(resolve => {
     const done = ok => { clearInterval(id); clearTimeout(t); resolve(ok); };
@@ -297,8 +514,8 @@ window.boardPick = (fig, pt, act) => {   // click a figure to toggle its selecti
   sfx(on ? 'select' : 'cancel');   // Se028 selects, Se029 cancels
   Board3D.draw(current);
 };
-const [g0, n0] = decodeURIComponent(location.hash.slice(1)).split('/'); show(...(STORIES[g0] && STORIES[g0][n0] ? [g0, n0] : ['Figure', 'Interaction states']));
-import(new URL('board3d.js', document.baseURI));
+const [g0, n0] = decodeURIComponent(location.hash.slice(1)).split('/');
+import(new URL('board3d.js?v=leap2', document.baseURI)).then(() => show(...(STORIES[g0] && STORIES[g0][n0] ? [g0, n0] : ['Figure', 'Interaction states'])));
 </script>
 </body>
 </html>

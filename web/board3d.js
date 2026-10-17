@@ -30,14 +30,27 @@ const floor = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshSt
 scene.fog = new THREE.Fog(0x0c0d10, 28, 120);   // the far floor melts into the table colour instead of ending at a line
 
 const mat = (color, emissive = 0, o = {}) => new THREE.MeshStandardMaterial({ color, emissive, roughness: .45, ...o });
-const M = { line: mat(0xdfe6ff, 0x30385c), pt: mat(0x0c1230), rim: mat(0xdfe6ff, 0x30385c), blue: mat(BLUE, 0x0a2a66), red: mat(RED, 0x4a0a12), mv: mat(GOLD, 0xa07800), slot: mat(0xdfe6ff, 0, { transparent: true, opacity: .5, side: THREE.DoubleSide }), unseen: new THREE.MeshBasicMaterial({ visible: false }), cap: mat(0x101216, 0, { transparent: true }), card: mat(0x2a2e36), edge: mat(0xd8dce4, 0, { roughness: .8 }) };
+const M = { line: mat(0xdfe6ff, 0x30385c), pt: mat(0x0c1230), rim: mat(0xdfe6ff, 0x30385c), blue: mat(BLUE, 0x0a2a66), red: mat(RED, 0x4a0a12), mv: mat(GOLD, 0xa07800), slot: mat(0xdfe6ff, 0, { transparent: true, opacity: .5, side: THREE.DoubleSide }), unseen: new THREE.MeshBasicMaterial({ visible: false }), cap: mat(0x101216, 0, { roughness: .35 }), card: mat(0x2a2e36), edge: mat(0xd8dce4, 0, { roughness: .8 }) };   // opaque cap so the bevel catches light instead of looking like a flat disc
 const band = (r, w, h) => {   // a ring of radius r, w wide and h tall, lying in the XY plane and centred on it (the meshes turn it flat)
   const outer = new THREE.Shape(); outer.absarc(0, 0, r + w / 2, 0, Math.PI * 2, false);
   const hole = new THREE.Path(); hole.absarc(0, 0, r - w / 2, 0, Math.PI * 2, true); outer.holes.push(hole);
   const g = new THREE.ExtrudeGeometry(outer, { depth: h, bevelEnabled: false, curveSegments: 40 }); g.translate(0, 0, -h / 2); return g;
 };
-const G = { pt: new THREE.CylinderGeometry(.33, .33, .05, 36), rim: new THREE.CylinderGeometry(.4, .4, .03, 36), goal: new THREE.CylinderGeometry(.5, .5, .04, 40), slot: new THREE.RingGeometry(.38, .46, 36), dot: new THREE.CylinderGeometry(.135, .135, .05, 28), entry: band(.3, .06, .05), arrow: new THREE.CylinderGeometry(.16, .16, .05, 3), ring2: band(.43, .06, .05), goalDisc: new THREE.CircleGeometry(.38, 36), goalRim: new THREE.RingGeometry(.38, .46, 36), aura: new THREE.RingGeometry(.465, .615, 48), words: new THREE.PlaneGeometry(1.33, 1.33),
-  base: new THREE.CylinderGeometry(.36, .4, .16, 32), cap: new THREE.CylinderGeometry(.33, .36, .03, 32), ring: band(.5, .07, .05) };
+const BASE_R = .4, BASE_H = .16, CAP_H = .04, CAP_IN = .05;   // stand: perfect cylinder; white lid shares the rim then chamfers in
+const capGeo = (() => {
+  const rim = BASE_R + .003;   // hair wider than the cylinder so the lid covers the top face at every camera angle
+  const pts = [new THREE.Vector2(0, 0), new THREE.Vector2(rim, 0), new THREE.Vector2(rim, .003)];
+  for (let i = 0; i <= 16; i++) { const a = (i / 16) * (Math.PI / 2); pts.push(new THREE.Vector2(rim - CAP_IN + CAP_IN * Math.cos(a), .003 + (CAP_H - .003) * Math.sin(a))); }
+  pts.push(new THREE.Vector2(0, CAP_H));
+  return new THREE.LatheGeometry(pts, 64);
+})();
+const ROUTE_W = .06, ROUTE_H = .05;   // route joining bars: BoxGeometry(ROUTE_W, ROUTE_H, length)
+const AURA_W = .22, AURA_H = ROUTE_H, AURA_MID = BASE_R + AURA_W / 2;   // status ring: wider band under the condition text; text sits on its top at the midline radius
+const WORDS_PLANE = AURA_MID * 2 * (256 / 200);   // around() draws at R=200 on a 512 canvas → world radius = AURA_MID
+const TAG_R = .14, TAG_H = .055;   // MP marker: short 3D puck; digit is a sprite so it stays screen-upright
+const tagBodyGeo = (() => { const g = new THREE.CylinderGeometry(TAG_R, TAG_R, TAG_H, 32); g.rotateX(Math.PI / 2); return g; })();   // axis along Z, caps face the camera
+const G = { pt: new THREE.CylinderGeometry(.33, .33, .05, 36), rim: new THREE.CylinderGeometry(.4, .4, .03, 36), goal: new THREE.CylinderGeometry(.5, .5, .04, 40), slot: new THREE.RingGeometry(.38, .46, 36), dot: new THREE.CylinderGeometry(.135, .135, .05, 28), entry: band(.3, ROUTE_W, ROUTE_H), arrow: new THREE.CylinderGeometry(.16, .16, .05, 3), ring2: band(.43, ROUTE_W, ROUTE_H), goalDisc: new THREE.CircleGeometry(.38, 36), goalRim: new THREE.RingGeometry(.38, .46, 36), aura: band(AURA_MID, AURA_W, AURA_H), words: new THREE.PlaneGeometry(WORDS_PLANE, WORDS_PLANE),
+  base: new THREE.CylinderGeometry(BASE_R, BASE_R, BASE_H, 48), cap: capGeo, ring: band(.5, .07, .05), tagBody: tagBodyGeo };
 function applyTheme() {
   const bd = css('--bd', '#0c0d10'), line = css('--bd-line', '#c9ced8'), pt = css('--bd-pt', '#101216'), light = new THREE.Color(bd).getHSL({}).l > .5;
   paintTable(); scene.fog.color.set(bd).lerp(new THREE.Color(css('--bd2', '#17191e')), .5); scene.background = scene.fog.color;   // the sky is the table colour too, so there is no line where the far floor ends
@@ -45,9 +58,18 @@ function applyTheme() {
   M.line.emissive.set(line).multiplyScalar(light ? 0 : .22); M.rim.emissive.copy(M.line.emissive);
   M.edge.color.set(pt).lerp(new THREE.Color(line), .7);   // the plates' cut edge
 }
-applyTheme(); new MutationObserver(() => { applyTheme(); extrasKey = ''; if (last) draw(last); }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+applyTheme();
 const statics = new THREE.Group(), points = new Map(), tokens = new Map(), pickable = []; scene.add(statics);
 let built = '', last = null;
+new MutationObserver(() => {
+  applyTheme(); extrasKey = '';
+  const prevEvo = evoMap; evoMap = paintEvoMap(); if (prevEvo) prevEvo.dispose();   // Evolve pill follows --ink / --bg
+  for (const g of tokens.values()) {
+    const u = g.userData; u.key = null; u.badge = null;
+    if (u.evo) { u.evo.material.map = evoMap; u.evo.material.needsUpdate = true; }
+  }
+  if (last) draw(last);
+}).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 // status conditions get an aura in their own colour; anything else with a marker gets a white one
 const TINT = new THREE.Color();
 const AURA = { poison: 0xa855f7, bad_poison: 0x6b21a8, burn: 0xff7a1a, paralyze: 0xfde047, sleep: 0x94a3b8, freeze: 0x67e8f9, melt: 0x67e8f9, panic: 0xf472b6, curse: 0x7c3aed };
@@ -58,7 +80,7 @@ function build(m) {   // routes, spots and slots never move during a duel (the f
   // routes is not enough: from the duel's camera distance the two are too close in depth and the line shows through.)
   const rims = m.pts.filter(p => p.goal != null || [0, 6, 21, 27].includes(p.k)).map(p => [p.x, p.z, p.goal != null ? .46 : .33]);
   const cut = (q, to) => { const rim = rims.find(r => Math.hypot(r[0] - q[0], r[1] - q[1]) < .01); if (!rim) return q; const l = Math.hypot(to[0] - q[0], to[1] - q[1]); return [q[0] + (to[0] - q[0]) * rim[2] / l, q[1] + (to[1] - q[1]) * rim[2] / l]; };
-  for (const [a0, b0] of m.edges) { const a = cut(a0, b0), b = cut(b0, a0), d = new THREE.Vector3(b[0] - a[0], 0, b[1] - a[1]), e = new THREE.Mesh(new THREE.BoxGeometry(.06, .05, d.length()), M.line);
+  for (const [a0, b0] of m.edges) { const a = cut(a0, b0), b = cut(b0, a0), d = new THREE.Vector3(b[0] - a[0], 0, b[1] - a[1]), e = new THREE.Mesh(new THREE.BoxGeometry(ROUTE_W, ROUTE_H, d.length()), M.line);
     e.position.set((a[0] + b[0]) / 2, .025, (a[1] + b[1]) / 2); e.rotation.y = Math.atan2(d.x, d.z); statics.add(e); }
   for (const s of m.slots) { const r = new THREE.Mesh(G.ring2, M.line); r.rotation.x = Math.PI / 2; r.position.set(s[0], .025, s[1]); r.castShadow = true; statics.add(r); }
   // Slots 12-15 are the P.C. spots (inner, outer for each side). A blunt raised arrow sits on each one's ring, pointing where its figure goes
@@ -67,7 +89,7 @@ function build(m) {   // routes, spots and slots never move during a duel (the f
     const s = m.slots[from], t = m.slots[to]; if (!s || !t) continue;
     const dx = t[0] - s[0], dz = t[1] - s[1], len = Math.hypot(dx, dz) || 1, a = new THREE.Mesh(G.arrow, M.line);
     a.scale.set(1, 1, .6); a.rotation.y = Math.atan2(dx, dz); a.position.set(s[0] + dx / len * (.475 + stem), .025, s[1] + dz / len * (.475 + stem)); a.castShadow = true; statics.add(a);   // base on the ring's centre line, or on the end of the stem
-    if (stem) { const bar = new THREE.Mesh(new THREE.BoxGeometry(.06, .05, stem), M.line); bar.rotation.y = a.rotation.y; bar.position.set(s[0] + dx / len * (.43 + stem / 2), .025, s[1] + dz / len * (.43 + stem / 2)); bar.castShadow = true; statics.add(bar); }
+    if (stem) { const bar = new THREE.Mesh(new THREE.BoxGeometry(ROUTE_W, ROUTE_H, stem), M.line); bar.rotation.y = a.rotation.y; bar.position.set(s[0] + dx / len * (.43 + stem / 2), .025, s[1] + dz / len * (.43 + stem / 2)); bar.castShadow = true; statics.add(bar); }
   }
   for (const p of m.pts) {   // `mark` is the dot or the goal disc, and it is the thing a tap hits
     const g = new THREE.Group(); let mark;
@@ -81,26 +103,59 @@ function build(m) {   // routes, spots and slots never move during a duel (the f
 
 const images = new Map(), loader = new THREE.TextureLoader().setCrossOrigin('anonymous');
 const picture = url => images.get(url) || images.set(url, loader.load(url, t => { t.colorSpace = THREE.SRGBColorSpace; })).get(url);
-function label(text, mpd) {   // movement points: red when lowered, green when raised
-  return tex(96, 96, (g) => { if (text === '') return; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = '#05070f'; g.beginPath(); g.arc(48, 48, 40, 0, 7); g.fill();
-    g.lineWidth = 7; g.strokeStyle = g.fillStyle = mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'; g.stroke(); g.font = '900 52px Segoe UI, sans-serif'; g.fillText(text, 48, 52); });
+const TAG_S = 1;
+function mpColors(mpd) {
+  const light = new THREE.Color(css('--bd', '#0c0d10')).getHSL({}).l > .5;
+  const face = css('--bd-pt', light ? '#fbfaf6' : '#101216'), ink = mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : css('--bd-line', light ? '#3c4048' : '#c9ced8');
+  return { face, ink };
 }
-function around(text, ink) {   // the state names, written round the base and repeated to fill the circle
-  return tex(512, 512, (g) => { g.translate(256, 256); g.font = '600 46px Segoe UI, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = ink;
-    const R = 208, unit = text.toUpperCase() + '  •  ', n = Math.max(1, Math.floor(2 * Math.PI * R / g.measureText(unit).width));
+function label(text, mpd) {   // MP puck top: face colour, ring/digit in route colour (or red/green when MP changed)
+  return tex(96, 96, (g) => {
+    if (text === '') return;
+    const { face, ink } = mpColors(mpd);
+    g.fillStyle = face; g.beginPath(); g.arc(48, 48, 47, 0, 7); g.fill();
+    g.lineWidth = 8; g.strokeStyle = g.fillStyle = ink; g.beginPath(); g.arc(48, 48, 40, 0, 7); g.stroke();
+    g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = '900 52px Segoe UI, sans-serif'; g.fillText(text, 48, 52);
+  });
+}
+function paintTag(u, text, mpd) {   // swap the digit sprite; dispose the previous map so a count-up does not leak
+  const empty = text === '' || text == null; u.tag.visible = !empty; if (empty) return;
+  const { face } = mpColors(mpd); u.tagSide.color.set(face);
+  const old = u.tagFace.material.map; u.tagFace.material.map = label(text, mpd); u.tagFace.material.needsUpdate = true; if (old) old.dispose();
+}
+function faceTag(u) { u.tagBody.quaternion.copy(camera.quaternion); }   // tip only the 3D body; the sprite face is not under that rotation so it stays screen-upright
+function around(text, ink) {   // the state names, written on top of the status ring (R=200 matches WORDS_PLANE → world radius AURA_MID)
+  return tex(512, 512, (g) => { g.translate(256, 256); g.font = '700 40px Segoe UI, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillStyle = ink;
+    const R = 200, unit = text.toUpperCase() + '  •  ', n = Math.max(1, Math.floor(2 * Math.PI * R / g.measureText(unit).width));
     for (let k = 0; k < n; k++) { let a = k * 2 * Math.PI / n; for (const ch of unit) { const w = g.measureText(ch).width / R; a += w / 2; g.save(); g.rotate(a); g.translate(0, -R); g.fillText(ch, 0, 0); g.restore(); a += w / 2; } } });
 }
 const shadeTex = tex(64, 64, g => { const r = g.createRadialGradient(32, 32, 0, 32, 32, 32); r.addColorStop(0, 'rgba(0,0,0,.5)'); r.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = r; g.fillRect(0, 0, 64, 64); });
-const evoMap = tex(256, 80, (g, w, h) => { g.fillStyle = '#e8cb4d'; g.beginPath(); g.roundRect(6, 10, w - 12, h - 20, 28); g.fill(); g.lineWidth = 6; g.strokeStyle = '#914e00'; g.stroke(); g.fillStyle = '#520000'; g.font = '800 42px Segoe UI, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('EVOLVE', w / 2, h / 2 + 1); });
+function paintEvoMap() {   // same inverted primary look as the app's ink buttons, so it follows light/dark
+  return tex(256, 80, (g, w, h) => {
+    const face = css('--ink', '#111'), edge = css('--line', face), ink = css('--bg', '#fff');
+    g.fillStyle = face; g.beginPath(); g.roundRect(6, 10, w - 12, h - 20, 28); g.fill();
+    g.lineWidth = 6; g.strokeStyle = edge; g.stroke();
+    g.fillStyle = ink; g.font = '800 42px Segoe UI, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('EVOLVE', w / 2, h / 2 + 1);
+  });
+}
+let evoMap = paintEvoMap();
 const shadeGeo = new THREE.PlaneGeometry(.62, .62);
 function token(t) {
-  const g = new THREE.Group(), base = new THREE.Mesh(G.base, mat(BLUE, 0, { transparent: true })), cap = new THREE.Mesh(G.cap, M.cap), ring = new THREE.Mesh(G.ring, mat(GOLD, 0xa07800)), aura = new THREE.Mesh(G.aura, new THREE.MeshBasicMaterial({ transparent: true, opacity: .8, side: THREE.DoubleSide }));
-  const art = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, alphaTest: .05, depthTest: false })), tag = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false })), words = new THREE.Mesh(G.words, new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false }));
-  base.position.y = .08; base.castShadow = true; cap.position.y = .17; ring.rotation.x = Math.PI / 2; ring.position.y = .05; aura.rotation.x = -Math.PI / 2; aura.position.y = .02;
-  art.center.set(.5, 0); art.position.y = .04; art.scale.set(1.05, 1.05, 1); art.renderOrder = 1; tag.position.set(.4, .08, .34); tag.scale.set(.36, .36, 1); tag.renderOrder = 2; words.rotation.x = -Math.PI / 2; words.position.y = .03;   // MP sits at the base's bottom right corner; the picture starts below the top of the base because the artwork has empty space under the figure
-  const shade = new THREE.Mesh(shadeGeo, new THREE.MeshBasicMaterial({ map: shadeTex, transparent: true, depthWrite: false })); shade.rotation.x = -Math.PI / 2; shade.position.y = .19;
-  g.add(base, cap, shade, ring, aura, words, art, tag); g.position.set(t.x, 0, t.z); g.userData = { base, cap, shade, ring, art, tag, aura, words, fig: t.i };
-  for (const m of [base, art, tag]) { m.userData.pick = g.userData; pickable.push(m); }   // the stand, the picture and the MP badge: what is drawn
+  const base = new THREE.Mesh(G.base, mat(BLUE, 0)), cap = new THREE.Mesh(G.cap, M.cap), ring = new THREE.Mesh(G.ring, mat(GOLD, 0xa07800)), aura = new THREE.Mesh(G.aura, mat(0xcbd5e1, 0, { transparent: true, opacity: .85 }));
+  const art = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, alphaTest: .05, depthTest: false })), words = new THREE.Mesh(G.words, new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false }));
+  const tagSide = mat(0x101216, 0, { roughness: .4 });
+  const tagBody = new THREE.Mesh(G.tagBody, tagSide); tagBody.castShadow = true;   // 3D puck thickness (tipped to face the camera)
+  const tagFace = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false, alphaTest: .05 }));   // digit: sprite, not rotated with the body
+  tagFace.scale.set(TAG_R * 2.05, TAG_R * 2.05, 1);
+  const tag = new THREE.Group(); tag.add(tagBody, tagFace); tag.position.set(.26, .12, .38);   // group only moves/scales — never rolls
+  base.position.y = BASE_H / 2; base.castShadow = true; cap.position.y = BASE_H - .002; cap.castShadow = true;   // lid sinks a hair into the cylinder top so the shared rim is seamless
+  ring.rotation.x = Math.PI / 2; ring.position.y = .05; aura.rotation.x = Math.PI / 2; aura.position.y = AURA_H / 2; aura.castShadow = true;
+  art.center.set(.5, 0); art.position.y = .04; art.scale.set(1.05, 1.05, 1); art.renderOrder = 1;
+  tagBody.renderOrder = 2; tagFace.renderOrder = 3;
+  words.rotation.x = -Math.PI / 2; words.position.y = AURA_H + .002; words.renderOrder = 3;   // status text lies on the top face of the aura ring
+  const shade = new THREE.Mesh(shadeGeo, new THREE.MeshBasicMaterial({ map: shadeTex, transparent: true, depthWrite: false })); shade.rotation.x = -Math.PI / 2; shade.position.y = BASE_H + CAP_H - .002;
+  const g = new THREE.Group(); g.add(base, cap, shade, ring, aura, words, art, tag); g.position.set(t.x, 0, t.z); g.userData = { base, cap, shade, ring, art, tag, tagBody, tagFace, tagSide, aura, words, fig: t.i };
+  for (const m of [base, art, tagBody, tagFace]) { m.userData.pick = g.userData; pickable.push(m); }   // the stand, the picture and the MP puck: what a tap hits
   scene.add(g); tokens.set(t.i, g);
   return g;
 }
@@ -155,20 +210,33 @@ function draw(m) {
   const seen = new Set();
   for (const t of m.toks) {
     const g = tokens.get(t.i) || token(t), u = g.userData; seen.add(t.i);
-    u.to = new THREE.Vector3(t.x, 0, t.z); if (t.moveId != null && t.path && u.moveId !== t.moveId) { u.moveId = t.moveId; u.hop = { pts: t.path.map(q => new THREE.Vector3(q[0], 0, q[1])), t: 0 }; }   // a move along a route: hop point to point
+    u.to = new THREE.Vector3(t.x, 0, t.z);
+    if (t.moveId != null && t.path && u.moveId !== t.moveId) {   // hop / long-jump along landings (segs.leap = path went through an occupied point)
+      u.moveId = t.moveId;
+      const pts = t.path.map(q => new THREE.Vector3(q[0], 0, q[1]));
+      const segs = (t.segs && t.segs.length === pts.length - 1) ? t.segs.map(s => ({ dur: s.dur || STEP, leap: !!s.leap }))
+        : pts.slice(0, -1).map(() => ({ dur: STEP, leap: false }));
+      u.hop = { pts, segs, t: 0, i: 0 };
+    }
     u.base.material.color.setHex(t.team ? RED : BLUE); u.base.material.emissive.setHex(t.team ? 0x3a060c : 0x08224f);
     u.ring.visible = t.sel || t.atk; u.ring.material = t.atk ? M.red : M.mv; u.art.material.opacity = u.evoBlast ? 0 : (t.dim ? .5 : 1); const hue = AURA[t.status] || (t.status ? 0xffffff : 0xcbd5e1), dark = ((hue >> 16) * 299 + (hue >> 8 & 255) * 587 + (hue & 255) * 114) / 1000 > 140;   // text goes on the ring, dark on light rings and white on dark ones
     u.aura.visible = !!(t.status || t.badge); u.aura.material.color.setHex(hue);
     if (AURA[t.status]) u.art.material.color.setHex(0xffffff).lerp(TINT.setHex(AURA[t.status]), .5); else u.art.material.color.setHex(t.wait ? 0x8a93a8 : 0xffffff);
     if (u.img !== t.img) { u.img = t.img; u.art.material.map = t.img ? picture(t.img) : tex(128, 128, (c) => { c.fillStyle = '#fff'; c.font = '700 22px Segoe UI, sans-serif'; c.textAlign = 'center'; c.fillText(t.name.slice(0, 9), 64, 70); }); u.art.material.needsUpdate = true; }
     u.words.visible = !!t.badge; if (t.badge && u.badge !== t.badge + dark) { u.badge = t.badge + dark; u.words.material.map = around(t.badge, dark ? '#05070f' : '#fff'); u.words.material.needsUpdate = true; }
-    const key = t.mp + '|' + t.mpd; if (u.key !== key) { u.key = key; u.tag.material.map = label(t.mp, t.mpd); u.tag.material.needsUpdate = true; }
+    const key = t.mp + '|' + t.mpd;
+    if (u.key !== key) {   // MP change: count the badge from the old number to the new one (same idea as the battle damage roll)
+      const to = t.mp === '' || t.mp == null ? null : +t.mp, from = u.mpShown, step = to != null && from != null && Number.isFinite(from) && Number.isFinite(to) && from !== to;
+      u.key = key; u.mpd = t.mpd;
+      if (step) u.mpAnim = { from, to, mpd: t.mpd, t: 0, dur: .12 + .1 * Math.min(4, Math.abs(to - from)) };   // longer when the gap is bigger
+      else { u.mpAnim = null; u.mpShown = to; paintTag(u, t.mp, t.mpd); u.tag.scale.setScalar(TAG_S); }
+    }
     if (t.evo) {   // the Evolve button, a billboard just above the figure
       if (!u.evo) { u.evo = new THREE.Sprite(new THREE.SpriteMaterial({ map: evoMap, transparent: true, depthTest: false })); u.evo.center.set(.5, 0); u.evo.position.set(0, 1.22, 0); u.evo.scale.set(1.05, .34, 1); u.evo.renderOrder = 9; u.evo.userData.pick = { act: 'evo:' + t.i }; g.add(u.evo); pickable.push(u.evo); }
     } else if (u.evo) { g.remove(u.evo); const k = pickable.indexOf(u.evo); if (k >= 0) pickable.splice(k, 1); u.evo.material.dispose(); u.evo = null; }
   }
   for (const [i, g] of tokens) if (seen.has(i) && m.snap) g.position.copy(g.userData.to);
-  for (const [i, g] of tokens) if (!seen.has(i)) { scene.remove(g); tokens.delete(i); for (const m of [g.userData.base, g.userData.art, g.userData.tag, g.userData.evo]) { if (!m) continue; const k = pickable.indexOf(m); if (k >= 0) pickable.splice(k, 1); } }
+  for (const [i, g] of tokens) if (!seen.has(i)) { scene.remove(g); tokens.delete(i); for (const m of [g.userData.base, g.userData.art, g.userData.tagBody, g.userData.tagFace, g.userData.evo]) { if (!m) continue; const k = pickable.indexOf(m); if (k >= 0) pickable.splice(k, 1); } }
 }
 
 // Camera: drag to orbit, wheel or pinch to zoom, no panning, kept above the table. Reset returns to the default view; Lock stops drags moving it.
@@ -263,41 +331,55 @@ renderer.setAnimationLoop(() => {
   // camera rises from the lowest side view the picture slides down, and after a slight tilt it sits centred on the base like a token.
   // It is lifted clear of the base as it centres, or the base would hide it.
   const rise = Math.min(1, Math.max(0, (controls.maxPolarAngle - controls.getPolarAngle()) / TILT)), lie = rise * rise * (3 - 2 * rise) * .45;
-  for (const g of tokens.values()) { const u = g.userData; u.art.center.y = lie; u.art.position.y = .04 + lie * .6; if (u.evoBlast) u.art.material.opacity = 0; if (u.aura.visible) u.aura.material.opacity = .6 + .3 * pulse; if (u.words.visible) u.words.rotation.z -= dt * .5; if (u.hop) { const h = u.hop, k = Math.floor(h.t += dt / STEP); if (k >= h.pts.length - 1) { g.position.copy(h.pts[h.pts.length - 1]); u.hop = null; } else { g.position.lerpVectors(h.pts[k], h.pts[k + 1], h.t - k); g.position.y = Math.sin((h.t - k) * Math.PI) * .45; } }
-    else if (u.to) g.position.lerp(u.to, 1 - Math.pow(.001, dt)); if (u.ring.visible) u.ring.scale.setScalar(.95 + .08 * pulse); }
+  for (const g of tokens.values()) { const u = g.userData; u.art.center.y = lie; u.art.position.y = .04 + lie * .6 + (u.boostPop || 0); if (u.evoBlast) u.art.material.opacity = 0; if (u.aura.visible) u.aura.material.opacity = .6 + .3 * pulse; if (u.words.visible) u.words.rotation.z -= dt * .5;
+    if (u.hop) {
+      const h = u.hop; h.t += dt;
+      while (h.i < h.segs.length && h.t >= h.segs[h.i].dur) { h.t -= h.segs[h.i].dur; h.i++; }
+      if (h.i >= h.segs.length) { g.position.copy(h.pts[h.pts.length - 1]); u.hop = null; }
+      else { const s = h.segs[h.i], k = Math.min(1, h.t / s.dur); g.position.lerpVectors(h.pts[h.i], h.pts[h.i + 1], k); g.position.y = Math.sin(k * Math.PI) * (s.leap ? 1.15 : .45); }
+    }
+    else if (u.to) g.position.lerp(u.to, 1 - Math.pow(.001, dt)); if (u.ring.visible) u.ring.scale.setScalar(.95 + .08 * pulse);
+    if (u.tag.visible) faceTag(u);
+    if (u.mpAnim) {   // roll the MP digit and pop the puck while it changes colour
+      const a = u.mpAnim, k = Math.min(1, (a.t += dt) / a.dur), n = Math.round(a.from + (a.to - a.from) * k), pop = TAG_S * (1 + .28 * Math.sin(k * Math.PI));
+      if (n !== u.mpShown) { u.mpShown = n; paintTag(u, String(n), a.mpd); }
+      u.tag.scale.setScalar(pop);
+      if (k >= 1) { u.mpAnim = null; u.mpShown = a.to; paintTag(u, String(a.to), a.mpd); u.tag.scale.setScalar(TAG_S); }
+    }
+  }
   stepBlasts(dt);
+  stepAbilities(dt);
   // Each figure is drawn whole, from the farthest to the nearest: its base, then its picture (which ignores depth, so its own base cannot
   // cut it off), then its MP badge. A nearer figure's base and picture therefore cover whatever stands behind them. The bases are marked
   // transparent only so that they take part in this ordering; they are fully opaque.
   [...tokens.values()].sort((p, q) => q.position.distanceToSquared(camera.position) - p.position.distanceToSquared(camera.position)).forEach((g, i) => {
-    const u = g.userData, n = 5 * i; u.base.renderOrder = n + 1; u.cap.renderOrder = n + 2; u.shade.renderOrder = n + 3; u.art.renderOrder = n + 4; u.tag.renderOrder = n + 5; if (u.evo) u.evo.renderOrder = n + 6;
+    const u = g.userData, n = 5 * i; u.base.renderOrder = n + 1; u.cap.renderOrder = n + 2; u.shade.renderOrder = n + 3; u.art.renderOrder = n + 4; u.tagBody.renderOrder = n + 5; u.tagFace.renderOrder = n + 6; if (u.evo) u.evo.renderOrder = n + 7;
   });
   M.mv.emissiveIntensity = pulse;
   renderer.render(scene, camera);
 });
 
-// A glowing sphere in the scene, not a flat disc on the page. It swells over the figure, hides it, then fades so the new one shows through.
+// Evolution blast: nested 3D spheres in the route-dot colour (--bd-line), so it matches the board marks in either theme.
 const blastGeo = new THREE.SphereGeometry(1, 40, 28);
-const blastGlow = tex(128, 128, g => { const r = g.createRadialGradient(64, 64, 0, 64, 64, 64); r.addColorStop(0, 'rgba(255,255,255,.95)'); r.addColorStop(.22, 'rgba(255,244,180,.55)'); r.addColorStop(.5, 'rgba(130,210,255,.22)'); r.addColorStop(1, 'rgba(130,210,255,0)'); g.fillStyle = r; g.fillRect(0, 0, 128, 128); });
 const blasts = [];
 function endBlast(b) {
   if (b.dead) return; b.dead = true;
   if (b.g) b.g.userData.evoBlast = false;
-  scene.remove(b.grp); b.core.material.dispose(); b.shell.material.dispose(); b.halo.material.dispose();
+  scene.remove(b.grp); b.core.material.dispose(); b.shell.material.dispose();
   if (!b.readyFired) { b.readyFired = true; b.markReady(); }
   b.finish();
 }
 function blast(i) {
   const g = tokens.get(i);
   if (!g) { const p = Promise.resolve(); return { ready: p, done: p, release() {} }; }
-  const core = new THREE.Mesh(blastGeo, new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xfff4c8, emissiveIntensity: 3.2, roughness: .18, metalness: .04, transparent: true, depthTest: false, depthWrite: false }));
-  const shell = new THREE.Mesh(blastGeo, new THREE.MeshBasicMaterial({ color: 0x9ad7ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false }));
-  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: blastGlow, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthTest: false, depthWrite: false }));
-  const light = new THREE.PointLight(0xd7f3ff, 0, 2.2);
-  core.renderOrder = shell.renderOrder = halo.renderOrder = 20000;
-  const grp = new THREE.Group(); grp.add(shell, core, halo, light); grp.position.copy(g.position); grp.position.y += .5; scene.add(grp);
+  const hue = new THREE.Color(css('--bd-line', '#c9ced8')), light = new THREE.Color(css('--bd', '#0c0d10')).getHSL({}).l > .5;
+  const core = new THREE.Mesh(blastGeo, new THREE.MeshStandardMaterial({ color: hue, emissive: hue, emissiveIntensity: light ? .55 : 1.4, roughness: .35, metalness: .12, transparent: true, depthTest: false, depthWrite: false }));
+  const shell = new THREE.Mesh(blastGeo, new THREE.MeshStandardMaterial({ color: hue, emissive: hue, emissiveIntensity: light ? .25 : .7, roughness: .45, metalness: .05, transparent: true, opacity: 0, side: THREE.DoubleSide, depthTest: false, depthWrite: false }));
+  const lightPt = new THREE.PointLight(hue.getHex(), 0, 2.4);
+  core.renderOrder = shell.renderOrder = 20000;
+  const grp = new THREE.Group(); grp.add(shell, core, lightPt); grp.position.copy(g.position); grp.position.y += .5; scene.add(grp);
   g.userData.evoBlast = true; g.userData.art.material.opacity = 0;
-  const b = { g, grp, core, shell, halo, light, phase: 'grow', t: 0, dead: false, readyFired: false };
+  const b = { g, grp, core, shell, light: lightPt, phase: 'grow', t: 0, dead: false, readyFired: false };
   b.ready = new Promise(r => { b.markReady = r; }); b.done = new Promise(r => { b.finish = r; });
   b.release = () => { if (!b.dead && b.phase !== 'fade') { b.wantFade = true; if (b.phase === 'hold') { b.phase = 'fade'; b.t = 0; } } };
   blasts.push(b);
@@ -309,28 +391,70 @@ function stepBlasts(dt) {
     b.grp.position.copy(b.g.position); b.grp.position.y += .5; b.grp.rotation.y += dt * 1.8;
     if (b.phase === 'grow') {
       const k = Math.min(1, b.t / .42), e = 1 - Math.pow(1 - k, 3), o = Math.min(1, k * 1.5);
-      b.core.scale.setScalar(.05 + e * .37); b.shell.scale.setScalar(.06 + e * .46); b.halo.scale.setScalar(.12 + e * .9);
-      b.core.material.opacity = o; b.shell.material.opacity = o * .5; b.halo.material.opacity = o * .95; b.light.intensity = o * 3.5;
+      b.core.scale.setScalar(.05 + e * .37); b.shell.scale.setScalar(.08 + e * .52);
+      b.core.material.opacity = o; b.shell.material.opacity = o * .42; b.light.intensity = o * 2.4;
       if (k >= 1) { b.phase = b.wantFade ? 'fade' : 'hold'; b.t = 0; if (!b.readyFired) { b.readyFired = true; b.markReady(); } }
     } else if (b.phase === 'hold') {
-      b.core.scale.setScalar(.42 + Math.sin(b.t * 9) * .012); b.shell.scale.setScalar(.52); b.halo.scale.setScalar(1.05);
-      b.core.material.opacity = 1; b.shell.material.opacity = .5; b.halo.material.opacity = .95; b.light.intensity = 3.5;
+      b.core.scale.setScalar(.42 + Math.sin(b.t * 9) * .012); b.shell.scale.setScalar(.6);
+      b.core.material.opacity = 1; b.shell.material.opacity = .42; b.light.intensity = 2.4;
       if (b.t > 2.8) { b.phase = 'fade'; b.t = 0; }
     } else {
       const k = Math.min(1, b.t / .55), e = k * k, o = 1 - e;
       if (b.g.userData.evoBlast) { b.g.userData.evoBlast = false; b.g.userData.art.material.opacity = 1; }   // the new figure is there as the sphere thins
-      b.core.scale.setScalar(.42 + e * .18); b.shell.scale.setScalar(.52 + e * .28); b.halo.scale.setScalar(1.05 + e * .35);
-      b.core.material.opacity = o; b.shell.material.opacity = o * .45; b.halo.material.opacity = o * .8; b.light.intensity = o * 3.5;
+      b.core.scale.setScalar(.42 + e * .18); b.shell.scale.setScalar(.6 + e * .28);
+      b.core.material.opacity = o; b.shell.material.opacity = o * .38; b.light.intensity = o * 2.4;
       if (k >= 1) { endBlast(b); blasts.splice(n, 1); }
     }
   }
 }
 function clearBlasts() { for (const b of blasts) endBlast(b); blasts.length = 0; }
+
+// Ability cue: a thin ring draws itself around the stand cylinder, rises up the figure, then fades. Same for every poké-power.
+const ABILITY_R = BASE_R + .04, ABILITY_TUBE = .022, abilityRings = [];
+function endAbility(a) {
+  if (a.dead) return; a.dead = true;
+  if (a.mesh.parent) a.mesh.parent.remove(a.mesh);
+  a.geo.dispose(); a.mat.dispose();
+}
+function ability(i, bad) {
+  const g = tokens.get(i); if (!g) return;
+  const now = performance.now();
+  if (g.userData.abilityAt && now - g.userData.abilityAt < 850) return;   // one boost cue at a time (notice + MP arrive can both fire)
+  g.userData.abilityAt = now;
+  const hue = new THREE.Color(bad ? '#ff6b7a' : (css('--gold', '') || css('--bd-line', '') || '#ffd23f'));
+  const geo = new THREE.TorusGeometry(ABILITY_R, ABILITY_TUBE, 8, 72);
+  const mat = new THREE.MeshBasicMaterial({ color: hue, transparent: true, opacity: .95, depthWrite: false });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.rotation.x = Math.PI / 2; mesh.position.y = BASE_H * .35; mesh.renderOrder = 50;
+  geo.setDrawRange(0, 0); g.add(mesh);
+  g.userData.boostPop = 0;   // figure lifts a little while the ring climbs
+  abilityRings.push({ g, mesh, geo, mat, phase: 'draw', t: 0, full: geo.index ? geo.index.count : geo.attributes.position.count, dead: false });
+}
+function stepAbilities(dt) {
+  for (let n = abilityRings.length - 1; n >= 0; n--) {
+    const a = abilityRings[n]; if (a.dead || !a.g.parent) { endAbility(a); abilityRings.splice(n, 1); continue; }
+    a.t += dt;
+    if (a.phase === 'draw') {
+      const k = Math.min(1, a.t / .38), e = 1 - Math.pow(1 - k, 2);
+      a.geo.setDrawRange(0, Math.max(3, Math.floor(e * a.full)));
+      a.mat.opacity = .55 + .4 * e; a.mesh.position.y = BASE_H * .35;
+      a.g.userData.boostPop = e * .08;
+      if (k >= 1) { a.phase = 'rise'; a.t = 0; }
+    } else {
+      const k = Math.min(1, a.t / .85), e = k * k;
+      a.mesh.position.y = BASE_H * .35 + e * 1.05; a.mat.opacity = .95 * (1 - e); a.mesh.scale.setScalar(1 + e * .12);
+      a.g.userData.boostPop = .08 * (1 - e);
+      if (k >= 1) { a.g.userData.boostPop = 0; endAbility(a); abilityRings.splice(n, 1); }
+    }
+  }
+}
+function clearAbilities() { for (const a of abilityRings) endAbility(a); abilityRings.length = 0; }
+
 function project(i) {   // where a figure sits on the arena, so the evolution flash can land on it
   const g = tokens.get(i); if (!g) return null;
   const v = g.position.clone(); v.y += .7; v.project(camera);
   const rect = renderer.domElement.getBoundingClientRect(), host = (document.querySelector('.arena') || renderer.domElement.parentElement).getBoundingClientRect();
   return { x: (v.x * .5 + .5) * rect.width + rect.left - host.left, y: (-v.y * .5 + .5) * rect.height + rect.top - host.top };
 }
-window.Board3D = { draw, controls, tokens, project, blast, clearBlasts };   // controls and tokens are exposed for inspection
+window.Board3D = { draw, controls, tokens, project, blast, clearBlasts, ability, clearAbilities };   // controls and tokens are exposed for inspection
 if (window.board3dModel) draw(window.board3dModel);

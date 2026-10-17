@@ -74,7 +74,7 @@
   .dot, .arrowmark { fill:var(--bd-line); } .ringmark { fill:none; stroke:var(--bd-line); stroke-width:3.2; } .goal.g0 { fill:#1565c0; } .goal.g1 { fill:#b71c1c; }
   .dot.mv, .goal.mv { fill:var(--gold); cursor:pointer; }
   .tok { cursor:pointer; } .tok:has(image) .nm { display:none; } .tok:has(image) .bg { fill:var(--bd-pt); } .tok text { pointer-events:none; text-anchor:middle; font-weight:800; }
-  .tok .ring { fill:none; stroke-width:3.4; } .tok .aura { fill:none; stroke-width:4.2; } .tok .mpb { fill:#05070f; stroke-width:1.6; }
+  .tok .ring { fill:none; stroke-width:3.4; } .tok .aura { fill:none; stroke-width:3.2; } .tok .mpb { fill:var(--bd-pt); stroke:var(--bd-line); stroke-width:1.6; }   /* MP disc/ring follow the table theme; aura matches route bar stroke */
   .tok .halo { fill:none; stroke:transparent; stroke-width:2.6; } .tok.sel .halo { stroke:var(--gold); } .tok.atk .halo { stroke:#e2494e; } .tok.dim { opacity:.55; }
   .pics { display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .row img { width:32px; height:32px; margin:-6px 0; }
   .bar { display:flex; gap:8px; align-items:center; margin-bottom:8px; flex-wrap:wrap; }
@@ -362,9 +362,9 @@
   .pmark { fill:none; stroke:var(--gold); stroke-width:2.4; stroke-linecap:round; stroke-linejoin:round; }
   .tbtn .o { fill:var(--bd-pt); stroke:var(--bd-line); stroke-width:1.6; } .tbtn .i { fill:none; } .tbtn text { fill:var(--bd-line); opacity:.45; font-weight:800; letter-spacing:.1em; text-transform:uppercase; text-anchor:middle; dominant-baseline:central; pointer-events:none; }
   .tbtn.on { cursor:pointer; } .tbtn.on .i { fill:var(--bd-line); } .tbtn.on text { fill:var(--bd); opacity:1; } .tbtn.on:hover .i { fill:var(--gold); }
-  /* Evolve sits on the figure that the engine will let evolve (MiniDetailEvolveIcon). Gold pill, the original's Yes-button ink. */
-  .evobtn { cursor:pointer; } .evobtn rect { fill:#e8cb4d; stroke:#914e00; stroke-width:1.2; } .evobtn text { fill:#520000; font-weight:800; text-anchor:middle; dominant-baseline:central; pointer-events:none; letter-spacing:.02em; }
-  .evobtn:hover rect { fill:#fff100; }
+  /* Evolve sits on the figure that the engine will let evolve (MiniDetailEvolveIcon). Ink pill like the primary buttons, so it follows the theme. */
+  .evobtn { cursor:pointer; } .evobtn rect { fill:var(--ink); stroke:var(--line); stroke-width:1.2; } .evobtn text { fill:var(--bg); font-weight:800; text-anchor:middle; dominant-baseline:central; pointer-events:none; letter-spacing:.02em; }
+  .evobtn:hover rect { fill:var(--dim); stroke:var(--dim); }
   /* Evolve?: the same card as the rest of the app. Now, then the form it becomes, then Yes. */
   #evolve { position:absolute; inset:0; z-index:8; display:grid; place-items:center; padding:16px; background:color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter:blur(3px); }
   #evolve[hidden] { display:none; }
@@ -381,10 +381,10 @@
   #evoanim { position:absolute; z-index:8; width:120px; height:120px; margin:-60px 0 0 -60px; pointer-events:none; }
   #evoanim[hidden] { display:none; }
   #evoanim .ball { position:absolute; left:50%; top:46%; width:34px; height:34px; margin:-17px; border-radius:50%; animation:evoBall .72s ease-in forwards;
-    background:radial-gradient(circle, #fff 0 18%, #fff4b0 36%, #9ad7ff 64%, rgba(120,190,255,0) 72%);
-    box-shadow:0 0 16px 6px rgba(255,255,255,.9), 0 0 32px 10px rgba(120,190,255,.65); }
-  #evoanim .ring { position:absolute; left:50%; top:46%; width:24px; height:24px; margin:-12px; border-radius:50%; border:2px solid rgba(255,255,255,.9); box-shadow:0 0 10px #9ad7ff; animation:evoRing .72s ease-out forwards; }
-  #evoanim .ring.b { animation-delay:.08s; border-color:#fff4b0; }
+    background:radial-gradient(circle, var(--bd-line) 0 22%, color-mix(in srgb, var(--bd-line) 55%, transparent) 55%, transparent 74%);
+    box-shadow:0 0 18px 8px color-mix(in srgb, var(--bd-line) 45%, transparent), 0 0 36px 12px color-mix(in srgb, var(--bd-line) 25%, transparent); }
+  #evoanim .ring { position:absolute; left:50%; top:46%; width:24px; height:24px; margin:-12px; border-radius:50%; border:2px solid var(--bd-line); box-shadow:0 0 10px color-mix(in srgb, var(--bd-line) 40%, transparent); animation:evoRing .72s ease-out forwards; }
+  #evoanim .ring.b { animation-delay:.08s; border-color:color-mix(in srgb, var(--bd-line) 70%, var(--bd-pt)); }
   @keyframes evoBall { 0% { opacity:0; transform:scale(.15); } 18% { opacity:1; transform:scale(1); } 50% { opacity:1; transform:scale(1.35); } 100% { opacity:0; transform:scale(3.6); } }
   @keyframes evoRing { 0% { opacity:0; transform:scale(.3); } 24% { opacity:1; } 100% { opacity:0; transform:scale(4.6); } }
   /* long press: a figure that still has a next form, the same mark the original puts on its detail */
@@ -1256,7 +1256,7 @@ async function joinRoom(code) {
   const conn = peer.connect(roomId(code), { reliable: true });
   await new Promise((ok, bad) => { conn.on('open', ok); peer.on('error', e => bad(new Error('online: ' + e.type))); setTimeout(() => bad(new Error('No room with that code answered.')), 15000); });
   net = { host: false, conn, peer };
-  me = 'white'; flip = true; ctrl = { black: 'remote', white: 'human' }; ai = null; rec = null; st = null; legal = []; over = null; leagueGame = null; sel = null; logLines = []; clock = { black: 300, white: 300 };
+  me = 'white'; flip = true; ctrl = { black: 'remote', white: 'human' }; ai = null; rec = null; st = null; legal = []; over = null; leagueGame = null; sel = null; logLines = []; clock = { black: 300, white: 300 }; turnBoostKey = '';
   clearInterval(homeTick); gameId++; startClock();
   $('setupErr').textContent = ''; $('setup').hidden = $('home').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
   log('Connected.');
@@ -1272,8 +1272,8 @@ async function joinRoom(code) {
       if ((d.hold || spinning) && prev && !boardSt) boardSt = prev;   // the host's outcome waits off-screen until this spin, and any respin it leads to, has played
       arrive(d.st, d.legal, d.played && !boardSt); clock = d.clock; busy = true; if (!boardSt) render();
       if (hop && moveAnim) await sleep(moveAnim.dur);
-      await playEffects(fx, { hold: !!d.hold, wheelSt: boardSt }); logSide = null; if (d.over) over = d.over;
-      if (d.hold) busy = true; else releaseBoard(); settle();
+      await playEffects(fx, { hold: !!d.hold, wheelSt: boardSt, move: d.mv }); logSide = null; if (d.over) over = d.over;
+      if (d.hold) busy = true; else { releaseBoard(); if (d.bot) turnBoostCues(); } settle();
     });
   });
   conn.on('close', () => { if (!over) log('<b>The host disconnected.</b>'); });
@@ -1302,7 +1302,7 @@ async function start(opts) {
   rec.client_ai_name = (await api('name')).name; rec.ai_protocol_version = (await api('protocol_version')).protocol_version;   // as Engine.GameStart does
   const check = await api('check_record');
   if (check.errors && check.errors.length) throw new Error('The engine rejected this setup: ' + check.errors.join(', '));
-  leagueGame = lgMode ? { done: false } : null; sealed.clear(); boardSt = null; battleView = null; deferredSfx = null; const btl = $('battle'); if (btl) { btl.hidden = true; btl.innerHTML = ''; } $('home').hidden = true; states = []; rewinds = 0;
+  leagueGame = lgMode ? { done: false } : null; sealed.clear(); boardSt = null; battleView = null; deferredSfx = null; turnBoostKey = ''; const btl = $('battle'); if (btl) { btl.hidden = true; btl.innerHTML = ''; } $('home').hidden = true; states = []; rewinds = 0;
   sel = null; busy = false; over = null; logLines = []; clock = { black: 300, white: 300 }; gameId++;
   $('setupErr').textContent = ''; $('setup').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
   sfx('duel_start');
@@ -1423,18 +1423,56 @@ const wins = c => label(c) === 'You' ? 'You win' : label(c) + ' wins';
 const label = c => ctrl[c] === 'remote' ? 'Opponent' : ctrl.black === 'human' && ctrl.white === 'human' ? (c === 'black' ? 'Player 1' : 'Player 2') : ctrl[c] === 'ai' ? 'Computer' : 'You';
 
 let boardSt = null, battleView = null, deferredSfx = null;   // boardSt: the table kept on screen while a spin chain plays; the engine status underneath is already the outcome
-function arriveSfx(before, mpBefore) {
+const BOOST_MARK = /^(plus_|mp_|charge|flame_charge|ice_charge|thunder_charge|gliding)/;   // markers the original treats as ability / power-up cues
+function hasPassiveBoost(c) {   // any ongoing ability-style bonus the original pulses at turn start (not status ailments)
+  if (!c || c.index >= 44) return false;
+  const e = c.effect || {}, m = c.marker || {};
+  if ((e.mp || 0) !== 0 || (e.damage_plus || 0) !== 0) return true;
+  if (m.triangle && m.triangle !== 'empty' && BOOST_MARK.test(m.triangle)) return true;
+  if (m.circle && m.circle !== 'normal' && BOOST_MARK.test(m.circle)) return true;
+  return false;
+}
+function cueAbilityBoosts(ids) {   // after the table has painted, so tokens exist (same rising ring for every figure)
+  if (!ids || !ids.length) return;
+  queueMicrotask(() => { if (!(window.Board3D && Board3D.ability)) return; for (const i of new Set(ids)) Board3D.ability(i); });
+}
+function arriveSfx(before, mpBefore, dmgBefore, markBefore) {
   if (!st) return;
   for (const kind of new Set(st.pokemon_conditions.filter(c => { const now = (c.marker || {}).circle; return now && now !== 'normal' && now !== before.get(c.pokemon_index); }).map(c => c.marker.circle)))
     statusSfx(kind);
-  for (const dir of new Set(st.pokemon_conditions.map(c => Math.sign(((c.effect && c.effect.mp) || 0) - (mpBefore.get(c.pokemon_index) || 0))).filter(Boolean))) mpSfx(dir);
+  const mpDirs = new Set(), boost = [];
+  for (const c of st.pokemon_conditions) {
+    const mp = (c.effect && c.effect.mp) || 0, dmg = (c.effect && c.effect.damage_plus) || 0, tri = (c.marker && c.marker.triangle) || '';
+    const dMp = mp - (mpBefore.get(c.pokemon_index) || 0), dDmg = dmg - (dmgBefore.get(c.pokemon_index) || 0);
+    if (dMp) mpDirs.add(Math.sign(dMp));
+    if (dMp > 0 || dDmg > 0) boost.push(c.pokemon_index);
+    else if (tri && tri !== 'empty' && BOOST_MARK.test(tri) && markBefore.get(c.pokemon_index) !== tri) boost.push(c.pokemon_index);
+  }
+  for (const dir of mpDirs) mpSfx(dir);
+  cueAbilityBoosts(boost);
+}
+let turnBoostKey = '';
+function turnBoostCues() {   // once per start-of-turn: every figure that currently holds a passive ability boost (original's power-up flash)
+  if (!(window.Board3D && Board3D.ability) || !st) return;
+  const key = (rec ? rec.all_moves.length : (st.turn || 0)) + ':' + st.selective_side;
+  if (turnBoostKey === key) return;
+  turnBoostKey = key;
+  cueAbilityBoosts(st.pokemon_conditions.filter(hasPassiveBoost).map(c => c.pokemon_index));
+}
+function snapBoost(prev) {
+  return {
+    before: new Map((prev ? prev.pokemon_conditions : []).map(c => [c.pokemon_index, (c.marker || {}).circle])),
+    mpBefore: new Map((prev ? prev.pokemon_conditions : []).map(c => [c.pokemon_index, (c.effect && c.effect.mp) || 0])),
+    dmgBefore: new Map((prev ? prev.pokemon_conditions : []).map(c => [c.pokemon_index, (c.effect && c.effect.damage_plus) || 0])),
+    markBefore: new Map((prev ? prev.pokemon_conditions : []).map(c => [c.pokemon_index, (c.marker && c.marker.triangle) || ''])),
+  };
 }
 function arrive(s, lm, played) {   // a new status and its legal moves. While a spin is on screen the sounds wait until the table actually changes.
-  const before = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.marker || {}).circle])), mpBefore = new Map((st ? st.pokemon_conditions : []).map(c => [c.pokemon_index, (c.effect && c.effect.mp) || 0]));
+  const snap = snapBoost(st);
   st = s; legal = lm;
   if (!played) return;
-  if (boardSt) { if (!deferredSfx) deferredSfx = { before, mpBefore }; }   // keep the snapshot from before the chain, so a respin does not hide the first spin's status sounds
-  else arriveSfx(before, mpBefore);
+  if (boardSt) { if (!deferredSfx) deferredSfx = snap; }   // keep the snapshot from before the chain, so a respin does not hide the first spin's status sounds
+  else arriveSfx(snap.before, snap.mpBefore, snap.dmgBefore, snap.markBefore);
 }
 function releaseBoard() {   // the spin chain is over: the knockout, the status and the moved figures land now, the way the original returns to the field after the roulette
   const prev = boardSt; boardSt = null;
@@ -1448,7 +1486,7 @@ function releaseBoard() {   // the spin chain is over: the knockout, the status 
     const ko = moved.find(([, c]) => c.index >= 40) || moved[0];
     if (ko) moveAnim = { fig: ko[1].pokemon_index, route: [ko[0], ko[1].index], id: ++moveSeq, t0: performance.now(), dur: STEP_MS * 2 };
   }
-  if (d) arriveSfx(d.before, d.mpBefore);
+  if (d) arriveSfx(d.before, d.mpBefore, d.dmgBefore || new Map(), d.markBefore || new Map());
   busy = false; render();
 }
 // The end of a duel. EndReasonCutIn shows the bar only for these endings (a goal or a knockout ending goes straight to the result), with the
@@ -1505,8 +1543,9 @@ async function sync(played) {
     arrive(s.status, moves, played && !boardSt);
     states[rec.all_moves.length] = { b: !!ss.beginning_of_turn, s: ss.selective_side };   // RewindableRecord.AddState
     if (ss.game_set && !over) over = { winner: ss.winner, reason: ss.reason }; saveGame();
-    if (net && net.host) net.conn.send({ t: 'state', st, legal, fx: effects, over: ss.game_set ? { winner: ss.winner, reason: ss.reason } : null, clock, played, hold: chainHold, mv: played ? rec.all_moves[rec.all_moves.length - 1] : null });
-    if (fx) await playEffects(effects, { hold: chainHold, wheelSt: boardSt }); logSide = null;
+    const moved = played ? rec.all_moves[rec.all_moves.length - 1] : null;
+    if (net && net.host) net.conn.send({ t: 'state', st, legal, fx: effects, over: ss.game_set ? { winner: ss.winner, reason: ss.reason } : null, clock, played, hold: chainHold, mv: moved, bot: !!ss.beginning_of_turn });
+    if (fx) await playEffects(effects, { hold: chainHold, wheelSt: boardSt, move: moved }); logSide = null;
     if (id !== gameId) return;
     const side = st.selective_side;
     if (!over && ss.game_set) over = { winner: ss.winner, reason: ss.reason };
@@ -1517,6 +1556,7 @@ async function sync(played) {
     const again = respinMove(); if (again) return play(again);
     if (chainHold) return;
     busy = false; render();
+    if (ss.beginning_of_turn) turnBoostCues();   // once per turn start: every figure with an active ability boost (MP / damage / charge / …)
     if (ctrl[side] === 'ai') { busy = true; render(); sfx('ai_on'); const g = await api('go', ai); sfx('ai_off'); if (id === gameId) return play(g.move); }
     remoteMove();
   } catch (e) { boardSt = null; battleView = null; deferredSfx = null; busy = false; const ov = $('battle'); if (ov) { ov.hidden = true; ov.innerHTML = ''; } $('status').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
@@ -1634,11 +1674,27 @@ $('camHome').onclick = () => { document.querySelector('.side')?.classList.remove
 
 // A move along a route is shown as hops from point to point (STEP_MS each), with a landing sound per point. It starts the moment the move is
 // made; the figure is drawn at the end of its route from then on, so it does not snap back while the engine works out the new state.
+// If a point on the way is occupied (Celebi / Soar / etc.), that stretch is one long jump instead of landing on the figure.
 const STEP_MS = 170; let moveAnim = null, moveSeq = 0;
+function hopPlan(route, occ) {   // landings + per-segment { leap, durMs }; occupied mid-points are skipped as landings
+  const segs = [], landings = [route[0]];
+  let i = 0;
+  while (i < route.length - 1) {
+    let j = i + 1, leap = false;
+    if (j < route.length - 1 && occ.has(route[j])) { leap = true; while (j < route.length - 1 && occ.has(route[j])) j++; }
+    const span = j - i;
+    segs.push({ from: route[i], to: route[j], leap, durMs: (leap ? STEP_MS * 1.2 : STEP_MS) * span });
+    landings.push(route[j]); i = j;
+  }
+  return { segs, landings, dur: segs.reduce((s, x) => s + x.durMs, 0) };
+}
 function animateMove(move) {
   const r = move.value.route, c = st && st.pokemon_conditions.find(x => x.index === r[0]); if (!c || r.length < 2) return;
-  moveAnim = { fig: c.pokemon_index, route: r, id: ++moveSeq, t0: performance.now(), dur: (r.length - 1) * STEP_MS };
-  for (let k = 1; k < r.length; k++) setTimeout(() => sfx('step'), k * STEP_MS);
+  const occ = new Set(st.pokemon_conditions.filter(x => x.pokemon_index !== c.pokemon_index && x.index < 40).map(x => x.index));
+  const plan = hopPlan(r, occ);
+  moveAnim = { fig: c.pokemon_index, route: r, plan, id: ++moveSeq, t0: performance.now(), dur: plan.dur };
+  let t = 0;
+  for (const s of plan.segs) { if (s.leap) setTimeout(() => sfx('swap'), t); t += s.durMs; setTimeout(() => sfx('step'), t); }
 }
 
 // ---------- theme ----------
@@ -1723,13 +1779,15 @@ function render() {
     const i = c.pokemon_index, f = figOf(i), col = colorOf(i), p = pk(i) || {}, b = badges(c);
     const hop = moveAnim && moveAnim.fig === i ? moveAnim : null, [x, y] = hop ? xy(hop.route[hop.route.length - 1]) : xy(c.index, c.index >= 44 ? (away[col] += col === low ? -48 : 48) : 0), mp = (p.mp || 0) + ((c.effect && c.effect.mp) || 0);
     const evoOk = mine && evolveMoves().some(m => evoFig(m) === i);
-    toks.push({ i, moveId: hop ? hop.id : null, path: hop ? hop.route.map(q => U(xy(q))) : null, x: U([x, y])[0], z: U([x, y])[1], team: col === low ? 0 : 1, img: sprite(f), name: f.n, mp: c.index < 40 ? String(mp) : '', badge: b.join(' · '), status: c.marker && c.marker.circle && c.marker.circle !== 'normal' ? c.marker.circle : '', wait: c.wait > 0, mpd: (c.effect && c.effect.mp) || 0, sel: i === sel, atk: targets.has(i), dim: c.index >= 40, evo: evoOk });
+    const plan = hop && hop.plan, pathPts = plan ? plan.landings.map(q => U(xy(q))) : hop ? hop.route.map(q => U(xy(q))) : null;
+    const segs = plan ? plan.segs.map(s => ({ leap: s.leap, dur: s.durMs / 1000 })) : null;
+    toks.push({ i, moveId: hop ? hop.id : null, path: pathPts, segs, x: U([x, y])[0], z: U([x, y])[1], team: col === low ? 0 : 1, img: sprite(f), name: f.n, mp: c.index < 40 ? String(mp) : '', badge: b.join(' · '), status: c.marker && c.marker.circle && c.marker.circle !== 'normal' ? c.marker.circle : '', wait: c.wait > 0, mpd: (c.effect && c.effect.mp) || 0, sel: i === sel, atk: targets.has(i), dim: c.index >= 40, evo: evoOk });
     const mpd = (c.effect && c.effect.mp) || 0, circle = (c.marker || {}).circle, aura = circle && circle !== 'normal' ? (STATUS_COL[circle] || '#ffffff') : b.length ? '#cbd5e1' : '';
-    h += `<g class="tok ${i === sel ? 'sel' : ''} ${targets.has(i) ? 'atk' : ''} ${c.index >= 40 ? 'dim' : ''}" data-fig="${i}" transform="translate(${x},${y}) scale(${c.index >= 44 ? .85 : 1.3})"><circle class="halo" r="27.5"/>${aura ? `<circle class="aura" r="23" stroke="${aura}"/>` : ''}
+    h += `<g class="tok ${i === sel ? 'sel' : ''} ${targets.has(i) ? 'atk' : ''} ${c.index >= 40 ? 'dim' : ''}" data-fig="${i}" transform="translate(${x},${y}) scale(${c.index >= 44 ? .85 : 1.3})"><circle class="halo" r="27.5"/>${aura ? `<circle class="aura" r="21.1" stroke="${aura}"/>` : ''}
       <circle class="bg" r="19" fill="${TYPE_COL[f.t[0]] || '#888'}"/><circle class="ring" r="19" stroke="${col === low ? '#1565c0' : '#b71c1c'}"/>
       <text class="nm" y="4" font-size="8.5" fill="#10141a">${esc(f.n.replace(/^(Alolan|Shiny|Mega) /, '').slice(0, 7))}</text>
       ${sprite(f) ? `<image href="${sprite(f)}" x="-24" y="-27" width="48" height="48" style="pointer-events:none" onerror="this.remove()"/>` : ''}
-      ${c.index < 40 ? `<circle class="mpb" cx="15" cy="15" r="6.6" stroke="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}"/><text x="15" y="18" font-size="8.6" fill="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : '#fff'}">${mp}</text>` : ''}
+      ${c.index < 40 ? `<circle class="mpb" cx="15" cy="15" r="6.6" stroke="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : 'var(--bd-line)'}"/><text x="15" y="18" font-size="8.6" fill="${mpd < 0 ? '#ff6b7a' : mpd > 0 ? '#39d98a' : 'var(--bd-line)'}">${mp}</text>` : ''}
       ${b.length ? `<rect x="-24" y="23" width="48" height="11" rx="5.5" fill="#10141a"/><text y="31.3" font-size="7.2" fill="#ffd88a">${esc(b[0].slice(0, 11))}${b.length > 1 ? '+' : ''}</text>` : ''}</g>`;
     if (evoOk) h += `<g class="evobtn" data-act="evo:${i}" transform="translate(${x},${y - 46})"><title>Evolve</title><rect x="-28" y="-9" width="56" height="16" rx="8"/><text y="1" font-size="8.4">Evolve</text></g>`;
   }
@@ -1743,9 +1801,15 @@ function render() {
   }
   { const t = tm.btn; if (t.label) { const [x, y] = B(t.x, t.z); h += `<g class="tbtn${t.on ? ' on' : ''}" data-act="main"><rect class="o" x="${x - 54.2}" y="${y - 16.3}" width="108.4" height="32.5" rx="6"/><rect class="i" x="${x - 47.7}" y="${y - 10.8}" width="95.4" height="21.7" rx="3.5"/><text x="${x}" y="${y}" font-size="${t.size}">${esc(t.label)}</text></g>`; } }
   $('board').innerHTML = h;
-  if (moveAnim && performance.now() < moveAnim.t0 + moveAnim.dur) {   // flat board: hop along the route, picking up where the animation was if the board was redrawn meanwhile
-    const el = $('board').querySelector(`[data-fig="${moveAnim.fig}"]`), pts = moveAnim.route.map(q => xy(q)), n = pts.length - 1, kf = [];
-    pts.forEach(([px, py], k) => { kf.push({ transform: `translate(${px}px,${py}px) scale(1.3)`, offset: k / n }); if (k < n) kf.push({ transform: `translate(${(px + pts[k + 1][0]) / 2}px,${(py + pts[k + 1][1]) / 2 - 14}px) scale(1.6)`, offset: (k + .5) / n }); });
+  if (moveAnim && performance.now() < moveAnim.t0 + moveAnim.dur) {   // flat board: hop (or long-jump) along landings; higher apex when leaping a figure
+    const el = $('board').querySelector(`[data-fig="${moveAnim.fig}"]`), plan = moveAnim.plan || hopPlan(moveAnim.route, new Set()), pts = plan.landings.map(q => xy(q)), n = plan.segs.length, kf = [], total = plan.dur || 1;
+    let at = 0; kf.push({ transform: `translate(${pts[0][0]}px,${pts[0][1]}px) scale(1.3)`, offset: 0 });
+    plan.segs.forEach((s, k) => {
+      const [ax, ay] = pts[k], [bx, by] = pts[k + 1], mid = at + s.durMs / 2, end = at + s.durMs, lift = s.leap ? 36 : 14, sc = s.leap ? 1.85 : 1.6;
+      kf.push({ transform: `translate(${(ax + bx) / 2}px,${(ay + by) / 2 - lift}px) scale(${sc})`, offset: mid / total });
+      kf.push({ transform: `translate(${bx}px,${by}px) scale(1.3)`, offset: end / total });
+      at = end;
+    });
     if (el && el.animate) el.animate(kf, { duration: moveAnim.dur }).currentTime = performance.now() - moveAnim.t0;
   }
   if (VIEW3D) {
@@ -2212,8 +2276,27 @@ async function showSpin(e, result, notices, opt) {
     await wait(1300); closeSpin();
   } else if (!battle) { await wait(2000); closeSpin(); }   // a spin outside a battle stays up two seconds
 }
+function abilityFig(v) {   // figure index on a poké-power move or notice (evolve wraps the real figure in .value)
+  if (!v || typeof v !== 'object') return null;
+  if (typeof v.pokemon === 'number') return v.pokemon;
+  if (v.value && typeof v.value.pokemon === 'number') return v.value.pokemon;
+  return null;
+}
 async function playEffects(list, opt) {
   opt = opt || {};
+  const seenAbility = new Set();
+  const abilityCue = async (i, bad, hold) => {   // ring around the stand; hold so Time Travel &c. do not snap the board away mid-cue
+    if (i == null || seenAbility.has(i)) return;
+    seenAbility.add(i);
+    sfx(bad ? 'ability_bad' : 'ability');
+    if (window.Board3D && Board3D.ability) Board3D.ability(i, !!bad);
+    if (hold) await sleep(1100);
+  };
+  // Activated abilities (Celebi Time Travel, …) often emit only a bare pokepower_notice; cue from the move that produced these effects.
+  const mv = opt.move && opt.move.value;
+  if (mv && (mv.type === 'use_pokepower' || mv.type === 'declare_pokepower') && !isEvolve(opt.move)) {
+    await abilityCue(abilityFig(mv), /bad|neg|curse|disable|seal/i.test(describe(mv)), true);
+  }
   for (let k = 0; k < list.length; k++) {
     const e = list[k], v = e.value, t = v.type;
     if (t === 'declare_respin') {   // the respin stays on this screen: "More" on the wheel that spins again, then the next spin turns it
@@ -2241,8 +2324,20 @@ async function playEffects(list, opt) {
     else if (t === 'spot_move' && v.from >= 40 && v.from < 44 && v.to >= 40 && v.to < 44) continue;   // the P.C. slides a figure between its two spots; the knockout line already said it went there
     else if (t === 'sandwich' && !(v.pokemons || []).length) continue;
     else if (t === 'sandwich') { sfx('surround'); log(describe(v)); }
-    else if (t === 'pokepower_notice' && Object.keys(v).every(k => k === 'type' || k === 'pokemon' || k === 'pokepower')) continue;   // a bare notice is the ability being in effect, not it triggering
-    else if (t === 'pokepower_notice') { sfx(/bad|neg|curse|disable|seal/i.test(describe(v)) ? 'ability_bad' : 'ability'); log(describe(v)); }
+    else if (t === 'use_pokepower' || (t === 'declare_pokepower' && !isEvolve({ value: v }))) {
+      log(describe(v));
+      await abilityCue(abilityFig(v), /bad|neg|curse|disable|seal/i.test(describe(v)), true);
+    }
+    else if (t === 'pokepower_notice' && Object.keys(v).every(k => k === 'type' || k === 'pokemon' || k === 'pokepower')) {
+      // Bare notice = ability applying (Slow Start MP, Territoriality, Soar Charge, …) — the original's start-of-turn / boost cue.
+      await abilityCue(abilityFig(v), false, false);
+      await sleep(320);
+    }
+    else if (t === 'pokepower_notice') {
+      const bad = /bad|neg|curse|disable|seal/i.test(describe(v));
+      log(describe(v));
+      await abilityCue(abilityFig(v), bad, false);   // ring for effect notices; no hold (battle chain already times itself)
+    }
     else if (t === 'disable_plate') { const names = ['black', 'white'].flatMap(c => (v[c] || []).map(id => plateById.has(id) ? plateById.get(id).n : 'plate ' + id)); if (names.length) { sfx('plate'); log('Plate spent · ' + names.map(n => '<b>' + esc(n) + '</b>').join(', ')); } }
     else if (!QUIET.has(t)) log(describe(v));
   }
