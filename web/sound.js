@@ -77,7 +77,8 @@
     const c = actx || ready(); if (!c) { clips[id] = bytes; return; }
     c.decodeAudioData(bytes.slice(0)).then(buf => { clips[id] = buf; }).catch(() => {});
   }
-  for (const id of ['se001', 'se002']) fetch('/sfx/' + id + '.wav').then(r => r.ok ? r.arrayBuffer() : null).then(b => { if (b) takeClip(id, b); }).catch(() => {});
+  // Relative path so GitHub Pages (/pokemon-duel-web/) and localhost both resolve; absolute /sfx/ only works under play.py at /.
+  for (const id of ['se001', 'se002']) fetch('sfx/' + id + '.wav').then(r => r.ok ? r.arrayBuffer() : null).then(b => { if (b) takeClip(id, b); }).catch(() => {});
   function playClip(id) {
     const buf = clips[id]; if (!buf || !buf.getChannelData) return false;
     const src = actx.createBufferSource(); src.buffer = buf; const g = actx.createGain(); g.gain.value = UI_GAIN;
