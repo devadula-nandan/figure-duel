@@ -1047,6 +1047,7 @@ const slotFrom = d => ({ st: d.st.slice(), mod: d.st.map(id => id != null ? blan
 const deckPlates = () => (profile.deckPlates || []).slice();
 const leaguePool = () => BASES.filter(f => !leagueOf().locked.includes(f.id));
 function showHome() {
+  if (window.bgm) bgm.play('menu');
   forgetGame(); $('result').hidden = true;
   if (net) { try { net.peer.destroy(); } catch (e) {} net = null; }
   clearInterval(timer); clearInterval(homeTick); gameId++; ownedMode = false;
@@ -1286,6 +1287,7 @@ async function start(opts) {
   sel = null; busy = false; over = null; logLines = []; clock = { black: 300, white: 300 }; gameId++;
   $('setupErr').textContent = ''; $('setup').hidden = true; $('game').hidden = false; $('log').innerHTML = '';
   sfx('duel_start');
+  if (window.bgm) bgm.play('duel');
   if (net) net.conn.send({ t: 'first', side: rec.first_player });
   await firstSpin(rec.first_player);
   startClock();
@@ -1394,6 +1396,7 @@ async function resumeGame() {
   ({ rec, me, ctrl, ai, clock, rewinds, over } = g); flip = me === 'white'; net = null; leagueGame = g.league ? { done: !!over } : null;
   states = []; sel = null; busy = false; logLines = []; gameId++; boardSt = null; battleView = null; deferredSfx = null; const btl = $('battle'); if (btl) { btl.hidden = true; btl.innerHTML = ''; } $('log').innerHTML = ''; log(`Duel resumed at move ${rec.all_moves.length}.`);
   startClock(); await sync(false);
+  if (window.bgm) bgm.play('duel');
 }
 const wins = c => label(c) === 'You' ? 'You win' : label(c) + ' wins';
 const label = c => ctrl[c] === 'remote' ? 'Opponent' : ctrl.black === 'human' && ctrl.white === 'human' ? (c === 'black' ? 'Player 1' : 'Player 2') : ctrl[c] === 'ai' ? 'Computer' : 'You';
@@ -1448,7 +1451,7 @@ $('result').onclick = e => { const b = e.target.closest('[data-r]'); if (!b) ret
   if (b.dataset.r === 'again') return start().catch(x => { showHome(); drawHome.msg = x.message; drawHome(); });
   showHome(); };
 function settle() {   // after the effects: the end-of-duel or your-turn sound; true when the duel is over
-  if (over) { if (!over.sung) { over.sung = 1; sfx(ctrl[me] === 'human' && over.winner && over.winner !== me ? 'lose' : 'win'); showResult(); } return true; }
+  if (over) { if (!over.sung) { over.sung = 1; if (window.bgm) bgm.stop(); if (/goal/i.test(String(over.reason || ''))) sfx('goal'); sfx(ctrl[me] === 'human' && over.winner && over.winner !== me ? 'lose' : 'win'); showResult(); } return true; }
   const side = st.selective_side; if (ctrl[side] === 'human' && settle.last !== side) sfx('turn'); settle.last = side;
 }
 // One step of the original client's loop (Engine.CurrentState): effects of the last move, new status, next legal moves.
@@ -1780,7 +1783,7 @@ function tableModel(mine) {
   tableModel.run = !mine ? null : zs.length ? () => startPick('Activate Z-Move', zs) : end ? () => play(end) : hint ? askAi : null;   // Z-Move, else End Turn once the engine allows a pass; AI only when a computer can choose
   return { stacks, btn: { x: BX, z: BZ, on: !!tableModel.run, label: zs.length ? 'Activate Z-Move' : end ? 'End Turn' : hint ? 'AI' : '', size: zs.length ? 8 : end ? 11 : 13 } };
 }
-function tableAct(a) { if (String(a).startsWith('evo:')) return openEvolve(+a.slice(4)); if (a === 'main') { if (tableModel.run) tableModel.run(); return; } plateView = a.slice(3); pick = null; render(); }
+function tableAct(a) { if (String(a).startsWith('evo:')) return openEvolve(+a.slice(4)); if (a === 'main') { if (tableModel.run) tableModel.run(); return; } plateView = a.slice(3); pick = null; sfx('plate_pick'); render(); }
 // Evolution is either a top-level { type:'evolve', pokemon } or a declare_pokepower wrapping that. The original asks on EvolveSelect, then flashes the figure into its next form.
 const evoVal = m => m.value.type === 'evolve' ? m.value : (m.value.value && m.value.value.type === 'evolve' ? m.value.value : null);
 const isEvolve = m => !!evoVal(m);
@@ -1891,8 +1894,8 @@ function plateFocus() { const p = drawPlates.list[drawPlates.at]; if (!p) return
 $('plates').onclick = e => {
   const c = e.target.closest('[data-i]'), p = drawPlates.list[drawPlates.at];
   if (c) return c.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });   // UICenterOnClick
-  if (e.target.id === 'plUse' && p) { const back = plateView; plateView = null; return startPick((plateById.get(p.id) || { n: 'Plate' }).n, plateMoves(p.id), back); }
-  if (e.target.closest('#plClose') || e.target === $('plates')) { plateView = null; render(); }
+  if (e.target.id === 'plUse' && p) { sfx('plate_ok'); const back = plateView; plateView = null; return startPick((plateById.get(p.id) || { n: 'Plate' }).n, plateMoves(p.id), back); }
+  if (e.target.closest('#plClose') || e.target === $('plates')) { sfx('plate_cancel'); plateView = null; render(); }
 };
 function drawClock() {
   $('c0').hidden = $('c1').hidden = missionDuel();
@@ -2193,10 +2196,11 @@ async function playEffects(list, opt) {
     else if (t === 'remove_debuff') { for (const i of v.pokemons || []) sealed.delete(i); log(describe(v)); }
     else if (t === 'mp_move') log(`${nameOf(figAt(v.route))} moves ${v.route.map(place).join(' → ')}`);
     else if (t === 'declare_battle') { sfx('attack'); log(`${nameOf(v.from_pokemon)} attacks ${nameOf(v.to_pokemon)}`); }
-    else if (t === 'turn_end') { log('<span class="note">— turn ends —</span>'); if (P_COL[logSide]) logSide = other(logSide); }   // what follows in the same list already belongs to the next player
+    else if (t === 'turn_end') { sfx('end_turn'); log('<span class="note">— turn ends —</span>'); if (P_COL[logSide]) logSide = other(logSide); }   // what follows in the same list already belongs to the next player
     else if (t === 'game_set') { over = { winner: v.win, reason: v.reason }; log(`<b>${P_COL[v.win] ? wins(v.win) : 'Draw'}</b> (${esc(String(v.reason).replace(/_/g, ' '))})`); }
     else if (t === 'spot_move' && v.from >= 40 && v.from < 44 && v.to >= 40 && v.to < 44) continue;   // the P.C. slides a figure between its two spots; the knockout line already said it went there
     else if (t === 'sandwich' && !(v.pokemons || []).length) continue;
+    else if (t === 'sandwich') { sfx('surround'); log(describe(v)); }
     else if (t === 'pokepower_notice' && Object.keys(v).every(k => k === 'type' || k === 'pokemon' || k === 'pokepower')) continue;   // a bare notice is the ability being in effect, not it triggering
     else if (t === 'pokepower_notice') { sfx('ability'); log(describe(v)); }
     else if (t === 'disable_plate') { const names = ['black', 'white'].flatMap(c => (v[c] || []).map(id => plateById.has(id) ? plateById.get(id).n : 'plate ' + id)); if (names.length) { sfx('plate'); log('Plate spent · ' + names.map(n => '<b>' + esc(n) + '</b>').join(', ')); } }

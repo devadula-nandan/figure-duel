@@ -10,9 +10,9 @@ A web client for [Pokémon Duel](https://en.wikipedia.org/wiki/Pokémon_Duel). T
 
 The engine library (`web/libTFG.so`) is taken from the original Android app, version 7.0.16, so the static site is playable with no APK upload. The browser caches it in IndexedDB after the first load. If that file is missing, the page falls back to reading the library from a local 7.0.16 APK once.
 
-## Sound effects
+## Sound
 
-Match UI clicks and duel SFX are original recordings under `web/sfx/` (Se001–Se002 from the APK; the rest from the public Duels sound bank). `web/sound.js` maps each game event to those clips and only synthesizes a stand-in when a clip is absent.
+Match UI clicks and duel SFX are original recordings under `web/sfx/`. Menu and duel BGM live under `web/bgm/` (original Pokémon Duel tracks). `web/sound.js` maps each game event to those clips and only synthesizes a stand-in when a clip is absent.
 
 ## Run locally
 
