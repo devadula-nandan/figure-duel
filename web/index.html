@@ -1424,10 +1424,10 @@ const label = c => ctrl[c] === 'remote' ? 'Opponent' : ctrl.black === 'human' &&
 
 let boardSt = null, battleView = null, deferredSfx = null;   // boardSt: the table kept on screen while a spin chain plays; the engine status underneath is already the outcome
 const BOOST_MARK = /^(plus_|mp_|charge|flame_charge|ice_charge|thunder_charge|gliding)/;   // markers the original treats as ability / power-up cues
-function hasPassiveBoost(c) {   // any ongoing ability-style bonus the original pulses at turn start (not status ailments)
-  if (!c || c.index >= 44) return false;
+function hasPassiveBoost(c) {   // turn-start pulse: ability MP (Slow Start, Territoriality, …) or a charge-style marker — not evolution / deck damage_plus
+  if (!c || c.index >= 40) return false;   // field only (bench / P.C. / exclusion stay quiet)
   const e = c.effect || {}, m = c.marker || {};
-  if ((e.mp || 0) !== 0 || (e.damage_plus || 0) !== 0) return true;
+  if ((+e.mp || 0) > 0) return true;
   if (m.triangle && m.triangle !== 'empty' && BOOST_MARK.test(m.triangle)) return true;
   if (m.circle && m.circle !== 'normal' && BOOST_MARK.test(m.circle)) return true;
   return false;
@@ -1442,9 +1442,10 @@ function arriveSfx(before, mpBefore, dmgBefore, markBefore) {
     statusSfx(kind);
   const mpDirs = new Set(), boost = [];
   for (const c of st.pokemon_conditions) {
-    const mp = (c.effect && c.effect.mp) || 0, dmg = (c.effect && c.effect.damage_plus) || 0, tri = (c.marker && c.marker.triangle) || '';
+    const mp = +(c.effect && c.effect.mp) || 0, dmg = +(c.effect && c.effect.damage_plus) || 0, tri = (c.marker && c.marker.triangle) || '';
     const dMp = mp - (mpBefore.get(c.pokemon_index) || 0), dDmg = dmg - (dmgBefore.get(c.pokemon_index) || 0);
     if (dMp) mpDirs.add(Math.sign(dMp));
+    // ring when MP rises or a charge marker lands; damage_plus only if it just increased (plate / ability), never the static evo bonus
     if (dMp > 0 || dDmg > 0) boost.push(c.pokemon_index);
     else if (tri && tri !== 'empty' && BOOST_MARK.test(tri) && markBefore.get(c.pokemon_index) !== tri) boost.push(c.pokemon_index);
   }
