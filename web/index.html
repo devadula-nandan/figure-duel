@@ -86,7 +86,9 @@
   #list, #plist { height:300px; overflow:auto; } .row { display:flex; gap:8px; padding:6px 8px; border-radius:8px; cursor:pointer; align-items:center; }
   .row:hover { background:var(--ctl2); } .row .n { flex:1; } .team .row { background:var(--ctl); margin-bottom:4px; border:1px solid var(--line); }
   .chip.rar1 { background:#8a8f98; color:#fff; } .chip.rar2 { background:#2e9e5b; color:#fff; } .chip.rar3 { background:#2f7fe0; color:#fff; } .chip.rar4 { background:#d9a514; color:#111; } .chip.rar5 { background:#c0392b; color:#fff; }   /* rarity: C, UC, R, EX, UX */
-  .tok image, .card img, .row img, .dot img { filter:drop-shadow(0 2px 2px rgba(0,0,0,.4)); }   /* a soft shadow under every figure picture */
+  /* soft shadow under every figure picture (cards, lists, saved teams, home, popups, evolve, battle SVG) */
+  .tok image, .card img, .row img, .dot img, .tcard .tp img, .hfig img, .evo-fig img, .pics img,
+  #figpop img, #evolve img, #result img, #battle img { filter:drop-shadow(0 2px 3px rgba(0,0,0,.45)); }
   .paths { display:none; }
   @media (min-width:861px) { .paths { display:flex; gap:6px; margin:0; } .top .paths a { margin:0; display:inline-flex; align-items:center; height:30px; padding:0 10px; font-size:12px; font-weight:600; text-decoration:none; white-space:nowrap; }
     .top .paths a.on { background:var(--ink); border-color:var(--ink); color:var(--bg); } .top #viewLink { display:none; } }
@@ -164,7 +166,7 @@
   #pickBtn, #rnd, #clr { padding:0; } #rnd svg, #clr svg { width:22px; height:22px; } #pickBtn svg { width:18px; height:18px; }   /* pencil reads larger than the dice / trash glyphs at the same box size */
   .hfig { display:grid; grid-template-columns:repeat(6,minmax(0,1fr)); gap:8px; cursor:pointer; }   /* the deck: one row of six figure cards */
   .hfig > div { position:relative; display:flex; flex-direction:column; align-items:center; gap:2px; min-width:0; padding:22px 4px 8px; border:1px solid var(--line); border-radius:8px; background:var(--ctl); text-align:center; } .hfig > div:hover { border-color:var(--dim); }
-  .hfig img { width:100%; max-width:72px; aspect-ratio:1; object-fit:contain; filter:drop-shadow(0 2px 2px rgba(0,0,0,.4)); } .hfig .chip { position:absolute; left:6px; top:6px; margin:0; font-size:10px; padding:0 5px; } .hfig .chip.r { left:auto; right:6px; background:var(--ink); color:var(--bg); }
+  .hfig img { width:100%; max-width:72px; aspect-ratio:1; object-fit:contain; } .hfig .chip { position:absolute; left:6px; top:6px; margin:0; font-size:10px; padding:0 5px; } .hfig .chip.r { left:auto; right:6px; background:var(--ink); color:var(--bg); }
   .hfig b, .hfig .note { max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .hfig b { font-size:12px; } .hfig .note { font-size:10px; }
   @media (max-width:520px) { .hfig { grid-template-columns:repeat(3,minmax(0,1fr)); } .hlg { grid-template-columns:1fr; } }
   .hpl { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:8px; margin-top:6px; cursor:pointer; }   /* the deck's plates in full: rarity, cost, name, text */
